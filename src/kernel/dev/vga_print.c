@@ -54,6 +54,8 @@ void print_char(char character) {
         if (character == '\n') {
                 print_newline();
                 return;
+        } else if (character == '\r') {
+                col = 0;
         } else if (col > NUM_COLS) {
                 print_newline();
         }
