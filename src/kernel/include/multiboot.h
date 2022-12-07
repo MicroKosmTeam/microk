@@ -1,0 +1,20 @@
+#pragma once
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+struct kernel_boot_data_st {
+        int multiboot_version;
+        char *bootloader;
+        char *commandline;
+        size_t mmap_size;
+        unsigned int mmap_len;
+        void *mmap;
+};
+
+#define MMAP_FREE 1
+
+extern struct kernel_boot_data_st kernel_boot_data;
+
+int multiboot_init(uint64_t magic, void *mboot_info);
+int multiboot_get_memory_area(size_t count, uintptr_t *start, uintptr_t *end, uint32_t *type);
+int multiboot_page_used(uintptr_t start);
