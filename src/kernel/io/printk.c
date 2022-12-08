@@ -1,5 +1,54 @@
 #include <printk.h>
 
+void printk_init() {
+#ifdef KCONSOLE_SERIAL
+        // Do shit
+#endif
+#ifdef KCONSOLE_VGA
+        vga_print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+        vga_print_clear();
+#endif
+#ifdef KCONSOLE_VBE
+        vbe_print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+        vbe_print_clear();
+#endif
+#ifdef KCONSOLE_GOP
+        gop_print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+        gopprint_clear();
+#endif
+}
+
+static void print_all(char *string) {
+#ifdef KCONSOLE_SERIAL
+        serial_print_str(string);
+#endif
+#ifdef KCONSOLE_VGA
+        vga_print_str(string);
+#endif
+#ifdef KCONSOLE_VBE
+        vbe_print_str(string);
+#endif
+#ifdef KCONSOLE_GOP
+        gop_print_str(string);
+#endif
+}
+
+static void print_all_char(char ch) {
+#ifdef KCONSOLE_SERIAL
+        serial_print_char(ch);
+#endif
+#ifdef KCONSOLE_VGA
+        vga_print_char(ch);
+#endif
+#ifdef KCONSOLE_VBE
+        vbe_print_char(ch);
+#endif
+#ifdef KCONSOLE_GOP
+        gop_print_char(ch);
+#endif
+}
+
+
 void printk(char *format, ...) {
         va_list ap;
         va_start(ap, format);
@@ -12,29 +61,24 @@ void printk(char *format, ...) {
                         ptr++;
                         switch (*ptr++) {
                                 case 's':
-                                        print_str(va_arg(ap, char *));
+                                        print_all(va_arg(ap, char *));
                                         break;
                                 case 'd':
                                 case 'u':
                                         itoa(buf, 'd', va_arg(ap, long long int));
-                                        print_str(buf);
+                                        print_all(buf);
                                         break;
                                 case 'x':
                                         itoa(buf, 'x', va_arg(ap, long long int));
-                                        print_str(buf);
+                                        print_all(buf);
                                         break;
 
 
                         }
                 } else {
-                        print_char(*ptr++);
+                        print_all_char(*ptr++);
                 }
         }
 
         va_end(ap);
-}
-
-void printk_init() {
-        print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
-        print_clear();
 }
