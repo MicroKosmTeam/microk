@@ -22,7 +22,7 @@ enum {
 	PRINT_COLOR_WHITE = 15,
 };
 
-void print_clear();
-void print_char(char character);
-void print_str(char* string);
-void print_set_color(uint8_t foreground, uint8_t background);
+void vga_print_clear();
+void vga_print_char(char character);
+void vga_print_str(char* string);
+void vga_print_set_color(uint8_t foreground, uint8_t background);

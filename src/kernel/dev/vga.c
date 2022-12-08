@@ -1,4 +1,4 @@
-#include "vga_print.h"
+#include <vga.h>
 
 const static size_t NUM_COLS = 80;
 const static size_t NUM_ROWS = 25;
@@ -13,7 +13,7 @@ size_t col = 0;
 size_t row = 0;
 uint8_t color = PRINT_COLOR_WHITE | PRINT_COLOR_BLACK << 4;
 
-void clear_row(size_t row) {
+static void clear_row(size_t row) {
         struct Char empty = (struct Char) {
                 character: ' ',
                 color: color,
@@ -24,7 +24,7 @@ void clear_row(size_t row) {
         }
 }
 
-void print_clear() {
+void vga_print_clear() {
         col = 0;
         row = 0;
         for (size_t i = 0; i < NUM_ROWS; i++) {
@@ -32,7 +32,7 @@ void print_clear() {
         }
 }
 
-void print_newline() {
+static void print_newline() {
         col = 0;
 
         if (row < NUM_ROWS - 1) {
@@ -50,7 +50,7 @@ void print_newline() {
         }
 }
 
-void print_char(char character) {
+void vga_print_char(char character) {
         if (character == '\n') {
                 print_newline();
                 return;
@@ -68,7 +68,7 @@ void print_char(char character) {
         col++;
 }
 
-void print_str(char* str) {
+void vga_print_str(char* str) {
         for (size_t i = 0; 1; i++) {
                 char character = (uint8_t) str[i];
 
@@ -76,10 +76,10 @@ void print_str(char* str) {
                         return;
                 }
 
-                print_char(character);
+                vga_print_char(character);
         }
 }
 
-void print_set_color(uint8_t foreground, uint8_t background) {
+void vga_print_set_color(uint8_t foreground, uint8_t background) {
         color = foreground + (background << 4);
 }
