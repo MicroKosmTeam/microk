@@ -1,4 +1,4 @@
-#include <panik.h>
+#include <sys/panik.h>
 
 void panik(const char *message, const char *file, const char *function, unsigned int line) {
         asm volatile ("cli");

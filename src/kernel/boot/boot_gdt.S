@@ -1,5 +1,5 @@
-#include <gdt.h>
-#include <memory.h>
+#include <mm/gdt.h>
+#include <mm/memory.h>
 .intel_syntax noprefix
 
 .section .rodata

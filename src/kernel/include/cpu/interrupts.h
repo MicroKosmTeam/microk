@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <panik.h>
+#include <sys/panik.h>
 #include <stdio.h>
 
 typedef struct {

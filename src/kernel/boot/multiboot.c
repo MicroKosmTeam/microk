@@ -1,12 +1,10 @@
 #include <multiboot.h>
-#include <memory.h>
-#include <cdefs.h>
-#include <string.h>
-#include <printk.h>
+#include <mm/memory.h>
+#include <stdio.h>
 
 #define MBOOT_REPLY 0x36D76289
 
-struct taglist {
+struct taglist{
         uint32_t total_size;
         uint32_t reserved;
 }__attribute__((packed));
@@ -39,7 +37,7 @@ struct kernel_boot_data_st kernel_boot_data;
 int parse_multiboot2(struct taglist *tags) {
         struct tag *tag = incptr(tags, sizeof(struct taglist));
         struct mmap *mmap;
-        
+
         while(tag->type) {
                 switch(tag->type) {
                         case MBOOT2_BOOTLOADER:
@@ -54,9 +52,9 @@ int parse_multiboot2(struct taglist *tags) {
                                 kernel_boot_data.mmap_size = (tag->size - 8);
                                 break;
                         default:
-                                break;
+                                printk("Unknown multiboot tag type:%d \n", tag->type);
                 }
-        
+                
                 int padded_size = tag->size + ((tag->size % 8)?(8-(tag->size%8)):0);
                 tag = incptr(tag, padded_size);
         }
@@ -89,6 +87,7 @@ int multiboot_get_memory_area(size_t count, uintptr_t *start, uintptr_t *end, ui
 
 int multiboot_page_used(uintptr_t start) {
         #define overlap(st, len) ((uintptr_t)st < (start + PAGE_SIZE) && start <= ((uintptr_t)st + len))
+
         if(overlap(kernel_boot_data.bootloader, strlen(kernel_boot_data.bootloader)) ||
            overlap(kernel_boot_data.commandline, strlen(kernel_boot_data.commandline)) ||
            overlap(kernel_boot_data.mmap, kernel_boot_data.mmap_size) || 0)

@@ -1,7 +1,7 @@
 #pragma once
-#include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
+#include <stddef.h>
+
 struct kernel_boot_data_st {
         int multiboot_version;
         char *bootloader;
@@ -11,7 +11,7 @@ struct kernel_boot_data_st {
         void *mmap;
 };
 
-#define MMAP_FREE 1
+#define MBOOT_MMAP_FREE 1
 
 extern struct kernel_boot_data_st kernel_boot_data;
 

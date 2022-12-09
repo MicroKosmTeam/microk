@@ -1,10 +1,11 @@
-#include <memory.h>
+#include <mm/memory.h>
 .intel_syntax noprefix
 
 .section .bss
 .align PAGE_SIZE
 .skip PAGE_SIZE
-BootStack:
+//;BootStack:
+.lcomm BootStack, 4096 * 16
 
 .section .text
 

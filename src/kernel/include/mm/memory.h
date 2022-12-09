@@ -18,6 +18,9 @@
 
 #define PAGE_PRESENT      0x001
 #define PAGE_WRITE        0x002
+#define PAGE_USER         0x004
+#define PAGE_HUGE         0x080
+#define PAGE_GLOBAL       0x100
 
 #define PAGE_SIZE       0x1000
 #define ENTRIES_PER_PT  512
@@ -26,6 +29,12 @@
 #include <stddef.h>
 
 extern uint64_t kernel_P4;
+
+void *memcpy(void *dst, const void *src, size_t n);
+void *memset(void *s, int c, size_t n);
+void *memmove(void *dest, const void *src, size_t n);
+int memcmp(const void *s1, const void *s2, size_t n);
+size_t strlen(const char *s);
 
 void pmm_free(uint64_t page);
 uint64_t pmm_alloc();
@@ -36,11 +45,9 @@ uint64_t vmm_get_page(uint64_t P4, uint64_t addr);
 #define PAGE_EXIST(p) ((p) != (uint64_t)-1)
 int vmm_set_page(uint64_t P4, uint64_t addr, uint64_t page, uint16_t flags);
 void vmm_clear_page(uint64_t P4, uint64_t addr, int free);
-size_t memcpy_to_p4(uint64_t P4, void *dst, void *src, size_t n);
-size_t memcpy_from_p4(void *dst, uint64_t P4, void *src, size_t n);
 
 extern union PTE BootP4;
-extern uint64_t kernel_start, kernel_end;
+extern int kernel_start, kernel_end;
 
 void memory_init();
 #endif

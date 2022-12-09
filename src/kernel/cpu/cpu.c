@@ -1,5 +1,5 @@
-#include <cpu.h>
-#include <interrupts.h>
+#include <cpu/cpu.h>
+#include <cpu/interrupts.h>
 #include <stdio.h>
 
 void cpu_init() {

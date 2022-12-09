@@ -2,16 +2,16 @@
 #include <cdefs.h>
 
 #ifdef KCONSOLE_SERIAL
-#include <serial.h>
+#include <dev/serial/serial.h>
 #endif
 #ifdef KCONSOLE_VGA
-#include <vga.h>
+#include <dev/vga/vga.h>
 #endif
 #ifdef KCONSOLE_VBE
-#include <vbe.h>
+#include <dev/vbe/vbe.h>
 #endif
 #ifdef KCONSOLE_GOP
-#include <gop.h>
+#include <dev/gop/gop.h>
 #endif
 #include <stdarg.h>
 #include <string.h>

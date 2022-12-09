@@ -1,8 +1,10 @@
-#include <printk.h>
+#include <sys/printk.h>
 
 void printk_init() {
 #ifdef KCONSOLE_SERIAL
-        // Do shit
+        if(serial_init(COM1) != 0) {
+                return;
+        }
 #endif
 #ifdef KCONSOLE_VGA
         vga_print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
