@@ -1,8 +1,10 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 struct kernel_boot_data_st {
+        bool is_efi;
         int multiboot_version;
         char *bootloader;
         char *commandline;
