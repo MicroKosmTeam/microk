@@ -11,8 +11,19 @@ $(kernel_asm_object_files): build/kernel/%.o : src/kernel/%.S
 	mkdir -p $(dir $@) && \
 	x86_64-elf-gcc -mcmodel=large -c -I src/kernel/include -ffreestanding $(patsubst build/kernel/%.o, src/kernel/%.S, $@) -o $@
 
-run:
+run-bios:
 	qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso -m 6G -accel kvm
+
+run-efi:
+	qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso -m 6G -accel kvm -bios /usr/share/OVMF/x64/OVMF.fd
+
+run-serial-bios:
+	qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso -m 6G -accel kvm -nographic && tput reset
+
+run-serial-efi:
+	qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso -m 6G -accel kvm -nographic -bios /usr/share/OVMF/x64/OVMF.fd && tput reset
+
+
 
 clean:
 	rm -rf build
