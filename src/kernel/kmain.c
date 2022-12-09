@@ -30,6 +30,7 @@
 #include <mm/memory.h>
 #include <cpu/cpu.h>
 #include <dev/apic/apic.h>
+#include <dev/acpi/acpi.h>
 
 void kmain(uint64_t multiboot_magic, void *multiboot_data) {
         printk_init();
@@ -45,16 +46,16 @@ void kmain(uint64_t multiboot_magic, void *multiboot_data) {
         printk("Kernel was loaded with command line \"%s\", by <%s>\n", kernel_boot_data.commandline, kernel_boot_data.bootloader);
         memory_init();
         cpu_init();
+        acpi_init();
         apic_init();
 
+        printk("Boot process complete!\n");
 
-        uint64_t *test = P2V(pmm_calloc());
-        test[4096] = 1;
-        printk("%d\n", test[4096]);
+        // This fails in EFI, because we haven't mapped the EFI structures.
+        uint64_t *test;
+        test = P2V(pmm_calloc());
 
-        while (true) {
-                asm("hlt");
-        }
+        asm("hlt");
 
         PANIK("End of main");
 }
