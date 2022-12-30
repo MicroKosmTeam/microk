@@ -5,15 +5,21 @@
 
 struct kernel_boot_data_st {
         bool is_efi;
+
         int multiboot_version;
         char *bootloader;
         char *commandline;
+
+        void *mmap;
         size_t mmap_size;
         unsigned int mmap_len;
-        void *mmap;
 };
 
 #define MBOOT_MMAP_FREE 1
+#define MBOOT_MMAP_USED 2
+#define MBOOT_MMAP_ACPI 3
+#define MBOOT_MMAP_NVS  4
+#define MBOOT_MMAP_BAD  5
 
 extern struct kernel_boot_data_st kernel_boot_data;
 
