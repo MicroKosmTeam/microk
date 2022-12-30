@@ -9,6 +9,8 @@
 BootGDT:
         .long 0, 0
         .long 0, (GDT_PRESENT | GDT_DPL(0) | GDT_CODE | GDT_LONG)
+        .long 0, (GDT_PRESENT | GDT_DPL(3) | GDT_CODE | GDT_LONG)
+        .long 0, (GDT_PRESENT | GDT_DPL(3) | GDT_DATA)
 BootGDTp:
         .short 2*8-1
         .quad offset BootGDT
