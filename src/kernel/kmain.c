@@ -40,20 +40,25 @@ void kmain(uint64_t multiboot_magic, void *multiboot_data) {
                "|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
 
 
-        printk("%s version %s, build %s %s. Kernel Size %dkb.\n", KNAME, KVER, __DATE__, __TIME__, (V2P(&kernel_end) - V2P(&kernel_start)) / 1024);
+        printk("%s version %s, build %s %s.\nKernel At 0x%x - 0x%x. Size %dkb.\n", KNAME, KVER, __DATE__, __TIME__, V2P(&kernel_start), V2P(&kernel_end), (V2P(&kernel_end) - V2P(&kernel_start)) / 1024);
         printk("Starting system NOW.\n");
         multiboot_init(multiboot_magic, P2V(multiboot_data));
         printk("Kernel was loaded with command line \"%s\", by <%s>\n", kernel_boot_data.commandline, kernel_boot_data.bootloader);
-        memory_init();
         cpu_init();
+        memory_init();
         acpi_init();
         apic_init();
 
         printk("Boot process complete!\n");
 
-        // This fails in EFI, because we haven't mapped the EFI structures.
-        uint64_t *test;
-        test = P2V(pmm_calloc());
+        uint64_t *test_a;
+        uint64_t *test_b;
+        test_a = P2V(pmm_calloc());
+        printk("Variable A is at: 0x%x\n", V2P(&test_a));
+        test_a[0] = 69;
+        pmm_free(V2P(&test_a));
+
+        printk("Done allocating...\n");
 
         asm("hlt");
 
