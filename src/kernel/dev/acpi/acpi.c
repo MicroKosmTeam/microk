@@ -1,6 +1,8 @@
 #include <dev/acpi/acpi.h>
 #include <mm/memory.h>
+#include <multiboot.h>
 #include <stdio.h>
+#include <sys/panik.h>
 
 #define packed __attribute__((packed))
 
@@ -80,15 +82,19 @@ static void *scan_rsdp(uint64_t start, uint64_t end) {
 }
 
 static struct rsdp *find_rsdp() {
-        // Scan the Extended BIOS Data Area
-        uint16_t *ebda_ptr = P2V(0x40e);
-        uint64_t ebda = *ebda_ptr << 4;
-        void *p = scan_rsdp(ebda, ebda+1024);
-        if(p) return p;
+        if (kernel_boot_data.is_efi) {
+                return 0;
+        } else {
+                // Scan the Extended BIOS Data Area
+                uint16_t *ebda_ptr = P2V(0x40e);
+                uint64_t ebda = *ebda_ptr << 4;
+                void *p = scan_rsdp(ebda, ebda+1024);
+                if(p) return p;
 
-        // Scan 0xE0000 - 0xFFFFF
-        p = scan_rsdp(0xE0000, 0xFFFFF);
-        if(p) return p;
+                // Scan 0xE0000 - 0xFFFFF
+                p = scan_rsdp(0xE0000, 0xFFFFF);
+                if(p) return p;
+        }
 
         return 0;
 }
@@ -96,7 +102,7 @@ static struct rsdp *find_rsdp() {
 static void parse_madt(struct madt *madt, uint32_t len) {
         uintptr_t end = (uintptr_t)madt + len;
         struct madt_entry *e = (void *)madt->data;
-        //printk("Local Interrupt Controller: %x\n", madt->lic_address);
+        printk("Local Interrupt Controller: %x\n", madt->lic_address);
         
         while((uintptr_t)e < end) {
                 int i;
@@ -123,7 +129,7 @@ static void parse_madt(struct madt *madt, uint32_t len) {
                                 break;
                         }
                 
-                //printk(" MADT: type:%d len:%d\n", e->type, e->len);
+                printk(" MADT: type:%d len:%d\n", e->type, e->len);
                 e = incptr(e, e->len);
         }
 }
@@ -135,9 +141,9 @@ static void parse_sdt(struct sdt *sdt, uint8_t revision) {
         for(int i = 0; i < entries; i++) {
                 struct sdt *table = P2V(revision ? p64[i] : p32[i]);
 
-                //printk("Found table: ");
-                //printk((char *)table->signature, 4);
-                //printk("\n");
+                printk("Found table: ");
+                printk((char *)table->signature, 4);
+                printk("\n");
 
                 if(!memcmp(table->signature, MADT_SIGNATURE, 4))
                         parse_madt((void *)table->data, table->len);
@@ -146,6 +152,10 @@ static void parse_sdt(struct sdt *sdt, uint8_t revision) {
 
 void acpi_init() {
         struct rsdp *rsdp = find_rsdp();
+        if (rsdp == 0) {
+                PANIK("Could not find the RSDP.");
+                return;
+        }
         struct sdt *s = P2V(rsdp->revision ? rsdp->xsdt : rsdp->rsdt);
         parse_sdt(s, rsdp->revision);
 }
