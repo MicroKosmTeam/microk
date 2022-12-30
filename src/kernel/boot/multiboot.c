@@ -126,6 +126,11 @@ struct network {
         uint8_t dhcpack[0];
 }__attribute__((packed));
 
+struct efi_bs {
+        uint32_t type;
+        uint32_t size;
+}__attribute__((packed));
+
 struct efi_mmap {
         uint32_t type;
         uint32_t size;
@@ -140,19 +145,27 @@ struct efi64_ih {
         uint64_t pointer;
 }__attribute__((packed));
 
-#define MBOOT2_COMMANDLINE 1
-#define MBOOT2_BOOTLOADER 2
-#define MBOOT2_MODULE 3
-#define MBOOT2_MMAP 6
-#define MBOOT2_VBE 7
-#define MBOOT2_FB 8
-#define MBOOT2_EFI64 12
-#define MBOOT2_SMBIOS 13
-#define MBOOT2_ACPI 15
-#define MBOOT2_NETWORK 16
-#define MBOOT2_EFI_MMAP 17
-#define MBOOT2_EFI_BS 18
-#define MBOOT2_EFI_64_IH 20
+#define MBOOT2_COMMANDLINE      1
+#define MBOOT2_BOOTLOADER       2
+#define MBOOT2_MODULE           3
+#define MBOOT2_BASIC_MEM        4
+#define MBOOT2_BOOTDEV          5
+#define MBOOT2_MMAP             6
+#define MBOOT2_VBE              7
+#define MBOOT2_FB               8
+#define MBOOT2_ELF_SEC          9
+#define MBOOT2_APM              10
+#define MBOOT2_EFI32            11
+#define MBOOT2_EFI64            12
+#define MBOOT2_SMBIOS           13
+#define MBOOT2_ACPI_OLD         14
+#define MBOOT2_ACPI             15
+#define MBOOT2_NETWORK          16
+#define MBOOT2_EFI_MMAP         17
+#define MBOOT2_EFI_BS           18
+#define MBOOT2_EFI_32_IH        19
+#define MBOOT2_EFI_64_IH        20
+#define MBOOT2_EFI_BADDR        21
 
 struct kernel_boot_data_st kernel_boot_data;
 
@@ -175,11 +188,9 @@ int parse_multiboot2(struct taglist *tags) {
                                 printk("Module found: 0x%x-0x%x -> %s\n", mod->mod_start, mod->mod_end, mod->cmdline);
                                 break;
                         case MBOOT2_MMAP:
-                                if (!kernel_boot_data.is_efi) {
-                                        mmap = kernel_boot_data.mmap = (void *)tag->data;
-                                        kernel_boot_data.mmap_len = (tag->size - 8)/mmap->entry_size;
-                                        kernel_boot_data.mmap_size = (tag->size - 8);
-                                }
+                                mmap = kernel_boot_data.mmap = (void *)tag->data;
+                                kernel_boot_data.mmap_len = (tag->size - 8)/mmap->entry_size;
+                                kernel_boot_data.mmap_size = (tag->size - 8);
                                 break;
                         case MBOOT2_VBE:
                                 break;
@@ -250,7 +261,10 @@ int parse_multiboot2(struct taglist *tags) {
                                 }
                                 break;
                         case MBOOT2_EFI64:
+                                printk("We are in EFI.\n");
                                 kernel_boot_data.is_efi = true;
+                                break;
+                        case MBOOT2_EFI_BS:
                                 break;
                         case MBOOT2_SMBIOS:
                                 break;
