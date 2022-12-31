@@ -32,18 +32,21 @@
 #include <dev/apic/apic.h>
 #include <dev/acpi/acpi.h>
 
-void kmain(uint64_t multiboot_magic, void *multiboot_data) {
-        printk_init();
+void kmain();
+
+typedef void BootInfo;
+
+#include <dev/serial/serial.h>
+
+void kmain() {
         printk(" __  __  _                _  __    ___   ___\n"
                "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
                "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
                "|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
 
-
         printk("%s version %s, build %s %s.\nKernel At 0x%x - 0x%x. Size %dkb.\n", KNAME, KVER, __DATE__, __TIME__, V2P(&kernel_start), V2P(&kernel_end), (V2P(&kernel_end) - V2P(&kernel_start)) / 1024);
         printk("Starting system NOW.\n");
-        multiboot_init(multiboot_magic, P2V(multiboot_data));
-        printk("Kernel was loaded with command line \"%s\", by <%s>\n", kernel_boot_data.commandline, kernel_boot_data.bootloader);
+
         cpu_init();
         memory_init();
         acpi_init();
@@ -65,3 +68,26 @@ void kmain(uint64_t multiboot_magic, void *multiboot_data) {
         PANIK("End of main");
 }
 
+void efi_main(BootInfo* BootInfo) {
+        serial_init(COM1);
+        serial_print_str("Halleluyah! We are alive!\n\r");
+
+        serial_print_str(" __  __  _                _  __    ___   ___\n\r");
+        serial_print_str("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n\r");
+        serial_print_str("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n\r");
+        serial_print_str("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n\r");
+
+        while(true){
+                asm ("hlt");
+        }
+
+        kmain();
+}
+
+void multiboot_main(uint64_t multiboot_magic, void *multiboot_data) {
+        printk_init();
+        multiboot_init(multiboot_magic, P2V(multiboot_data));
+        printk("Kernel was loaded with command line \"%s\", by <%s>\n", kernel_boot_data.commandline, kernel_boot_data.bootloader);
+
+        kmain(); // KMAIN
+}
