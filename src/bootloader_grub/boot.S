@@ -10,8 +10,8 @@
 .section .text
 
 .code32
-.global _start
-_start:
+.global grub_start 
+grub_start:
         cli
         
         //; Multiboot data
@@ -91,8 +91,8 @@ upper_memory:
 .reload_cs:
          //; Jump to kmain()
 
-.extern kmain
-        movabs rax, offset kmain
+.extern multiboot_main
+        movabs rax, offset multiboot_main
         call rax
         
         hlt
