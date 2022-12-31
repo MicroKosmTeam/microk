@@ -28,6 +28,8 @@
 #ifndef __ASSEMBLER__
 #include <stddef.h>
 
+#include <cdefs.h>
+
 extern uint64_t kernel_P4;
 
 void *memcpy(void *dst, const void *src, size_t n);
@@ -46,8 +48,10 @@ uint64_t vmm_get_page(uint64_t P4, uint64_t addr);
 int vmm_set_page(uint64_t P4, uint64_t addr, uint64_t page, uint16_t flags);
 void vmm_clear_page(uint64_t P4, uint64_t addr, int free);
 
-extern union PTE BootP4;
-extern int kernel_start, kernel_end;
+extern void *BootP4; //TMP fix
+//extern union PTE BootP4;
+
+extern uint64_t kernel_start, kernel_end;
 
 void memory_init();
 #endif

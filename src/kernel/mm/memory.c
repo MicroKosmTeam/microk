@@ -2,6 +2,7 @@
 #include <multiboot.h>
 #include <stdio.h>
 
+void *BootP4; //TMP fix, do not use
 uint64_t kernel_P4;
 
 void memory_init() {
