@@ -1,4 +1,10 @@
 /dist
 /build
+*.img
+*.iso
+*.efi
+*.elf
+*.o
+*.so
 *.bin
 *.sh
