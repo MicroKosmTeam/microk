@@ -5,25 +5,27 @@ kernel_asm_source_files := $(shell find src/kernel -name *.S)
 kernel_c_object_files := $(patsubst src/kernel/%.c, build/kernel/%.o, $(kernel_c_source_files))
 kernel_asm_object_files := $(patsubst src/kernel/%.S, build/kernel/%.o, $(kernel_asm_source_files))
 
+CFLAGS = -mcmodel=large -c -I src/kernel/include -ffreestanding -mno-red-zone -fno-exceptions
+
 $(bootloader_grub_object_files): build/bootloader_grub/%.o : src/bootloader_grub/%.S
 	@ echo Making bootloader object file $@...
 	mkdir -p $(dir $@) && \
-	x86_64-elf-gcc -mcmodel=large -c -I src/kernel/include -ffreestanding $(patsubst build/bootloader_grub/%.o, src/bootloader_grub/%.S, $@) -o $@
-
+	x86_64-elf-gcc $(CFLAGS) $(patsubst build/bootloader_grub/%.o, src/bootloader_grub/%.S, $@) -o $@
 
 bootloader_efi:
-	make -C src/bootloader_efi USE_GCC=1
-	mv src/bootloader_efi/loader.efi dist/x86_64-efi/loader.efi
+	make -C src/gnu-efi
+	make -C src/gnu-efi bootloader
+	mv src/gnu-efi/x86_64/bootloader/main.efi dist/x86_64-efi/loader.efi
 
 $(kernel_c_object_files): build/kernel/%.o : src/kernel/%.c
 	@ echo Making kernel object file $@...
 	mkdir -p $(dir $@) && \
-	x86_64-elf-gcc -mcmodel=large -c -I src/kernel/include -ffreestanding $(patsubst build/kernel/%.o, src/kernel/%.c, $@) -o $@
+	x86_64-elf-gcc $(CFLAGS) $(patsubst build/kernel/%.o, src/kernel/%.c, $@) -o $@
 
 $(kernel_asm_object_files): build/kernel/%.o : src/kernel/%.S
 	@ echo Making kernel object file $@...
 	mkdir -p $(dir $@) && \
-	x86_64-elf-gcc -mcmodel=large -c -I src/kernel/include -ffreestanding $(patsubst build/kernel/%.o, src/kernel/%.S, $@) -o $@
+	x86_64-elf-gcc $(CFLAGS) $(patsubst build/kernel/%.o, src/kernel/%.S, $@) -o $@
 
 run-bios:
 	qemu-system-x86_64 -cdrom dist/x86_64-grub/kernel.iso -m 8G -accel kvm
@@ -49,7 +51,7 @@ build-x86_64-efi: bootloader_efi $(kernel_c_object_files) $(kernel_asm_object_fi
 	cp dist/x86_64-efi/kernel.bin targets/x86_64-efi/img/kernel.elf && \
 	cp dist/x86_64-efi/loader.efi targets/x86_64-efi/img/bootx64.efi && \
 	dd if=/dev/zero of=targets/x86_64-efi/microk.img bs=512 count=93750 && \
-	mkfs.fat -F 32 targets/x86_64-efi/microk.img && \
+	mformat -i targets/x86_64-efi/microk.img && \
 	mmd -i targets/x86_64-efi/microk.img ::/EFI && \
 	mmd -i targets/x86_64-efi/microk.img ::/EFI/BOOT && \
 	mcopy -i targets/x86_64-efi/microk.img targets/x86_64-efi/img/bootx64.efi ::/EFI/BOOT && \
