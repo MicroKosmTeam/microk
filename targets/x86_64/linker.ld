@@ -11,7 +11,8 @@ SECTIONS
 
         .text : AT(ADDR(.text) - KERNEL_OFFSET)
         {
-                *(.multiboot)
+                *(.multiboot1)
+                *(.multiboot2)
                 *(.text)
         }
 
