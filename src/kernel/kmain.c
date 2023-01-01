@@ -1,29 +1,4 @@
-/*
- *  __  __  _                _  __        ___   ___ 
- * |  \/  |(_) __  _ _  ___ | |/ /       / _ \ / __|
- * | |\/| || |/ _|| '_|/ _ \|   <       | (_) |\__ \
- * |_|  |_||_|\__||_|  \___/|_|\_\       \___/ |___/
- *
- * MicroKernel, a simple futiristic Unix-based kernel
- * Copyright (C) 2022-2022 Mutta Filippo
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- */
-
 #include <stdio.h>
-#include <stddef.h>
 #include <multiboot.h>
 #include <cpuid.h>
 #include <sys/panik.h>
@@ -31,14 +6,15 @@
 #include <cpu/cpu.h>
 #include <dev/apic/apic.h>
 #include <dev/acpi/acpi.h>
-
-void kmain();
-
-typedef void BootInfo;
-
 #include <dev/serial/serial.h>
 
+#include "kmain.h"
+
 void kmain() {
+        serial_print_str("In kmain.\n\r");
+        while(true){
+                asm ("hlt");
+        }
         printk(" __  __  _                _  __    ___   ___\n"
                "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
                "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
@@ -68,19 +44,16 @@ void kmain() {
         PANIK("End of main");
 }
 
-void efi_main(BootInfo* BootInfo) {
+void efi_main(BootInfo* boot_info) {
         serial_init(COM1);
-        serial_print_str("Halleluyah! We are alive!\n\r");
+        serial_print_str("Serial loaded.\n\r");
 
-        serial_print_str(" __  __  _                _  __    ___   ___\n\r");
-        serial_print_str("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n\r");
-        serial_print_str("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n\r");
-        serial_print_str("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n\r");
+        gop_init(boot_info->framebuffer, boot_info->psf1_Font);
+        gop_print_str("Hello, world!");
 
-        while(true){
-                asm ("hlt");
-        }
+        asm("sti");
 
+        serial_print_str("Serial jumping to kmain.\n\r");
         kmain();
 }
 
