@@ -12,7 +12,7 @@ void panik(const char *message, const char *file, const char *function, unsigned
         vbe_print_set_color(PRINT_COLOR_RED, PRINT_COLOR_WHITE);
 #endif
 #ifdef KCONSOLE_GOP
-        gop_print_set_color(PRINT_COLOR_RED, PRINT_COLOR_WHITE);
+        //gop_print_set_color(PRINT_COLOR_RED, PRINT_COLOR_WHITE);
 #endif
         // Printing the panic message
         printk("\n\n!! PANIK!! \n");
