@@ -14,6 +14,6 @@
 #define KMAX_CPUS 16
 #define KMAX_IOAPIC 8
 #define KCONSOLE_SERIAL
-#define KCONSOLE_VGA
+#undef  KCONSOLE_VGA
 #undef  KCONSOLE_VBE
-#undef  KCONSOLE_GOP
+#define  KCONSOLE_GOP
