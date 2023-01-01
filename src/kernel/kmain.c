@@ -11,10 +11,6 @@
 #include "kmain.h"
 
 void kmain() {
-        serial_print_str("In kmain.\n\r");
-        while(true){
-                asm ("hlt");
-        }
         printk(" __  __  _                _  __    ___   ___\n"
                "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
                "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
@@ -23,7 +19,14 @@ void kmain() {
         printk("%s version %s, build %s %s.\nKernel At 0x%x - 0x%x. Size %dkb.\n", KNAME, KVER, __DATE__, __TIME__, V2P(&kernel_start), V2P(&kernel_end), (V2P(&kernel_end) - V2P(&kernel_start)) / 1024);
         printk("Starting system NOW.\n");
 
+        printk("Line lenght test: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaare we done yet?\n");
+
+        while(true){
+                asm ("hlt");
+        }
+
         cpu_init();
+
         memory_init();
         acpi_init();
         apic_init();
@@ -49,11 +52,12 @@ void efi_main(BootInfo* boot_info) {
         serial_print_str("Serial loaded.\n\r");
 
         gop_init(boot_info->framebuffer, boot_info->psf1_Font);
-        gop_print_str("Hello, world!");
+        gop_print_clear();
+        gop_print_str("Gop Loaded\n");
 
         asm("sti");
 
-        serial_print_str("Serial jumping to kmain.\n\r");
+        serial_print_str("Jumping to kmain.\n\r");
         kmain();
 }
 
