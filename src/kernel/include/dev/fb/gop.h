@@ -1,15 +1,24 @@
 #pragma once
+#include <stdint.h>
+#include <stddef.h>
 #include <sys/math.h>
 #include <dev/fb/fb.h>
 #include <dev/fb/fonts.h>
 
+
 class GOP{
 public:
-        GOP(Framebuffer* targetFramebuffer, PSF1_FONT* psf1_Font);
-        Point CursorPosition;
-        Framebuffer* TargetFramebuffer;
-        PSF1_FONT* PSF1_Font;
-        unsigned int Colour;
-        void Print(const char* str);
-        void PutChar(char chr, unsigned int xOff, unsigned int yOff);
+        GOP();
+        GOP(Framebuffer *new_target_framebuffer, PSF1_FONT *new_psf1_font);
+        void print_clear();
+        void print_char(const char character);
+        void print_str(const char* string);
+        void print_set_color(const unsigned int foreground, const unsigned int background);
+
+private:
+        Point cursor_position;
+        Framebuffer *target_framebuffer;
+        PSF1_FONT *psf1_font;
+        unsigned int back_color;
+        unsigned int front_color;
 };

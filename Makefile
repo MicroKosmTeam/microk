@@ -46,7 +46,7 @@ setup:
 clean:
 	@rm -rf $(OBJDIR)
 
-buildimg:
+buildimg: kernel
 	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=93750
 	mformat -i $(BINDIR)/$(OSNAME).img ::
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
@@ -56,5 +56,5 @@ buildimg:
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/kernel.elf ::
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
 
-run:
+run: buildimg
 	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
