@@ -27,6 +27,7 @@ typedef struct {
 } PSF1_FONT;
 
 
+
 Framebuffer framebuffer;
 Framebuffer* InitializeGOP(){
 	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
@@ -73,6 +74,7 @@ EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EF
 	return LoadedFile;
 
 }
+
 PSF1_FONT* LoadPSF1Font(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
 {
 	EFI_FILE* font = LoadFile(Directory, Path, ImageHandle, SystemTable);
@@ -126,10 +128,7 @@ typedef struct {
 
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
-        Print(L" __  __  _                _  __       ___            _   \n\r");
-        Print(L"|  \\/  |(_) __  _ _  ___ | |/ /      | _ ) ___  ___ | |_ \n\r");
-        Print(L"| |\\/| || |/ _|| '_|/ _ \\|   <       | _ \\/ _ \\/ _ \\|  _|\n\r");
-        Print(L"|_|  |_||_|\\__||_|  \\___/|_|\\_\\      |___/\\___/\\___/ \\__|\n\r");
+	Print(L"String blah blah blah \n\r");
 
 	EFI_FILE* Kernel = LoadFile(NULL, L"kernel.elf", ImageHandle, SystemTable);
 	if (Kernel == NULL){
@@ -196,7 +195,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		}
 	}
 
-	Print(L"ELF Kernel Loaded\n\r");
+	Print(L"Kernel Loaded\n\r");
 	
 
 	PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
@@ -229,8 +228,6 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		SystemTable->BootServices->GetMemoryMap(&MapSize, Map, &MapKey, &DescriptorSize, &DescriptorVersion);
 
 	}
-
-        Print(L"Starting kernel...\n\r");
 
 	void (*KernelStart)(BootInfo*) = ((__attribute__((sysv_abi)) void (*)(BootInfo*) ) header.e_entry);
 

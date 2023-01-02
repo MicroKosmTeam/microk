@@ -1,5 +1,5 @@
-/dist
-/build
+/obj
+/bin
 *.img
 *.iso
 *.efi

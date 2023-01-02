@@ -1,12 +1,12 @@
 #pragma once
 #include <stdint.h>
 
-typedef struct {
+struct EFI_MEMORY_DESCRIPTOR {
     uint32_t type;
     void* physAddr;
     void* virtAddr; 
     uint64_t numPages;
     uint64_t attribs;
-} EFI_MEMORY_DESCRIPTOR;
+};
 
-extern const char *EFI_MEMORY_TYPE_STRINGS[];
+extern const char* EFI_MEMORY_TYPE_STRINGS[];
