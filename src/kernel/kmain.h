@@ -33,9 +33,9 @@ typedef struct {
 	void* mMap;
 	uint64_t mMapSize;
 	uint64_t mMapDescSize;
-	void* rsdp;
+	//void* rsdp;
 } BootInfo;
 
 void kmain();
 void efi_main(BootInfo* boot_info);
-void multiboot_main(uint64_t multiboot_magic, void *multiboot_data);
+//void multiboot_main(uint64_t multiboot_magic, void *multiboot_data);

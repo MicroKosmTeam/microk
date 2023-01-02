@@ -15,7 +15,7 @@ void printk_init() {
         vbe_print_clear();
 #endif
 #ifdef KCONSOLE_GOP
-        //gop_print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+        gop_print_set_color(0xffffffff, 0x00000000);
         gop_print_clear();
 #endif
 }

@@ -28,4 +28,4 @@ void gop_init(Framebuffer* framebuffer, PSF1_FONT* psf1_font);
 void gop_print_clear();
 void gop_print_char(char character);
 void gop_print_str(char* string);
-void gop_print_set_color(uint8_t foreground, uint8_t background);
+void gop_print_set_color(uint64_t foreground, uint64_t background);

@@ -11,6 +11,11 @@ void gop_init(Framebuffer* new_framebuffer, PSF1_FONT* new_psf1_font) {
         psf1_font = new_psf1_font;
 }
 
+void gop_print_set_color(uint64_t foreground, uint64_t background) {
+        text_color = foreground;
+        back_color = background;
+}
+
 static void clean_line(size_t row) {
         unsigned int* pixPtr = (unsigned int*)framebuffer->BaseAddress;
         
@@ -26,6 +31,8 @@ void gop_print_clear() {
         for (unsigned long y = 0; y < framebuffer->Height; y+=16) {
                 clean_line(y);
         }
+        yOff = 0;
+        xOff = 0;
 }
 
 void gop_print_str(char* string) {
@@ -45,8 +52,7 @@ static void print_newline() {
                 yOff+=16;
         } else {
                 // Probably we need to fix this
-                gop_print_clear();
-                yOff = 0;
+                //gop_print_clear();
         }
 
         xOff = 0;
@@ -68,6 +74,8 @@ void gop_print_char(char character) {
                 for (unsigned long x = xOff; x < xOff+8; x++){
                         if ((*fontPtr & (0b10000000 >> (x - xOff))) > 0){
                                 *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = text_color;
+                        } else {
+                                *(unsigned int*)(pixPtr + x + (y * framebuffer->PixelsPerScanLine)) = back_color;
                         }
                 }
 
