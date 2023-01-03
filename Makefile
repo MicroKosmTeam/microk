@@ -14,7 +14,7 @@ CC = gcc
 CPP = g++
 LD = ld
 
-CFLAGS = -ffreestanding -fshort-wchar -fno-stack-protector -I src/kernel/include
+CFLAGS = -ffreestanding -fshort-wchar -fno-stack-protector -Wall -I src/kernel/include
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
