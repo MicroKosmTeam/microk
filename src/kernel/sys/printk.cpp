@@ -1,4 +1,7 @@
 #include <sys/printk.h>
+#include <stdbool.h>
+
+GOP GlobalRenderer;
 
 void printk_init_serial() {
         if(serial_init(COM1) != 0) {
@@ -6,18 +9,18 @@ void printk_init_serial() {
         }
 }
 
-void printk_init_fb(Framebuffer* new_target_framebuffer, PSF1_FONT* new_psf1_font) {
-        //fb = GOP(new_target_framebuffer, new_psf1_font);
+void printk_init_fb(Framebuffer *framebuffer, PSF1_FONT *psf1_font) {
+        GlobalRenderer = GOP(framebuffer, psf1_font);
 }
 
-static void print_all(char *string) {
+static void print_all(const char *string) {
         serial_print_str(string);
-        //fb.print_str(string);
+        GlobalRenderer.print_str(string);
 }
 
-static void print_all_char(char ch) {
+static void print_all_char(const char ch) {
         serial_print_char(ch);
-        //fb.print_char(ch);
+        GlobalRenderer.print_char(ch);
 }
 
 

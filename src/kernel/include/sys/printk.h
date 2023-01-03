@@ -8,4 +8,6 @@
 
 void printk(char *format, ...);
 void printk_init_serial();
-void printk_init_fb(Framebuffer* new_target_framebuffer, PSF1_FONT* new_psf1_font);
+void printk_init_fb(Framebuffer *framebuffer, PSF1_FONT *psf1_font);
+
+extern GOP GlobalRenderer;
