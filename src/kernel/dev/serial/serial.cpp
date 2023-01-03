@@ -7,7 +7,7 @@ static int is_transmit_empty() {
         return inb(port + 5) & 0x20;
 }
 
-int serial_init(int set_port) {
+int serial_init(const int set_port) {
         port = set_port;
         outb(port + 1, 0x00);    // Disable all interrupts
         outb(port + 3, 0x80);    // Enable DLAB (set baud rate divisor)
@@ -30,7 +30,7 @@ int serial_init(int set_port) {
         return 0;
 }
 
-void serial_print_str(char* str) {
+void serial_print_str(const char* str) {
         for (size_t i = 0; 1; i++) {
                 char character = (uint8_t) str[i];
 
@@ -39,8 +39,8 @@ void serial_print_str(char* str) {
                 }
 
                 if (character == '\n') {
-                        serial_print_char(0xD);
-                        serial_print_char(0xA);
+                        serial_print_char('\n');
+                        serial_print_char('\r');
                         return;
                 }
 
@@ -49,7 +49,7 @@ void serial_print_str(char* str) {
         }
 }
 
-void serial_print_char(char ch) {
+void serial_print_char(const char ch) {
         while (is_transmit_empty() == 0);
         
         outb(port, ch);

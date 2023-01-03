@@ -12,6 +12,6 @@
 #define COM8 0x4e8
 extern int port;
 
-int serial_init(int set_port);
-void serial_print_str(char* str);
-void serial_print_char(char ch);
+int serial_init(const int set_port);
+void serial_print_str(const char* str);
+void serial_print_char(const char ch);
