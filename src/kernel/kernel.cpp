@@ -1,66 +1,41 @@
-#include <stdint.h>
-#include <mm/efimem.h>
-#include <dev/fb/gop.h>
-#include <sys/printk.h>
-#include <sys/cstr.h>
-#include <mm/memory.h>
-#include <mm/pageframe.h>
-#include <mm/bitmap.h>
+/*
+ *  __  __  _                _  __        ___   ___ 
+ * |  \/  |(_) __  _ _  ___ | |/ /       / _ \ / __|
+ * | |\/| || |/ _|| '_|/ _ \|   <       | (_) |\__ \
+ * |_|  |_||_|\__||_|  \___/|_|\_\       \___/ |___/
+ *
+ * MicroKernel, a simple futiristic Unix-based kernel
+ * Copyright (C) 2022-2022 Mutta Filippo
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
 
-extern uint64_t kernel_start, kernel_end;
-
-struct BootInfo {
-	Framebuffer* framebuffer;
-	PSF1_FONT* psf1_Font;
-	EFI_MEMORY_DESCRIPTOR* mMap;
-	uint64_t mMapSize;
-	uint64_t mMapDescSize;
-};
-
-/* 
-for (int i = 0; i < mMapEntries; i++){
-                EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)bootInfo->mMap + (i * bootInfo->mMapDescSize));
-                newRenderer.print_str(EFI_MEMORY_TYPE_STRINGS[desc->type]);
-                newRenderer.print_set_color(0xffff00ff, 0x00000000);
-                newRenderer.print_str(" ");
-                newRenderer.print_str(to_string(desc->numPages * 4096 / 1024));
-                newRenderer.print_str(" KB\n");
-                newRenderer.print_set_color(0xffffffff, 0x00000000);
-        }
-*/
+#include <kutil.h>
 
 extern "C" void _start(BootInfo* bootInfo){
-        GOP newRenderer = GOP(bootInfo->framebuffer, bootInfo->psf1_Font);
-        PageFrameAllocator newAllocator;
-        newAllocator.ReadEFIMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescSize);
+        KernelInfo kinfo = kinit(bootInfo);
 
-        printk_init_serial();
-   
-        printk("Test!");
-
-        uint64_t kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
-        uint64_t kernel_pages = (uint64_t)kernel_size / 4096 + 1;
-
-        newAllocator.LockPages(&kernel_start, kernel_pages);
-
-        newRenderer.print_str("Kernel is ");
-        newRenderer.print_str(to_string(kernel_size / 1024));
-        newRenderer.print_str("kb.\n");
-        newRenderer.print_str("Free memory: ");
-        newRenderer.print_str(to_string(newAllocator.GetFreeMem() / 1024));
-        newRenderer.print_str("kb\nUsed memory: ");
-        newRenderer.print_str(to_string(newAllocator.GetUsedMem() / 1024));
-        newRenderer.print_str("kb\nReserved memory: ");
-        newRenderer.print_str(to_string(newAllocator.GetReservedMem() / 1024));
-        newRenderer.print_str("kb\n");
-
-        for (int i = 0; i < 20; i++) {
-                void *address = newAllocator.RequestPage();
-                newRenderer.print_str(to_hstring((uint64_t)address));
-                newRenderer.print_str("\n");
-        }
-
-
+        printk(" __  __  _                _  __    ___   ___\n");
+        printk("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n");
+        printk("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n");
+        printk("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
+        printk("The operating system from the future...\n");
+        printk("Kernel is %skb.\n", to_string(kinfo.kernel_size / 1024));
+        printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
+        printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
+        printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
 
         while(true) {
                 asm("hlt");
