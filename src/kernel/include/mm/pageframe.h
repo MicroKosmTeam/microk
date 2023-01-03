@@ -28,3 +28,5 @@ private:
         void ReservePage(void *address);
         void ReservePages(void *address, uint64_t page_count);
 };
+
+extern PageFrameAllocator GlobalAllocator;
