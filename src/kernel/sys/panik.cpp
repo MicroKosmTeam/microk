@@ -4,6 +4,8 @@
 void panik(const char *message, const char *file, const char *function, unsigned int line) {
         asm volatile ("cli"); // We don't want interrupts while we are panicking
 
+        GlobalRenderer.print_set_color(0xff0000ff, 0x00000000);
+
         // Printing the panic message
         printk("\n\n!! PANIK!! \n");
         printk("Irrecoverable error in the kernel.\n\n");
