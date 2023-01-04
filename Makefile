@@ -15,7 +15,7 @@ CPP = g++
 ASMC = nasm
 LD = ld
 
-CFLAGS = -ffreestanding -fshort-wchar -fno-stack-protector -Wall -I src/kernel/include
+CFLAGS = -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 
@@ -32,7 +32,7 @@ kernel: setup bootloader $(OBJS) link
 $(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(SRCDIR)/kernel/cpu/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
-	$(CPP) -mno-red-zone -mgeneral-regs-only $(CFLAGS) -c $^ -o $@
+	$(CPP) -mgeneral-regs-only $(CFLAGS) -c $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	@ echo !==== COMPILING $^
@@ -71,4 +71,4 @@ buildimg: kernel
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
 
 run: buildimg
-	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
+	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
