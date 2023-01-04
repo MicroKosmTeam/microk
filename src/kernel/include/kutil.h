@@ -14,6 +14,10 @@
 #include <cpu/gdt.h>
 #include <cpu/interrupts/idt.h>
 #include <cpu/interrupts/interrupts.h>
+#include <dev/8259/pic.h>
+#include <dev/tty/gpm/gpm.h>
+#include <dev/acpi/acpi.h>
+#include <dev/pci/pci.h>
 
 extern uint64_t kernel_start, kernel_end;
 
@@ -23,11 +27,11 @@ struct BootInfo {
 	EFI_MEMORY_DESCRIPTOR* mMap;
 	uint64_t mMapSize;
 	uint64_t mMapDescSize;
+        ACPI::RSDP2 *rsdp;
 };
 
 struct KernelInfo {
         uint64_t kernel_size;
-        PageTableManager *pageTableManager;
 };
 
 KernelInfo kinit(BootInfo *bootInfo);

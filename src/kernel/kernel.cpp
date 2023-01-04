@@ -31,13 +31,19 @@ extern "C" void _start(BootInfo* bootInfo){
         printk("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n");
         printk("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n");
         printk("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
-        printk("The operating system from the future...\n");
+        printk("The operating system from the future...at your fingertips.\n");
         printk("Kernel is %skb.\n", to_string(kinfo.kernel_size / 1024));
         printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
         printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
         printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
 
+        printk("We are fully initialized!\n");
+
         while(true) {
+                ProcessMousePacket();
+        }
+
+        while (true) {
                 asm("hlt");
         }
 }
