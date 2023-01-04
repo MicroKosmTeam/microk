@@ -1,5 +1,4 @@
 #include <sys/printk.h>
-#include <stdbool.h>
 
 GOP GlobalRenderer;
 
