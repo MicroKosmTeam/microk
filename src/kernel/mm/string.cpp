@@ -1,4 +1,4 @@
-#include <mm/string.h>
+#include <string.h>
 
 void itoa (char *buf, int base, long long int d) {
         char *p = buf;
