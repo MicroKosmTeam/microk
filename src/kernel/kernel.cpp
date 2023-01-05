@@ -24,6 +24,7 @@
 
 #include <kutil.h>
 #include <mm/heap.h>
+#include <dev/timer/pit/pit.h>
 
 extern "C" void _start(BootInfo* bootInfo){
         KernelInfo kinfo = kinit(bootInfo);
@@ -47,6 +48,14 @@ extern "C" void _start(BootInfo* bootInfo){
         free(address_one);
         printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
         printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
+        printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
+        printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
+
+        PIT::SetFrequency(1);
+        for (int i = 0; i < 20; i++) {
+                printk("%d ", i);
+                PIT::Sleep(10000);
+        }
 
         while (true) {
                 asm("hlt");
