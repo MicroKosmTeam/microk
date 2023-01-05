@@ -19,3 +19,8 @@ void *malloc(size_t size);
 void free(void *address);
 
 void ExpandHeap(size_t lenght);
+
+inline void *operator new(size_t size) { return malloc(size); }
+inline void *operator new[](size_t size) { return malloc(size); }
+
+inline void operator delete(void *p) { free(p); }
