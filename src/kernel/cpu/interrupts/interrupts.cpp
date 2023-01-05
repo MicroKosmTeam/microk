@@ -3,6 +3,7 @@
 #include <sys/printk.h>
 #include <io/io.h>
 #include <dev/8259/pic.h>
+#include <dev/timer/pit/pit.h>
 #include <dev/tty/kbd/keyboard.h>
 #include <dev/tty/gpm/gpm.h>
 
@@ -41,4 +42,9 @@ __attribute__((interrupt)) void MouseInt_handler(interrupt_frame *frame) {
         uint8_t mouse_data = inb(0x60);
         HandlePS2Mouse(mouse_data);
         PIC_EndSlave();
+}
+
+__attribute__((interrupt)) void PITInt_handler(interrupt_frame *frame) {
+        PIT::Tick();
+        PIC_EndMaster();
 }
