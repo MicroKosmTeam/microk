@@ -153,15 +153,12 @@ void ProcessMousePacket() {
         GlobalRenderer.draw_mouse_cursor(mouse_pointer, mouse_position, 0xffffffff);
         
         if (mouse_packet[0] & PS2LFBUT) {
-                GlobalRenderer.print_char_pos('l', mouse_position);
         }
 
         if (mouse_packet[0] & PS2MDBUT) {
-                GlobalRenderer.print_char_pos('m', mouse_position);
         }
 
         if (mouse_packet[0] & PS2RTBUT) {
-                GlobalRenderer.print_char_pos('r', mouse_position);
         }
 
         mouse_packet_ready = false;
