@@ -46,6 +46,8 @@ void printk(char *format, ...) {
                                         itoa(buf, 'x', va_arg(ap, long long int));
                                         print_all(buf);
                                         break;
+                                case '%':
+                                        print_all_char('%');
 
 
                         }

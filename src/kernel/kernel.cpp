@@ -39,22 +39,10 @@ extern "C" void _start(BootInfo* bootInfo){
         printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
         printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
 
-        printk("We are fully initialized!\n");
-
-        void *address_one = malloc(0x8000);
-        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
-        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
-        printk("free().\n");
-        free(address_one);
-        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
-        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
-        printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
-        printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
-
         PIT::SetFrequency(1);
-        for (int i = 0; i < 20; i++) {
-                printk("%d ", i);
-                PIT::Sleep(10000);
+        for (int i = 0; i < 100; i++) {
+                printk("%d\r", i);
+                PIT::Sleepd(10);
         }
 
         while (true) {

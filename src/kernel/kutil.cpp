@@ -87,8 +87,13 @@ void PrepareInterrupts(BootInfo *bootInfo) {
 void PrepareACPI(BootInfo *bootInfo) {
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
 
+        int entries = (xsdt->Length - sizeof(ACPI::SDTHeader)) / 8;
+        printk("Available ACPI tables: %d\n", entries);
+
+        printk("Loading the MCFG table...\n");
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
 
+        printk("Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
 }
 
@@ -101,7 +106,17 @@ KernelInfo kinit(BootInfo *bootInfo) {
         GlobalRenderer.print_clear();
         
         // Init heap
+        printk("Initializing the heap...\n");
         InitializeHeap((void*)0x000010000000000, 0x10);
+        void *address_one = malloc(0x8000);
+        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
+        free(address_one);
+        printk("free().\n");
+        address_one = 0;
+        address_one = malloc(0x8000);
+        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
+        free(address_one);
+        printk("free().\n");
 
         // Interrupt initialization
         PrepareInterrupts(bootInfo);

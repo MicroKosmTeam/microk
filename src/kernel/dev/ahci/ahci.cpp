@@ -168,7 +168,9 @@ namespace AHCI {
 
                         printk("Port %d test read:\n", i);
                         for (int i = 0; i < 1024; i++) {
-                                printk("%d", port->buffer[i]);
+                                GlobalRenderer.print_char(port->buffer[i]);
+                                GlobalRenderer.print_char(' ');
+//                                printk("%d", port->buffer[i]);
                         }
 
                         printk("\n");
