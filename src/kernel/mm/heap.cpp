@@ -17,6 +17,8 @@ void HeapSegHeader::CombineForward() {
         }
 
         length = length + next->length + sizeof(HeapSegHeader);
+
+        next = next->next;
 }
 
 void HeapSegHeader::CombineBackward() {
