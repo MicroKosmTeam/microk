@@ -67,6 +67,7 @@ void PrepareInterrupts(BootInfo *bootInfo) {
         SetIDTGate((void*)GPFault_handler, 0xD, IDT_TA_InterruptGate, 0x08);
         SetIDTGate((void*)KeyboardInt_handler, 0x21, IDT_TA_InterruptGate, 0x08);
         SetIDTGate((void*)MouseInt_handler, 0x2C, IDT_TA_InterruptGate, 0x08);
+        SetIDTGate((void*)PITInt_handler, 0x20, IDT_TA_InterruptGate, 0x08);
 
         // Load the IDT
         asm("lidt %0" : : "m" (idtr));
@@ -74,9 +75,9 @@ void PrepareInterrupts(BootInfo *bootInfo) {
         // Starting the mouse
         InitPS2Mouse();
 
-        // Setting up the PIC for basic early input
+        // Setting up the PIC for basic early input and the PIT
         RemapPIC();
-        outb(PIC1_DATA, 0b11111001);
+        outb(PIC1_DATA, 0b11111000);
         outb(PIC2_DATA, 0b11101111);
 
         // Enabling maskable interrupts
