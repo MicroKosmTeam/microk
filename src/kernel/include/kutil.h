@@ -8,8 +8,9 @@
 #include <mm/pageframe.h>
 #include <mm/bitmap.h>
 #include <mm/pageindexer.h>
-#include<mm/pagetable.h>
+#include <mm/pagetable.h>
 #include <mm/paging.h>
+#include <mm/heap.h>
 #include <io/io.h>
 #include <cpu/gdt.h>
 #include <cpu/interrupts/idt.h>

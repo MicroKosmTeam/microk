@@ -99,6 +99,9 @@ KernelInfo kinit(BootInfo *bootInfo) {
         GlobalRenderer.print_set_color(0xf0f0f0f0, 0x0f0f0f0f);
         GlobalRenderer.print_clear();
         
+        // Init heap
+        InitializeHeap((void*)0x000010000000000, 0x10);
+
         // Interrupt initialization
         PrepareInterrupts(bootInfo);
 
