@@ -1,6 +1,8 @@
 #include <dev/pci/pci.h>
 #include <mm/pagetable.h>
 #include <sys/printk.h>
+#include <dev/ahci/ahci.h>
+#include <mm/heap.h>
 
 namespace PCI {
         void EnumerateFunction(uint64_t device_address, uint64_t function) {
@@ -24,6 +26,17 @@ namespace PCI {
                        pciDeviceHeader->Subclass,
                        GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
                        pciDeviceHeader->ProgIF);
+
+                switch (pciDeviceHeader->Class) {
+                        case 0x01: //Mass storage
+                                switch (pciDeviceHeader->Subclass) {
+                                        case 0x06: //Serial Ata
+                                                switch (pciDeviceHeader->ProgIF) {
+                                                        case 0x01: // AHCI 1.0 device
+                                                                new AHCI::AHCIDriver(pciDeviceHeader);
+                                                }
+                                }
+                }
         }
 
         void EnumerateDevice(uint64_t bus_address, uint64_t device) {
