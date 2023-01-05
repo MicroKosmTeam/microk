@@ -23,6 +23,7 @@
  */
 
 #include <kutil.h>
+#include <mm/heap.h>
 
 extern "C" void _start(BootInfo* bootInfo){
         KernelInfo kinfo = kinit(bootInfo);
@@ -38,6 +39,14 @@ extern "C" void _start(BootInfo* bootInfo){
         printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
 
         printk("We are fully initialized!\n");
+
+        void *address_one = malloc(0x8000);
+        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
+        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
+        printk("free().\n");
+        free(address_one);
+        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
+        printk("malloc() address: 0x%x\n", (uint64_t)malloc(0x8000));
 
         while (true) {
                 asm("hlt");
