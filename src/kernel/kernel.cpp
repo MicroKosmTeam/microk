@@ -39,10 +39,6 @@ extern "C" void _start(BootInfo* bootInfo){
 
         printk("We are fully initialized!\n");
 
-        while(true) {
-                ProcessMousePacket();
-        }
-
         while (true) {
                 asm("hlt");
         }

@@ -49,6 +49,10 @@ bool mouse_packet_ready = false;
 Point mouse_position;
 Point mouse_position_old;
 void HandlePS2Mouse(uint8_t data) {
+        ProcessMousePacket();
+        static bool skip = true; // First packet is out of sync
+        if (skip) { skip = false; return; }
+
         switch (mouse_cycle) {
                 case 0:
                         if (mouse_packet_ready) break;
