@@ -14,7 +14,16 @@ namespace PCI {
                 if(pciDeviceHeader->DeviceID == 0) return;
                 if(pciDeviceHeader->DeviceID == 0xFFFF) return;
 
-                printk("PCI: 0x%x 0x%x\n", pciDeviceHeader->VendorID, pciDeviceHeader->DeviceID);
+                printk("PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
+                       DeviceClasses[pciDeviceHeader->Class],
+                       GetVendorName(pciDeviceHeader->VendorID),
+                       pciDeviceHeader->VendorID,
+                       GetDeviceName(pciDeviceHeader->VendorID, pciDeviceHeader->DeviceID),
+                       pciDeviceHeader->DeviceID,
+                       GetSubclassName(pciDeviceHeader->Class, pciDeviceHeader->Subclass),
+                       pciDeviceHeader->Subclass,
+                       GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
+                       pciDeviceHeader->ProgIF);
         }
 
         void EnumerateDevice(uint64_t bus_address, uint64_t device) {
