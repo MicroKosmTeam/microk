@@ -1,0 +1,3 @@
+[submodule "src/microk-doom"]
+	path = src/microk-doom
+	url = https://github.com/FilippoMutta/microk-doom
