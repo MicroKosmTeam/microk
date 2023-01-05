@@ -7,7 +7,7 @@ BINDIR = bin
 
 KERNDIR = $(SRCDIR)/kernel
 EFIDIR = $(SRCDIR)/gnu-efi
-DOOMDIR = $(SRCDIR)/microk-doom
+DOOMDIR = $(SRCDIR)/microk-kdoom/doomgeneric
 BOOTEFI := $(EFIDIR)/x86_64/bootloader/main.efi
 
 OVMFDIR = OVMFbin
@@ -49,6 +49,9 @@ $(OBJDIR)/kernel/%_asm.o: $(KERNDIR)/%.asm
 bootloader:
 	make -C $(EFIDIR)
 	make -C $(EFIDIR) bootloader
+
+doom-clean:
+	make -C $(DOOMDIR) clean
 
 doom:
 	make -C $(DOOMDIR)
