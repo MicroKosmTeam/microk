@@ -5,7 +5,9 @@ SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
 
+KERNDIR = $(SRCDIR)/kernel
 EFIDIR = $(SRCDIR)/gnu-efi
+DOOMDIR = $(SRCDIR)/microk-doom
 BOOTEFI := $(EFIDIR)/x86_64/bootloader/main.efi
 
 OVMFDIR = OVMFbin
@@ -21,25 +23,25 @@ LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-SRC = $(call rwildcard,$(SRCDIR),*.cpp)
-ASMSRC  = $(call rwildcard,$(SRCDIR),*.asm)
-OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRC))
-OBJS += $(patsubst $(SRCDIR)/%.asm, $(OBJDIR)/%_asm.o, $(ASMSRC))
+KSRC = $(call rwildcard,$(KERNDIR),*.cpp)
+KASMSRC  = $(call rwildcard,$(KERNDIR),*.asm)
+KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(OBJDIR)/kernel/%.o, $(KSRC))
+KOBJS += $(patsubst $(KERNDIR)/%.asm, $(OBJDIR)/kernel/%_asm.o, $(KASMSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-kernel: setup bootloader $(OBJS) link
+kernel: setup bootloader $(KOBJS) link
 
-$(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(SRCDIR)/kernel/cpu/interrupts/interrupts.cpp
+$(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(KERNDIR)/cpu/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
 	$(CPP) -mgeneral-regs-only $(CFLAGS) -c $^ -o $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+$(OBJDIR)/kernel/%.o: $(KERNDIR)/%.cpp
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
 	$(CPP) $(CFLAGS) -c $^ -o $@
 
-$(OBJDIR)/%_asm.o: $(SRCDIR)/%.asm
+$(OBJDIR)/kernel/%_asm.o: $(KERNDIR)/%.asm
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
 	$(ASMC) $(ASMFLAGS) $^ -o $@
@@ -48,9 +50,12 @@ bootloader:
 	make -C $(EFIDIR)
 	make -C $(EFIDIR) bootloader
 
+doom:
+	make -C $(DOOMDIR)
+
 link:
 	@ echo !==== LINKING
-	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(OBJS)
+	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
 
 setup:
 	@mkdir -p $(BINDIR)
