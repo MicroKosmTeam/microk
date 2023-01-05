@@ -33,16 +33,22 @@ void PageFrameAllocator::ReadEFIMemoryMap(EFI_MEMORY_DESCRIPTOR *mMap, size_t mM
         // Initialize bitmap
         InitBitmap(bitmap_size, largest_free);
 
-        // Lock pages of bitmap
-        LockPages(page_bitmap.buffer, page_bitmap.size / 4096 + 1);
+        // Reserve all pages
+        ReservePages(0, memory_size / 4096 + 1);
 
-        // Reserve unusable/reserved pages
+        // Unreserve usable pages (we do it because the EFI mmap has holes in it...)
         for (int i = 0; i < mMapEntries; i++){
                 EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)mMap + (i * mMapDescSize));
-                if (desc->type != 7) {
-                        ReservePages(desc->physAddr, desc->numPages);
+                if (desc->type == 7) {
+                        UnreservePages(desc->physAddr, desc->numPages);
                 }
         }
+        
+        // Locking the memory below 1MB
+        ReservePages(0, 0x100);
+
+        // Locking the page bitmap
+        LockPages(page_bitmap.buffer, page_bitmap.size / 4096 + 1);
 }
 
 void PageFrameAllocator::InitBitmap(size_t bitmap_size, void *buffer_address) {
