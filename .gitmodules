@@ -1,3 +1,3 @@
 [submodule "src/microk-kdoom"]
 	path = src/microk-kdoom
-	url = https://github.com/FilippoMutta/microk-kdoom.git
+	url = git@github.com:FilippoMutta/microk-kdoom.git
