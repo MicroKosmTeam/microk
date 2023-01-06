@@ -48,7 +48,7 @@ void TTY::ElaborateCommand() {
 
         if (strcmp(ptr, "hi") == 0) {
                 printk("Hello, world!\n");
-        } else if (strcmp(ptr, "cls") == 0 || strcmp(user_mask, "clear") == 0 || strcmp(user_mask, "clean") == 0) {
+        } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
                 printk("MicroK Alpha.\n");
@@ -78,6 +78,8 @@ void TTY::ElaborateCommand() {
                 printk("Current tick: %d.\n", PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "ls") == 0) {
                 printk("No drive selected.\n");
+        } else if (strcmp(ptr, "image") == 0) {
+                print_image();
         } else {
                 printk("Unknown command: %s\n", ptr);
         }
