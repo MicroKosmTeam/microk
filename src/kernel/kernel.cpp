@@ -23,12 +23,12 @@
  */
 
 #include <kutil.h>
-#include <mm/heap.h>
-#include <dev/timer/pit/pit.h>
+#include <sys/printk.h>
 
 extern "C" void _start(BootInfo* bootInfo){
         KernelInfo kinfo = kinit(bootInfo);
 
+        printk("Kernel loaded\n");
         printk(" __  __  _                _  __    ___   ___\n");
         printk("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n");
         printk("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n");
@@ -38,12 +38,10 @@ extern "C" void _start(BootInfo* bootInfo){
         printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
         printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
         printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
+        
+        print_image();
 
-        PIT::SetFrequency(1);
-        for (int i = 0; i < 100; i++) {
-                printk("%d\r", i);
-                PIT::Sleepd(10);
-        }
+        GlobalTTY.Activate();
 
         while (true) {
                 asm("hlt");
