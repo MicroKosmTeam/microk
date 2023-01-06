@@ -68,10 +68,39 @@ void *PageFrameAllocator::RequestPage() {
                 return (void*)(page_bitmap_index * 4096);
         }
 
+        // Try again (because RequestPages might leave holes)
+        page_bitmap_index = 0;
+        for (; page_bitmap_index < page_bitmap.size * 8; page_bitmap_index++) {
+                if(page_bitmap[page_bitmap_index] == true) continue;
+                LockPage((void*)(page_bitmap_index * 4096));
+
+                return (void*)(page_bitmap_index * 4096);
+        }
+
         // No more memory
         return NULL;
 }
 
+void *PageFrameAllocator::RequestPages(size_t pages) {
+        uint64_t old_page_index = page_bitmap_index;
+        for (; page_bitmap_index < (page_bitmap.size - pages)* 8; page_bitmap_index++) {
+                bool free = true;
+                for (size_t i; i < pages; i++) {
+                        if(page_bitmap[page_bitmap_index + i]) { free = false; break; };
+                }
+
+                if (free) {
+                        LockPages((void*)(page_bitmap_index * 4096), pages);
+                        return (void*)(page_bitmap_index * 4096);
+                }
+                
+        }
+
+        page_bitmap_index = old_page_index;
+
+        // No more memory
+        return NULL;
+}
 
 void PageFrameAllocator::FreePage(void *address) {
         uint64_t index = (uint64_t)address / 4096;
