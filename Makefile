@@ -17,7 +17,7 @@ CPP = g++
 ASMC = nasm
 LD = ld
 
-CFLAGS = -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
+CFLAGS = -g -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 
