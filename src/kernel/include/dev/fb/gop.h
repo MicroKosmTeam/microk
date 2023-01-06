@@ -15,6 +15,7 @@ public:
         void print_char_pos(const char character, Point pos);
         void print_str(const char* string);
         void print_set_color(const unsigned int foreground, const unsigned int background);
+        void print_scroll();
 
         uint32_t get_pixel(uint32_t x, uint32_t y);
         void put_pixel(uint32_t x, uint32_t y, uint32_t color);

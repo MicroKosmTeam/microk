@@ -36,7 +36,25 @@ void GOP::print_clear() {
                 }
         }
 }
+
+void GOP::print_scroll() {
+        cursor_position.Y-=16;
+        uint64_t fb_base = (uint64_t)target_framebuffer->BaseAddress;
+        uint64_t bps = target_framebuffer->PixelsPerScanLine * 4;
+        uint64_t fb_height = target_framebuffer->Height;
+
+        for (int vertical_scanline = 0; vertical_scanline < fb_height - 16; vertical_scanline++) {
+                uint64_t pixPtrBase = fb_base + (bps * vertical_scanline);
+                uint64_t pixPtrBaseNext = fb_base + (bps * (vertical_scanline+16));
         
+                uint32_t *pixPtr =(uint32_t*)pixPtrBase;
+                uint32_t *pixNextPtr =(uint32_t*)pixPtrBaseNext;
+                for (; pixPtr < (uint32_t*)(pixPtrBase+bps); pixPtr++, pixNextPtr++) {
+                        *pixPtr = *pixNextPtr;
+                }
+        }
+}
+
 uint32_t GOP::get_pixel(uint32_t x, uint32_t y) {
         return *(uint32_t*)((uint64_t)target_framebuffer->BaseAddress + (x*4) + (y*target_framebuffer->PixelsPerScanLine*4));
 }
@@ -95,9 +113,13 @@ void GOP::draw_mouse_cursor(uint8_t *mouse_pointer, Point pos, uint32_t color) {
 }
 
 void GOP::print_char(const char character) {
-        if(cursor_position.X + 8 > target_framebuffer->Width) {
+        if(cursor_position.X + 8 >= target_framebuffer->Width) {
                 cursor_position.X = 0;
                 cursor_position.Y += 16;
+        }
+
+        if(cursor_position.Y + 16*2 >= target_framebuffer->Height) {
+                print_scroll();
         }
 
         switch (character) {
