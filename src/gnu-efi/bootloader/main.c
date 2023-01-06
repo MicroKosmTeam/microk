@@ -136,14 +136,14 @@ typedef struct {
 
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
-	Print(L"String blah blah blah \n\r");
+	Print(L"Welcome to Microk!\n\r");
 
 	EFI_FILE* Kernel = LoadFile(NULL, L"kernel.elf", ImageHandle, SystemTable);
 	if (Kernel == NULL){
-		Print(L"Could not load kernel \n\r");
+		Print(L"Could not load kernel!\n\r");
 	}
 	else{
-		Print(L"Kernel Loaded Successfully \n\r");
+		Print(L"Kernel Loaded Successfully.\n\r");
 	}
 
 	Elf64_Ehdr header;
@@ -167,11 +167,11 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		header.e_version != EV_CURRENT
 	)
 	{
-		Print(L"kernel format is bad\r\n");
+		Print(L"Kernel format is bad!\r\n");
 	}
 	else
 	{
-		Print(L"kernel header successfully verified\r\n");
+		Print(L"Kernel header successfully verified.\r\n");
 	}
 
 	Elf64_Phdr* phdrs;
@@ -208,17 +208,16 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
 	if (newFont == NULL){
-		Print(L"Font is not valid or is not found\n\r");
+		Print(L"Font is not valid or is not found!\n\r");
 	}
 	else
 	{
-		Print(L"Font found. char size = %d\n\r", newFont->psf1_Header->charsize);
+		Print(L"Font found. Char size = %d.\n\r", newFont->psf1_Header->charsize);
 	}
-	
 
 	Framebuffer* newBuffer = InitializeGOP();
 
-	Print(L"Base: 0x%x\n\rSize: 0x%x\n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanline: %d\n\r", 
+	Print(L"Base: 0x%x\n\rSize: 0x%x\n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanline: %d.\n\r", 
 	newBuffer->BaseAddress, 
 	newBuffer->BufferSize, 
 	newBuffer->Width, 
