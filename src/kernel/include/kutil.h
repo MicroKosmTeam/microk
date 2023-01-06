@@ -4,6 +4,7 @@
 #include <dev/fb/gop.h>
 #include <sys/printk.h>
 #include <sys/cstr.h>
+#include <sys/module.h>
 #include <mm/memory.h>
 #include <mm/pageframe.h>
 #include <mm/bitmap.h>
@@ -17,8 +18,10 @@
 #include <cpu/interrupts/interrupts.h>
 #include <dev/8259/pic.h>
 #include <dev/tty/gpm/gpm.h>
+#include <dev/tty/tty.h>
 #include <dev/acpi/acpi.h>
 #include <dev/pci/pci.h>
+#include <dev/timer/pit/pit.h>
 
 extern uint64_t kernel_start, kernel_end;
 

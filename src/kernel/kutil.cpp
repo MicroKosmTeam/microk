@@ -15,6 +15,7 @@ void PrepareMemory(BootInfo *bootInfo) {
         GDTDescriptor gdtDescriptor;
         gdtDescriptor.size = sizeof(GDT) - 1;
         gdtDescriptor.offset = (uint64_t)&DefaultGDT;
+        init_tss();
         LoadGDT(&gdtDescriptor);
 
         // Starting printk
@@ -25,7 +26,7 @@ void PrepareMemory(BootInfo *bootInfo) {
         // Initializing the GlobalAllocator with EFI Memory data
         GlobalAllocator = PageFrameAllocator();
         GlobalAllocator.ReadEFIMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescSize);
-   
+  
         // Locking kernel pages
         kInfo.kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
         uint64_t kernel_pages = (uint64_t)kInfo.kernel_size / 4096 + 1;
@@ -121,8 +122,17 @@ KernelInfo kinit(BootInfo *bootInfo) {
         // Interrupt initialization
         PrepareInterrupts(bootInfo);
 
+        // Setting the timer frequency
+        PIT::SetFrequency(1);
+
+        // Starting the modules subsystem
+        GlobalModuleManager = ModuleManager();
+
         // ACPI initialization
         PrepareACPI(bootInfo);
+
+        // Start a TTY
+        GlobalTTY = TTY();
 
         return kInfo;
 }
