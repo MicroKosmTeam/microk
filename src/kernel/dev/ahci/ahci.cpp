@@ -159,18 +159,13 @@ namespace AHCI {
                         
                         port->Configure();
 
-                        // Test read
-                        port->buffer = (uint8_t*)GlobalAllocator.RequestPage(); // 4096 bytes
-                                                                                // if we want more, we mustcreate  a function that allocates a continuos stretch of physical memory larger that 4096 bytes for DMA
-                                                                                // Es GlobalAllocator.RequestPages();
-                        memset(port->buffer, 0, 0x1000);
-                        port->Read(0, 4, port->buffer);
+                        port->buffer = (uint8_t*)GlobalAllocator.RequestPages(16);
+                        memset(port->buffer, 0, 0xffff);
+                        port->Read(0, 4 * 4, port->buffer);
 
-                        printk("Port %d test read:\n", i);
-                        for (int i = 0; i < 1024; i++) {
-                                GlobalRenderer.print_char(port->buffer[i]);
-                                GlobalRenderer.print_char(' ');
-//                                printk("%d", port->buffer[i]);
+                        printk("Port %d test read of the bootsector:\n", i);
+                        for (int i = 0; i < 512; i++) {
+                                printk("%d", port->buffer[i]);
                         }
 
                         printk("\n");
