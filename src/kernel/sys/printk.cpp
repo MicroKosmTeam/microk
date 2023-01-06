@@ -1,6 +1,21 @@
 #include <sys/printk.h>
-
+#include <image.h>
 GOP GlobalRenderer;
+
+void print_image() {
+        for (int j = 0; j < 2; j++) {
+                for (int i = 0; pixels[i]>-1;) {
+                        int row = pixels[i++];
+                        int col = pixels[i++];
+                        int r = pixels[i++];
+                        int g = pixels[i++];
+                        int b = pixels[i++];
+                        uint32_t color = b | (g << 8) | (r << 16) | (0xff << 24);
+
+                        GlobalRenderer.put_pixel(row + j * 90, col, color);
+                }
+        }
+}
 
 void printk_init_serial() {
         if(serial_init(COM1) != 0) {
