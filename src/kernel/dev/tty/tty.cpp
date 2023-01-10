@@ -8,9 +8,8 @@
 #include <mm/pageframe.h>
 #include <sys/cstr.h>
 #include <dev/timer/pit/pit.h>
+#include <fs/fs.h>
 
-void *__dso_handle = (void*) &__dso_handle;
-void *__cxa_atexit = (void*) &__cxa_atexit;
 TTY GlobalTTY;
 
 TTY::TTY() {
@@ -38,7 +37,7 @@ void TTY::Deactivate() {
 }
 
 void TTY::PrintPrompt() {
-        printk("$ ");
+        printk("(kernel mode) $ ");
 }
 
 void TTY::ElaborateCommand() {
@@ -46,8 +45,17 @@ void TTY::ElaborateCommand() {
 
         char *ptr = strtok(user_mask, ' ');
 
-        if (strcmp(ptr, "hi") == 0) {
-                printk("Hello, world!\n");
+        if (strcmp(ptr, "help") == 0) {
+                printk("Available commands\n"
+                       "cls\n"
+                       "uname\n"
+                       "module\n"
+                       "panik\n"
+                       "mem\n"
+                       "time\n"
+                       "ls\n"
+                       "image\n"
+                       "fatread\n");
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
@@ -75,11 +83,15 @@ void TTY::ElaborateCommand() {
                 printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
                 printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
         } else if (strcmp(ptr, "time") == 0) {
-                printk("Current tick: %d.\n", PIT::TimeSinceBoot);
+                printk("Current tick: %d.\n", (uint64_t)PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "ls") == 0) {
                 printk("No drive selected.\n");
         } else if (strcmp(ptr, "image") == 0) {
-                print_image();
+                print_image(1);
+        } else if (strcmp(ptr, "lsblk") == 0) {
+                GlobalFSManager.ListDrives();
+        } else if (strcmp(ptr, "fatread") == 0) {
+                printk("NIMPL.\n");
         } else {
                 printk("Unknown command: %s\n", ptr);
         }

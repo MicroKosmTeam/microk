@@ -17,5 +17,3 @@ private:
 };
 
 extern TTY GlobalTTY;
-extern void *__dso_handle;
-extern void *__cxa_atexit;
