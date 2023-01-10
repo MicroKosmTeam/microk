@@ -3,6 +3,7 @@
 #include <mm/pagetable.h>
 #include <mm/pageframe.h>
 #include <mm/heap.h>
+#include <fs/fs.h>
 
 namespace AHCI {
         #define HBA_PORT_DEV_PRESENT 0x3
@@ -86,7 +87,7 @@ namespace AHCI {
                 }
         }
 
-        bool Port::Read(uint64_t sector, uint32_t sectorCount, void* buffer) {
+        bool Port::TransferDMA(bool write, uint64_t sector, uint32_t sectorCount, void* buffer) {
                 // Control if busy
                 uint64_t spin = 0;
                 while ((hbaPort->taskFileData & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000){
@@ -102,9 +103,9 @@ namespace AHCI {
 
                 HBACommandHeader *cmdHeader = (HBACommandHeader*)hbaPort->commandListBase;
                 cmdHeader->commandFISLength = sizeof(FIS_REG_H2D)/sizeof(uint32_t); // Command FIS size
-                cmdHeader->write = 0; // This is a read
+                cmdHeader->write = write ? 1 : 0; // This is a write
                 cmdHeader->prdtLength = 1;
-
+        
                 HBACommandTable *commandTable = (HBACommandTable*)(cmdHeader->commandTableBaseAddress);
                 memset(commandTable, 0, sizeof(HBACommandTable) + (cmdHeader->prdtLength-1)*sizeof(HBAPRDTEntry));
 
@@ -117,7 +118,7 @@ namespace AHCI {
 
                 cmdFIS->fisType = FIS_TYPE_REG_H2D;
                 cmdFIS->commandControl = 1; //It's a command
-                cmdFIS->command = ATA_CMD_READ_DMA_EX;
+                cmdFIS->command = write ? ATA_CMD_WRITE_DMA_EX : ATA_CMD_READ_DMA_EX;
 
                 cmdFIS->lba0 = (uint8_t)sectorLow;
                 cmdFIS->lba1 = (uint8_t)(sectorLow >> 8);
@@ -144,6 +145,13 @@ namespace AHCI {
         
                 return true;
         }
+        bool Port::Write(uint64_t sector, uint32_t sectorCount, void* buffer) {
+                return TransferDMA(true, sector, sectorCount, buffer);
+        }
+
+        bool Port::Read(uint64_t sector, uint32_t sectorCount, void* buffer) {
+                return TransferDMA(false, sector, sectorCount, buffer);
+        }
 
         AHCIDriver::AHCIDriver(PCI::PCIDeviceHeader *pciBaseAddress) {
                 this->PCIBaseAddress = pciBaseAddress;
@@ -156,19 +164,9 @@ namespace AHCI {
                 
                 for (int i = 0; i < portCount; i++) {
                         Port *port = ports[i];
-                        
-                        port->Configure();
-
-                        port->buffer = (uint8_t*)GlobalAllocator.RequestPages(16);
-                        memset(port->buffer, 0, 0xffff);
-                        port->Read(0, 4 * 4, port->buffer);
-
-                        printk("Port %d test read of the bootsector:\n", i);
-                        for (int i = 0; i < 512; i++) {
-                                printk("%d", port->buffer[i]);
-                        }
-
-                        printk("\n");
+                       
+                        printk("Sending it to the FS manager...\n");
+                        GlobalFSManager.AddAHCIDrive(port, i, 128 * 0x1000); // 32 pages of DMA
                 }
         }
 
