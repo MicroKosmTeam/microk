@@ -118,7 +118,7 @@ void GOP::print_char(const char character) {
                 cursor_position.Y += 16;
         }
 
-        if(cursor_position.Y + 16*2 >= target_framebuffer->Height) {
+        if(cursor_position.Y + 16*10 >= target_framebuffer->Height) {
                 print_scroll();
         }
 
