@@ -15,7 +15,7 @@ LDS64 = kernel64.ld
 CC = gcc
 CPP = g++
 ASMC = nasm
-LD = ld
+LD = gcc
 
 CFLAGS = -g -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
@@ -70,7 +70,7 @@ clean:
 
 buildimg: kernel
 	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=93750
-	mformat -i $(BINDIR)/$(OSNAME).img ::
+	mformat -F -v "Microk" -i $(BINDIR)/$(OSNAME).img ::
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
@@ -80,3 +80,6 @@ buildimg: kernel
 
 run: buildimg
 	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
+
+run-tty: buildimg
+	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none -nographic
