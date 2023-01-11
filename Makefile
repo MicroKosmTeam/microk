@@ -13,11 +13,11 @@ BOOTEFI := $(EFIDIR)/x86_64/bootloader/main.efi
 OVMFDIR = OVMFbin
 LDS64 = kernel64.ld
 CC = gcc
-CPP = g++
+CPP = gcc
 ASMC = nasm
 LD = gcc
 
-CFLAGS = -g -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
+CFLAGS = -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 

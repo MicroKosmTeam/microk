@@ -1,10 +1,18 @@
 #include <mm/string.h>
 #include <mm/heap.h>
+#include <mm/memory.h>
 
 size_t strlen(const char *str) {
         const char *s;
         for (s = str; *s; ++s);
         return (s - str);
+}
+
+char *strcpy(char *strDest, const char *strSrc){
+        if(strDest==NULL || strSrc==NULL) return NULL;
+        char *temp = strDest;
+        while(*strDest++ = *strSrc++); // or while((*strDest++=*strSrc++) != '\0');
+        return temp;
 }
 
 int strcmp(const char *s1, const char *s2) {
@@ -25,49 +33,64 @@ int strcmp(const char *s1, const char *s2) {
         return 0;
 }
 
-// BEWARE: this can't be used before the heap is initialized
-// That should never be a problem
-char *strtok(char *s, char d) {
-        // Stores the state of string
-        static char *input = NULL;
- 
-        // Initialize the input string
-        if (s != NULL)
-        input = s;
+bool is_delim(char c, char *delim)
+{
+  while(*delim != '\0')
+  {
+    if(c == *delim)
+      return true;
+    delim++;
+  }
+  return false;
+}
 
-        // Case for final token
-        if (input == NULL)
-        return NULL;
- 
-        // Stores the extracted string
-        char* result = new char[strlen(input) + 1];
-        int i = 0;
- 
-        // Start extracting string and
-        // store it in array
-        for (; input[i] != '\0'; i++) {
+char *strtok(char *s, char *delim)
+{
+  static char *p; // start of the next search 
+  if(!s)
+  {
+    s = p;
+  }
+  if(!s)
+  {
+    // user is bad user 
+    return NULL;
+  }
 
-                // If delimiter is not reached
-                // then add the current character
-                // to result[i]
-                if (input[i] != d)
-                        result[i] = input[i];
- 
-                // Else store the string formed
-                else {
-                        result[i] = '\0';
-                        input = input + i + 1;
-                        return result;
-                }
-        }
- 
-        // Case when loop ends
-        result[i] = '\0';
-        input = NULL;
+  // handle beginning of the string containing delims
+  while(1)
+  {
+    if(is_delim(*s, delim))
+    {
+      s++;
+      continue;
+    }
+    if(*s == '\0')
+    {
+      return NULL; // we've reached the end of the string
+    }
+    // now, we've hit a regular character. Let's exit the
+    // loop, and we'd need to give the caller a string
+    // that starts here.
+    break;
+  }
 
-        // Return the resultant pointer
-        // to the string
-        return result;
+  char *ret = s;
+  while(1)
+  {
+    if(*s == '\0')
+    {
+      p = s; // next exec will return NULL
+      return ret;
+    }
+    if(is_delim(*s, delim))
+    {
+      *s = '\0';
+      p = s + 1;
+      return ret;
+    }
+    s++;
+  }
 }
 
 

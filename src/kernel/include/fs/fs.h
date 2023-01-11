@@ -51,7 +51,6 @@ namespace Filesystem {
                 // We need to improove this with cache
                 uint8_t *ReadDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors);
                 bool WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t *buffer, size_t buffer_size);
-        private:
                 Drive supportedDrives[32];
                 uint16_t total_drives;
         };

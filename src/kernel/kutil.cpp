@@ -91,8 +91,17 @@ void PrepareACPI(BootInfo *bootInfo) {
         int entries = (xsdt->Length - sizeof(ACPI::SDTHeader)) / 8;
         printk("Available ACPI tables: %d\n", entries);
 
+        printk("Loading the FADT table...\n");
+        ACPI::FindTable(xsdt, (char*)"FADT");
+
+        printk("Loading the MADT table...\n");
+        ACPI::FindTable(xsdt, (char*)"MADT");
+
         printk("Loading the MCFG table...\n");
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
+
+        printk("Loading the HPET table...\n");
+        ACPI::FindTable(xsdt, (char*)"HPET");
 
         printk("Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
@@ -105,7 +114,12 @@ KernelInfo kinit(BootInfo *bootInfo) {
         // Clearing framebuffer
         GlobalRenderer.print_set_color(0xf0f0f0f0, 0x0f0f0f0f);
         GlobalRenderer.print_clear();
-        
+ 
+        // Perhaps do it like linux does (1 per cpu core?)
+        // We start by rendering one.
+        print_image(1);
+        printk("\n\n\n\n\n\n\n\n");
+
         // Init heap
         printk("Initializing the heap...\n");
         InitializeHeap((void*)0x000010000000000, 0x10);
@@ -128,11 +142,16 @@ KernelInfo kinit(BootInfo *bootInfo) {
         // Starting the modules subsystem
         GlobalModuleManager = ModuleManager();
 
+        // Starting the filesystem Manager
+        //GlobalFSManager = Filesystem::FSManager();
+
         // ACPI initialization
         PrepareACPI(bootInfo);
 
-        // Start a TTY
+        // Starting a TTY
         GlobalTTY = TTY();
+        
+
 
         return kInfo;
 }

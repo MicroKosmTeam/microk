@@ -13,6 +13,7 @@ uint32_t first_fat_sector;
 uint32_t data_sectors;
 uint32_t total_clusters;
 uint32_t first_sector_of_cluster;
+uint32_t the_root_cluster;
 
 
 FATFSDriver::FATFSDriver() {
@@ -67,45 +68,9 @@ bool FATFSDriver::DetectDrive(uint8_t *data) {
                         }
                         printk("\n");
                         uint32_t root_cluster_32 = fat32->root_cluster;
-                        printk("Root dir is at %d\n", root_cluster_32);
-                        uint32_t cluster = root_cluster_32;
-                        uint32_t first_sector_of_cluster = ((cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
-                        //uint8_t *sector_data = (uint8_t*)malloc(32*1024);
-                        uint8_t *read_data = (uint8_t*)malloc(32*1024);
-                        memset(read_data, 0, 32*1024);
-                        read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, 16);
-                
-                        uint8_t *sector_data = (uint8_t*)malloc(32);
+                        printk("Root dir is in the %d cluster.\n", root_cluster_32);
 
-                        printk("Parsing the root directory:\n");
-
-                        for (int i = 0 /*This kinda works?*/; ; i+=32) {
-                                memcpy(sector_data, read_data + i, 32);
-                                if(sector_data[0] == 0) {
-                                        printk("Done!\n");
-                                        break;
-                                } else if(sector_data[0] == 0xE5) {
-                                        printk("Unused\n");
-                                        continue;
-                                } else {
-                                        if(sector_data[11] == 0x0F) {
-                                                printk("Long name.\n");
-                                                continue;
-                                        } else {
-                                                DirectoryEntry *entry = (DirectoryEntry*)sector_data;
-                                                printk("Short name: ");
-                                                for (int i = 0; i < 11; i++) {
-                                                        printk("%c", entry->file_name[i]);
-                                                }
-                                                printk(" Size: %d\n", entry->file_size);
-                                                continue;
-                                        }
-                                }
-                        }
-                        printk("\n");
-
-                        free(read_data);
-                        free(sector_data);
+                        the_root_cluster = root_cluster_32;
                         }
                         break;
                 default:
@@ -115,8 +80,123 @@ bool FATFSDriver::DetectDrive(uint8_t *data) {
 
         return true;
 }
-void FATFSDriver::ReadCluster(uint8_t cluster) {
 
+void FATFSDriver::ParseRoot(uint32_t root_cluster) {
+        ReadDirectory(the_root_cluster);
+}
+
+bool FATFSDriver::FindDirectory(char *directory_path) {
+        printk("Listing %s\n", directory_path);
+
+        if (directory_path[0] == '/' && strlen(directory_path) == 1) {
+                ParseRoot(the_root_cluster);
+                return true;
+        }
+
+        char *dir = directory_path;
+        uint32_t cluster = the_root_cluster;
+
+        while((dir = strtok(dir, "/")) != NULL) {
+                cluster = FindInDirectory(cluster, dir);
+                if (cluster == 0) { printk("Not found: %s\n", directory_path); return false; }
+
+                dir = NULL;
+        }
+        
+        ReadDirectory(cluster);
+}
+
+uint32_t FATFSDriver::FindInDirectory(uint32_t directory_cluster, char *find_name) {
+        uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
+        
+        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
+        uint8_t *sector_data = (uint8_t*)malloc(32);
+
+        uint32_t found_cluster = 0;
+
+        for (int i = 0; ; i+=32) {
+                memcpy(sector_data, read_data + i, 32);
+                if(sector_data[0] == 0) {
+                        break;
+                } else if(sector_data[0] == 0xE5) {
+                        continue;
+                } else {
+                        uint32_t entry_cluster = 0;
+                        if(sector_data[11] == 0x0F) {
+                                continue;
+                        } else {
+                                DirectoryEntry *entry = (DirectoryEntry*)sector_data;
+                                entry_cluster = entry->low_bits | (entry->high_bits << 16);
+
+                                // This works
+                                bool incorrect = false;
+                                for (int i = 0; i < 11; i++) {
+                                        if(entry->file_name[i] == ' ') continue; // TEMP fix TODO correctly
+                                        if(find_name[i] != entry->file_name[i]) { incorrect = true; break; }
+                                }
+                                if (!incorrect) {found_cluster = entry_cluster; break;}
+                                else continue;
+                        }
+                }
+                
+        }
+
+        free(sector_data);
+
+        return found_cluster;
+}
+
+void FATFSDriver::ReadDirectory(uint32_t directory_cluster) {
+        uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
+        
+        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
+        uint8_t *sector_data = (uint8_t*)malloc(32);
+
+        printk("Parsing the directory:\n");
+
+        for (int i = 0;;i+=32) {
+                memcpy(sector_data, read_data + i, 32);
+                if(sector_data[0] == 0) {
+                        printk("Done!\n");
+                        break;
+                } else if(sector_data[0] == 0xE5) {
+                        printk("Unused\n");
+                        continue;
+                } else {
+                        uint32_t entry_cluster = 0;
+                        if(sector_data[11] == 0x0F) {
+//                                LongEntry *entry;
+                                printk("Long name.\n");
+                                continue;
+                        } else {
+                                DirectoryEntry *entry = (DirectoryEntry*)sector_data;
+                                entry_cluster = entry->low_bits | (entry->high_bits << 16);
+                                printk("Short name: ");
+                                for (int i = 0; i < 8; i++) {
+                                        printk("%c", entry->file_name[i]);
+                                }
+                                printk(" ");
+                                for (int i = 8; i < 11; i++) {
+                                        printk("%c", entry->file_name[i]);
+                                }
+                                printk(" Cluster: %d", entry_cluster);
+                                if (sector_data[11] == 0x10) {
+                                        printk(" Directory\n");
+                                } else {
+                                        printk(" Size: %d\n", entry->file_size);
+                                }
+
+                                continue;
+                        }
+                }
+                
+        }
+
+        free(sector_data);
+}
+
+uint8_t *FATFSDriver::ReadCluster(uint8_t cluster) {
+        
 }
 
 }

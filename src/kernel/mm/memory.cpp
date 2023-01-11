@@ -15,8 +15,16 @@ uint64_t get_memory_size(EFI_MEMORY_DESCRIPTOR *mMap, uint64_t mMapEntries, uint
         return memory_size_bytes;
 }
 
-void memset(void *start, uint8_t value, uint64_t num) {
+extern "C" void memset(void *start, uint8_t value, uint64_t num) {
         for (uint64_t i = 0; i < num; i++) {
                 *(uint8_t*)((uint64_t)start + i) = value;
         }
 }
+
+extern "C" void memcpy(void *dest, void *src, size_t n){
+        char *csrc = (char *)src; 
+        char *cdest = (char *)dest; 
+  
+        for (int i=0; i<n; i++) 
+                cdest[i] = csrc[i]; 
+} 

@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <mm/string.h>
 
-void print_image();
+void print_image(int count);
 void printk(char *format, ...);
 void printk_init_serial();
 void printk_init_fb(Framebuffer *framebuffer, PSF1_FONT *psf1_font);

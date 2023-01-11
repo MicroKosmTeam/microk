@@ -9,6 +9,7 @@
 #include <sys/cstr.h>
 #include <dev/timer/pit/pit.h>
 #include <fs/fs.h>
+//#include <fs/fat/fat.h>
 
 TTY GlobalTTY;
 
@@ -43,7 +44,7 @@ void TTY::PrintPrompt() {
 void TTY::ElaborateCommand() {
         printk("\n");
 
-        char *ptr = strtok(user_mask, ' ');
+        char *ptr = strtok(user_mask, " ");
 
         if (strcmp(ptr, "help") == 0) {
                 printk("Available commands\n"
@@ -61,7 +62,7 @@ void TTY::ElaborateCommand() {
         } else if (strcmp(ptr, "uname") == 0) {
                 printk("MicroK Alpha.\n");
         } else if (strcmp(ptr, "module") == 0) {
-                ptr = strtok(NULL, ' ');
+                ptr = strtok(NULL, " ");
                 if (ptr != NULL) {
                         if(GlobalModuleManager.FindModule(ptr)) {
                                 printk("Module found! Loading...\n");
@@ -79,13 +80,14 @@ void TTY::ElaborateCommand() {
         } else if (strcmp(ptr, "panik") == 0) {
                 PANIK("User induced panic.");
         } else if (strcmp(ptr, "mem") == 0) {
-                printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
-                printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
-                printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
+                printk("Free memory: %s.\n", to_string(GlobalAllocator.GetFreeMem()));
+                printk("Used memory: %s.\n", to_string(GlobalAllocator.GetUsedMem()));
+                printk("Reserved memory: %s.\n", to_string(GlobalAllocator.GetReservedMem()));
         } else if (strcmp(ptr, "time") == 0) {
                 printk("Current tick: %d.\n", (uint64_t)PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "ls") == 0) {
-                printk("No drive selected.\n");
+                ptr = strtok(NULL, " ");
+                GlobalFSManager.supportedDrives[0].partitions[0].fatDriver.FindDirectory(ptr);
         } else if (strcmp(ptr, "image") == 0) {
                 print_image(1);
         } else if (strcmp(ptr, "lsblk") == 0) {

@@ -22,6 +22,8 @@
 #include <dev/acpi/acpi.h>
 #include <dev/pci/pci.h>
 #include <dev/timer/pit/pit.h>
+#include <fs/fs.h>
+#include <sys/icxxabi.h>
 
 extern uint64_t kernel_start, kernel_end;
 

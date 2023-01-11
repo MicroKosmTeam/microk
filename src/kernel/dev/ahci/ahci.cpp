@@ -89,13 +89,13 @@ namespace AHCI {
 
         bool Port::TransferDMA(bool write, uint64_t sector, uint32_t sectorCount, void* buffer) {
                 // Control if busy
-                uint64_t spin = 0;
-                while ((hbaPort->taskFileData & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000){
-                        spin++; // Timeout
+//                uint64_t spin = 0;
+                while ((hbaPort->taskFileData & (ATA_DEV_BUSY | ATA_DEV_DRQ)) /*&& spin < 1000000*/){
+//                        spin++; // Timeout
                 }
-                if (spin == 1000000) {
-                        return false;
-                }
+//                if (spin == 1000000) {
+//                        return false;
+//                }
 
                 uint32_t sectorLow = (uint32_t)sector;
                 uint32_t sectorHigh = (uint32_t)(sector >> 32);
@@ -103,7 +103,7 @@ namespace AHCI {
 
                 HBACommandHeader *cmdHeader = (HBACommandHeader*)hbaPort->commandListBase;
                 cmdHeader->commandFISLength = sizeof(FIS_REG_H2D)/sizeof(uint32_t); // Command FIS size
-                cmdHeader->write = write ? 1 : 0; // This is a write
+                cmdHeader->write = write ? 1 : 0; // Is this a write
                 cmdHeader->prdtLength = 1;
         
                 HBACommandTable *commandTable = (HBACommandTable*)(cmdHeader->commandTableBaseAddress);

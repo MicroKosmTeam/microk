@@ -23,7 +23,6 @@
  */
 
 #include <kutil.h>
-#include <sys/printk.h>
 
 extern "C" void _start(BootInfo* bootInfo){
         KernelInfo kinfo = kinit(bootInfo);
@@ -39,7 +38,6 @@ extern "C" void _start(BootInfo* bootInfo){
         printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
         printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
         
-        print_image();
 
         GlobalTTY.Activate();
 

@@ -88,7 +88,7 @@ namespace FAT {
         	unsigned int		volume_id;
         	unsigned char		volume_label[11];
         	unsigned char		fat_type_label[8];
- 
+
         }__attribute__((packed));
  
         struct DirectoryEntry {
@@ -106,17 +106,6 @@ namespace FAT {
         	unsigned int file_size;
         }__attribute__((packed));
 
-        struct FATFsInfo { // Only for FAT 32
-        	unsigned int lead_signature; //should contain 0x41615252
-	        unsigned char reserved1[480];
-        	unsigned int structure_signature; //should contain 0x61417272
-	        unsigned int free_space; //contains last known free cluster count. 0xFFFFFFFF indicates count is unknown.
-        	unsigned int last_written; //contains last-written cluster number to help FAT drivers find a free cluster. 0xFFFFFFFF indicates that cluster number is unknown.
-	        unsigned char reserved2[12];
-        	unsigned int trail_signature; //should contain 0xAA550000
-        }__attribute__((packed));
-
-
         struct LongEntry{
 	        unsigned char order;
         	unsigned char first_five[10]; //first 5, 2-byte characters
@@ -126,6 +115,16 @@ namespace FAT {
         	unsigned char next_six[12]; //next 6, 2-byte characters
 	        unsigned short zero; //must be zero - otherwise meaningless
         	unsigned char last_two[4]; //last 2, 2-byte characters
+        }__attribute__((packed));
+
+        struct FATFsInfo { // Only for FAT 32
+        	unsigned int lead_signature; //should contain 0x41615252
+	        unsigned char reserved1[480];
+        	unsigned int structure_signature; //should contain 0x61417272
+	        unsigned int free_space; //contains last known free cluster count. 0xFFFFFFFF indicates count is unknown.
+        	unsigned int last_written; //contains last-written cluster number to help FAT drivers find a free cluster. 0xFFFFFFFF indicates that cluster number is unknown.
+	        unsigned char reserved2[12];
+        	unsigned int trail_signature; //should contain 0xAA550000
         }__attribute__((packed));
 
         enum FATType {
@@ -139,7 +138,11 @@ namespace FAT {
         public:
                 FATFSDriver();
                 bool DetectDrive(uint8_t *data);
-                void ReadCluster(uint8_t cluster);
+                bool FindDirectory(char *directory_path);
+                uint32_t FindInDirectory(uint32_t directory_cluster, char *find_name);
+                void ReadDirectory(uint32_t directory_cluster);
+                uint8_t *ReadCluster(uint8_t cluster);
+                void ParseRoot(uint32_t root_cluster);
         private:
                 FatBootsect *bootsect;
                 FATType fatType;
@@ -147,5 +150,16 @@ namespace FAT {
                 uint8_t drive;
                 uint8_t partition;
                 uint64_t offset;
+
+                uint32_t total_sectors;
+                uint32_t fat_size;
+                uint32_t root_dir_sectors;
+                uint32_t first_data_sector;
+                uint32_t first_fat_sector;
+                uint32_t data_sectors;
+                uint32_t total_clusters;
+                uint32_t first_sector_of_cluster;
+
+                uint32_t root_cluster;
         };
 }

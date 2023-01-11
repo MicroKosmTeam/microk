@@ -2,8 +2,8 @@
 #include <image.h>
 GOP GlobalRenderer;
 
-void print_image() {
-        for (int j = 0; j < 2; j++) {
+void print_image(int count) {
+        for (int j = 0; j < count; j++) {
                 for (int i = 0; pixels[i]>-1;) {
                         int row = pixels[i++];
                         int col = pixels[i++];
@@ -63,7 +63,10 @@ void printk(char *format, ...) {
                                         break;
                                 case '%':
                                         print_all_char('%');
-
+                                        break;
+                                case 'c':
+                                        print_all_char((char)(va_arg(ap, int)));
+                                        break;
 
                         }
                 } else {
