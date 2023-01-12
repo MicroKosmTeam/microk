@@ -17,7 +17,7 @@ CPP = gcc
 ASMC = nasm
 LD = gcc
 
-CFLAGS = -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
+CFLAGS = -O0 -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 
@@ -71,10 +71,12 @@ clean:
 buildimg: kernel
 	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=93750
 	mformat -F -v "Microk" -i $(BINDIR)/$(OSNAME).img ::
+	mmd -i $(BINDIR)/$(OSNAME).img ::/MICROK
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI/BOOT
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
+	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/initrd.tar ::/MICROK
 	mcopy -i $(BINDIR)/$(OSNAME).img startup.nsh ::
+	mcopy -i $(BINDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/kernel.elf ::
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
 
