@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 namespace FAT {
+
         #define END_CLUSTER_32 0x0FFFFFF8 //Use OSDev.org's suggestion of 0x0FFFFFF8 even though MSYS docs > OSdev.org.
         #define BAD_CLUSTER_32 0x0FFFFFF7
         #define FREE_CLUSTER_32 0x00000000
@@ -138,8 +139,10 @@ namespace FAT {
         public:
                 FATFSDriver();
                 bool DetectDrive(uint8_t *data);
-                bool FindDirectory(char *directory_path);
+                uint8_t *LoadFile(char *directory_path, char *file_name);
+                uint32_t FindDirectory(char *directory_path);
                 uint32_t FindInDirectory(uint32_t directory_cluster, char *find_name);
+                uint32_t FindSizeInDirectory(uint32_t directory_cluster, char *find_name);
                 void ReadDirectory(uint32_t directory_cluster);
                 uint8_t *ReadCluster(uint8_t cluster);
                 void ParseRoot(uint32_t root_cluster);
