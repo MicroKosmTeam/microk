@@ -4,6 +4,8 @@
 #include <dev/ahci/ahci.h>
 #include <mm/heap.h>
 
+#define PREFIX "[PCI] "
+
 namespace PCI {
         void EnumerateFunction(uint64_t device_address, uint64_t function) {
                 uint64_t offset = function<< 12;
@@ -16,7 +18,7 @@ namespace PCI {
                 if(pciDeviceHeader->DeviceID == 0) return;
                 if(pciDeviceHeader->DeviceID == 0xFFFF) return;
 
-                printk("PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
+                printk(PREFIX "PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
                        DeviceClasses[pciDeviceHeader->Class],
                        GetVendorName(pciDeviceHeader->VendorID),
                        pciDeviceHeader->VendorID,

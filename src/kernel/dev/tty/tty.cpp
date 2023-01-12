@@ -9,7 +9,7 @@
 #include <sys/cstr.h>
 #include <dev/timer/pit/pit.h>
 #include <fs/fs.h>
-//#include <fs/fat/fat.h>
+#include <kutil.h>
 
 TTY GlobalTTY;
 
@@ -54,9 +54,8 @@ void TTY::ElaborateCommand() {
                        "panik\n"
                        "mem\n"
                        "time\n"
-                       "ls\n"
-                       "image\n"
-                       "fatread\n");
+                       "rdinit\n"
+                       "image\n");
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
@@ -85,15 +84,12 @@ void TTY::ElaborateCommand() {
                 printk("Reserved memory: %s.\n", to_string(GlobalAllocator.GetReservedMem()));
         } else if (strcmp(ptr, "time") == 0) {
                 printk("Current tick: %d.\n", (uint64_t)PIT::TimeSinceBoot);
-        } else if (strcmp(ptr, "ls") == 0) {
-                ptr = strtok(NULL, " ");
-                GlobalFSManager.supportedDrives[0].partitions[0].fatDriver.FindDirectory(ptr);
         } else if (strcmp(ptr, "image") == 0) {
                 print_image(1);
         } else if (strcmp(ptr, "lsblk") == 0) {
                 GlobalFSManager.ListDrives();
-        } else if (strcmp(ptr, "fatread") == 0) {
-                printk("NIMPL.\n");
+        } else if (strcmp(ptr, "rdinit") == 0) {
+                rdinit();
         } else {
                 printk("Unknown command: %s\n", ptr);
         }
