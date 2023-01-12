@@ -1,4 +1,27 @@
 #include <kutil.h>
+#include <mm/pageframe.h>
+#include <mm/bitmap.h>
+#include <mm/pageindexer.h>
+#include <mm/pagetable.h>
+#include <mm/paging.h>
+#include <mm/heap.h>
+#include <io/io.h>
+#include <cpu/gdt.h>
+#include <cpu/interrupts/idt.h>
+#include <cpu/interrupts/interrupts.h>
+#include <dev/8259/pic.h>
+#include <dev/tty/gpm/gpm.h>
+#include <dev/tty/tty.h>
+#include <dev/pci/pci.h>
+#include <dev/timer/pit/pit.h>
+#include <fs/fs.h>
+#include <sys/icxxabi.h>
+#include <sys/printk.h>
+#include <sys/cstr.h>
+#include <sys/module.h>
+#include <mm/memory.h>
+
+#define PREFIX "[KINIT] "
 
 KernelInfo kInfo;
 IDTR idtr;
@@ -21,7 +44,7 @@ void PrepareMemory(BootInfo *bootInfo) {
         // Starting printk
         printk_init_serial();
         printk_init_fb(bootInfo->framebuffer, bootInfo->psf1_Font);
-        printk("MicroK Loading...\n");
+        printk(PREFIX "MicroK Loading...\n");
 
         // Initializing the GlobalAllocator with EFI Memory data
         GlobalAllocator = PageFrameAllocator();
@@ -89,25 +112,25 @@ void PrepareACPI(BootInfo *bootInfo) {
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
 
         int entries = (xsdt->Length - sizeof(ACPI::SDTHeader)) / 8;
-        printk("Available ACPI tables: %d\n", entries);
+        printk(PREFIX "Available ACPI tables: %d\n", entries);
 
-        printk("Loading the FADT table...\n");
+        printk(PREFIX "Loading the FADT table...\n");
         ACPI::FindTable(xsdt, (char*)"FADT");
 
-        printk("Loading the MADT table...\n");
+        printk(PREFIX "Loading the MADT table...\n");
         ACPI::FindTable(xsdt, (char*)"MADT");
 
-        printk("Loading the MCFG table...\n");
+        printk(PREFIX "Loading the MCFG table...\n");
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
 
-        printk("Loading the HPET table...\n");
+        printk(PREFIX "Loading the HPET table...\n");
         ACPI::FindTable(xsdt, (char*)"HPET");
 
-        printk("Enumerating PCI devices...\n");
+        printk(PREFIX "Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
 }
 
-KernelInfo kinit(BootInfo *bootInfo) {
+void kinit(BootInfo *bootInfo) {
         // Memory initialization
         PrepareMemory(bootInfo);
 
@@ -118,20 +141,20 @@ KernelInfo kinit(BootInfo *bootInfo) {
         // Perhaps do it like linux does (1 per cpu core?)
         // We start by rendering one.
         print_image(1);
-        printk("\n\n\n\n\n\n\n\n");
+        printk(PREFIX "\n\n\n\n\n\n\n\n");
 
         // Init heap
-        printk("Initializing the heap...\n");
+        printk(PREFIX "Initializing the heap...\n");
         InitializeHeap((void*)0x000010000000000, 0x10);
         void *address_one = malloc(0x8000);
-        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
+        printk(PREFIX "malloc() address: 0x%x\n", (uint64_t)address_one);
         free(address_one);
-        printk("free().\n");
+        printk(PREFIX "free().\n");
         address_one = 0;
         address_one = malloc(0x8000);
-        printk("malloc() address: 0x%x\n", (uint64_t)address_one);
+        printk(PREFIX "malloc() address: 0x%x\n", (uint64_t)address_one);
         free(address_one);
-        printk("free().\n");
+        printk(PREFIX "free().\n");
 
         // Interrupt initialization
         PrepareInterrupts(bootInfo);
@@ -143,15 +166,74 @@ KernelInfo kinit(BootInfo *bootInfo) {
         GlobalModuleManager = ModuleManager();
 
         // Starting the filesystem Manager
-        //GlobalFSManager = Filesystem::FSManager();
+        GlobalFSManager = Filesystem::FSManager();
 
         // ACPI initialization
         PrepareACPI(bootInfo);
 
         // Starting a TTY
         GlobalTTY = TTY();
+}
+
+int oct2bin(unsigned char *str, int size) {
+        int n = 0;
+        unsigned char *c = str;
+        while (size-- > 0) {
+                n *= 8;
+                n += *c - '0';
+                c++;
+        }
+        return n;
+}
+
+/* returns file size and pointer to file data in out */
+int tar_lookup(unsigned char *archive, char *filename, char **out) {
+        unsigned char *ptr = archive;
+ 
+        while (!memcmp(ptr + 257, "ustar", 5)) {
+                int filesize = oct2bin(ptr + 0x7c, 11);
+                if (!memcmp(ptr, filename, strlen(filename) + 1)) {
+                        *out = (char*)ptr + 512;
+                        return filesize;
+                }
+                ptr += (((filesize + 511) / 512) + 1) * 512;
+        }
+        return 0;
+}
+
+void rdinit() {
+        char *buffer = (char*)malloc(512 * 1024);
+
+        memset(buffer, 0, 512 * 1024);
+        uint64_t size_png = tar_lookup(kInfo.initrd, "logo.ppm", &buffer);
+
+        if (size_png == 0) {
+                printk(PREFIX "Failed to read logo.ppm on initrd.\n");
+        } else {
+                printk(PREFIX "The start of logo.ppm:\n");
+                int i = 0;
+                while (buffer[i]) {
+                        printk("%c", buffer[i]);
+                        i++;
+                }
+                printk("\n");
+        }
+        printk("\n");
+
+        memset(buffer, 0, 512 * 1024);
+        uint64_t size_hello = tar_lookup(kInfo.initrd, "hello.txt", &buffer);
+
+        if (size_hello == 0) {
+                printk(PREFIX "Failed to read hello.txt on initrd.\n");
+        } else {
+                printk(PREFIX "Now, hello.txt:\n");
+                for (int i = 0; i < size_hello; i++) {
+                        printk("%c", buffer[i]);
+                }
+                printk("\n");
+        }
         
 
 
-        return kInfo;
+        free(buffer);
 }
