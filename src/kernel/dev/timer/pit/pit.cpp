@@ -5,6 +5,10 @@ namespace PIT {
         double TimeSinceBoot = 0;
         uint16_t Divisor = 65535; // Max value
 
+        void ResetTimer() {
+                TimeSinceBoot = 0;
+        }
+
         void Sleepd(double seconds) {
                 double startTime = TimeSinceBoot;
                 while (TimeSinceBoot < startTime + seconds) {
@@ -35,6 +39,6 @@ namespace PIT {
         }
 
         void Tick() {
-                TimeSinceBoot += 1 / (double)GetFrequency();
+                TimeSinceBoot += (double)1 / (double)GetFrequency();
         }
 }

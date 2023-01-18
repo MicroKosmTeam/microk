@@ -20,19 +20,19 @@ void HandleKeyboard(uint8_t scancode) {
                         rshift_pressed = false;
                         break;
                 case RETURN:
-                        GlobalTTY.SendChar('\n');
+                        GlobalTTY->SendChar('\n');
                         break;
                 case BACKSP:
-                        GlobalTTY.SendChar('\b');
+                        GlobalTTY->SendChar('\b');
                         break;
                 case SPCBAR:
-                        GlobalTTY.SendChar(' ');
+                        GlobalTTY->SendChar(' ');
                         break;
                 default:
                         char character = QWERTYKeyboard::Translate(scancode, lshift_pressed | rshift_pressed);
 
                         if(character != 0)
-                                GlobalTTY.SendChar(character);
+                                GlobalTTY->SendChar(character);
                         break;
         }
 

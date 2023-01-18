@@ -23,25 +23,42 @@
  */
 
 #include <kutil.h>
+#include <mm/heap.h>
+#include <mm/pageframe.h>
+#include <mm/memory.h>
+#include <sys/cstr.h>
+#include <dev/tty/tty.h>
+#include <sys/printk.h>
+#include <sys/panik.h>
+
+#define PREFIX "[KINIT] "
 
 extern "C" void _start(BootInfo* bootInfo){
-        KernelInfo kinfo = kinit(bootInfo);
+        kinit(bootInfo);
+        
+        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
+        else printk(PREFIX "Loading the initramfs...\n");
+        rdinit();
 
-        printk("Kernel loaded\n");
+        GlobalTTY->Activate();
+        delete GlobalTTY;
+
+        free(kInfo.initrd);
+
+        // Done
         printk(" __  __  _                _  __    ___   ___\n");
         printk("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n");
         printk("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n");
         printk("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
         printk("The operating system from the future...at your fingertips.\n");
-        printk("Kernel is %skb.\n", to_string(kinfo.kernel_size / 1024));
-        printk("Free memory: %skb.\n", to_string(GlobalAllocator.GetFreeMem() / 1024));
-        printk("Used memory: %skb.\n", to_string(GlobalAllocator.GetUsedMem() / 1024));
-        printk("Reserved memory: %skb.\n", to_string(GlobalAllocator.GetReservedMem() / 1024));
-        
-
-        GlobalTTY.Activate();
+        printk("Kernel is %dkb.\n", kInfo.kernel_size / 1024);
+        printk("Free memory: %dkb.\n", GlobalAllocator.GetFreeMem() / 1024);
+        printk("Used memory: %dkb.\n", GlobalAllocator.GetUsedMem() / 1024);
+        printk("Reserved memory: %dkb.\n", GlobalAllocator.GetReservedMem() / 1024);
 
         while (true) {
                 asm("hlt");
         }
+
+        PANIK("Reached the end of kernel operations.");
 }

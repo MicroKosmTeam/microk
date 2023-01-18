@@ -7,6 +7,7 @@ public:
         ~ModuleManager();
         bool FindModule(char *moduleName);
         bool LoadModule(char *moduleName);
+        void LoadELF(uint8_t *data);
 private:
 };
 
