@@ -18,7 +18,7 @@
 #include <sys/icxxabi.h>
 #include <sys/printk.h>
 #include <sys/cstr.h>
-#include <sys/module.h>
+#include <module/module.h>
 #include <mm/memory.h>
 
 #define PREFIX "[KINIT] "
@@ -145,7 +145,7 @@ void kinit(BootInfo *bootInfo) {
 
         // Init heap
         printk(PREFIX "Initializing the heap...\n");
-        InitializeHeap((void*)0x000010000000000, 0x10);
+        InitializeHeap((void*)0xffffff0000000000, 0x10);
         void *address_one = malloc(0x8000);
         printk(PREFIX "malloc() address: 0x%x\n", (uint64_t)address_one);
         free(address_one);
@@ -160,7 +160,9 @@ void kinit(BootInfo *bootInfo) {
         PrepareInterrupts(bootInfo);
 
         // Setting the timer frequency
-        PIT::SetFrequency(1);
+        PIT::SetFrequency(100);
+
+        printk(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
         // Starting the modules subsystem
         GlobalModuleManager = ModuleManager();
@@ -171,8 +173,7 @@ void kinit(BootInfo *bootInfo) {
         // ACPI initialization
         PrepareACPI(bootInfo);
 
-        // Starting a TTY
-        GlobalTTY = TTY();
+        GlobalTTY = new TTY();
 }
 
 int oct2bin(unsigned char *str, int size) {
@@ -205,35 +206,14 @@ void rdinit() {
         char *buffer = (char*)malloc(512 * 1024);
 
         memset(buffer, 0, 512 * 1024);
-        uint64_t size_png = tar_lookup(kInfo.initrd, "logo.ppm", &buffer);
+        uint64_t size_elf = tar_lookup(kInfo.initrd, "module.elf", &buffer);
 
-        if (size_png == 0) {
-                printk(PREFIX "Failed to read logo.ppm on initrd.\n");
+        if (size_elf == 0) {
+                printk(PREFIX "Failed to read module.elf on initrd.\n");
         } else {
-                printk(PREFIX "The start of logo.ppm:\n");
-                int i = 0;
-                while (buffer[i]) {
-                        printk("%c", buffer[i]);
-                        i++;
-                }
-                printk("\n");
+                printk(PREFIX "Sending it to the module manager...\n");
+                GlobalModuleManager.LoadELF((uint8_t*)buffer);
         }
-        printk("\n");
-
-        memset(buffer, 0, 512 * 1024);
-        uint64_t size_hello = tar_lookup(kInfo.initrd, "hello.txt", &buffer);
-
-        if (size_hello == 0) {
-                printk(PREFIX "Failed to read hello.txt on initrd.\n");
-        } else {
-                printk(PREFIX "Now, hello.txt:\n");
-                for (int i = 0; i < size_hello; i++) {
-                        printk("%c", buffer[i]);
-                }
-                printk("\n");
-        }
-        
-
 
         free(buffer);
 }

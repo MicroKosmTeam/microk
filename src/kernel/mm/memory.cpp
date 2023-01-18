@@ -15,6 +15,22 @@ uint64_t get_memory_size(EFI_MEMORY_DESCRIPTOR *mMap, uint64_t mMapEntries, uint
         return memory_size_bytes;
 }
 
+
+/*void *vmalloc(size_t size) {
+        if (size % 0x1000) { // We can't allocate less that a page
+                size -= size % 0x1000;
+                size += 0x1000;
+        }
+
+        size_t pageCount = size / 0x1000;
+
+        for (size_t i = 0; i < pageCount; i++) {
+                GlobalPageTableManager.MapMemory(heapEnd, GlobalAllocator.RequestPage());
+                heapEnd = (void*)((size_t)heapEnd + 0x1000);
+        }
+}*/
+
+
 extern "C" int memcmp(const void* buf1, const void* buf2, size_t count) {
     if(!count)
         return(0);

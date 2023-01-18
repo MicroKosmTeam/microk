@@ -3,7 +3,7 @@
 #include <sys/printk.h>
 #include <sys/panik.h>
 #include <mm/memory.h>
-#include <sys/module.h>
+#include <module/module.h>
 #include <mm/string.h>
 #include <mm/pageframe.h>
 #include <sys/cstr.h>
@@ -11,30 +11,46 @@
 #include <fs/fs.h>
 #include <kutil.h>
 
-TTY GlobalTTY;
+#define PREFIX "[TTY] "
+
+TTY *GlobalTTY;
 
 TTY::TTY() {
+        printk(PREFIX "Initializing TTY...\n");
         is_active = false;
+        exit = false;
 }
 
 TTY::~TTY() {
+        printk(PREFIX "Destroying TTY...\n");
 }
 
-bool TTY::Activate() {
-        printk("Activating TTY...\n\n");
+void TTY::Activate() {
+        printk(PREFIX "Activating TTY...\n\n");
         user_mask = (char*)malloc(512);
         
         PrintPrompt();
+
         // We activate it at the end
         is_active = true;
+        
+        while(is_active) {
+                if(exit) {
+                        printk(PREFIX "Exiting...\n");
+                        return;
+                }
+                asm("hlt");
+        }
 }
 
 void TTY::Deactivate() {
-        printk("Dectivating TTY...\n");
+        printk(PREFIX "Dectivating TTY...\n");
         // We deactivate it immediatly
         is_active = false;
+        exit = true;
 
         free(user_mask);
+        return;
 }
 
 void TTY::PrintPrompt() {
@@ -79,17 +95,18 @@ void TTY::ElaborateCommand() {
         } else if (strcmp(ptr, "panik") == 0) {
                 PANIK("User induced panic.");
         } else if (strcmp(ptr, "mem") == 0) {
-                printk("Free memory: %s.\n", to_string(GlobalAllocator.GetFreeMem()));
-                printk("Used memory: %s.\n", to_string(GlobalAllocator.GetUsedMem()));
-                printk("Reserved memory: %s.\n", to_string(GlobalAllocator.GetReservedMem()));
+                printk("Free memory: %d.\n", GlobalAllocator.GetFreeMem());
+                printk("Used memory: %d.\n", GlobalAllocator.GetUsedMem());
+                printk("Reserved memory: %d.\n", GlobalAllocator.GetReservedMem());
         } else if (strcmp(ptr, "time") == 0) {
-                printk("Current tick: %d.\n", (uint64_t)PIT::TimeSinceBoot);
+                printk("Ticks since initialization: %d.\n", (uint64_t)PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "image") == 0) {
                 print_image(1);
         } else if (strcmp(ptr, "lsblk") == 0) {
                 GlobalFSManager.ListDrives();
-        } else if (strcmp(ptr, "rdinit") == 0) {
-                rdinit();
+        } else if (strcmp(ptr, "exit") == 0) {
+                GlobalTTY->Deactivate();
+                return;
         } else {
                 printk("Unknown command: %s\n", ptr);
         }
@@ -115,10 +132,15 @@ void TTY::SendChar(char ch) {
                 case '\n':
                         is_active = false;
                         ElaborateCommand();
-                        PrintPrompt();
-                        memset(user_mask, 0, 512);
-                        curr_char = 0;
-                        is_active = true;
+
+                        if (exit) {
+                                return;
+                        } else {
+                                PrintPrompt();
+                                memset(user_mask, 0, 512);
+                                curr_char = 0;
+                                is_active = true;
+                        }
                         break;
                 default:
                         if (curr_char < 512) {

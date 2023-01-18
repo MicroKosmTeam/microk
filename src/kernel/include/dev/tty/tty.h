@@ -6,7 +6,7 @@ class TTY {
 public:
         TTY();
         ~TTY();
-        bool Activate();
+        void Activate();
         void Deactivate();
         void SendChar(char ch);
 private:
@@ -14,6 +14,7 @@ private:
         void ElaborateCommand();
         char *user_mask;
         bool is_active;
+        bool exit;
 };
 
-extern TTY GlobalTTY;
+extern TTY *GlobalTTY;

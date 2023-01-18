@@ -29,6 +29,7 @@ namespace PCI {
                        GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
                        pciDeviceHeader->ProgIF);
 
+                printk(PREFIX "Starting eventual driver...\n");
                 switch (pciDeviceHeader->Class) {
                         case 0x01: //Mass storage
                                 switch (pciDeviceHeader->Subclass) {
@@ -39,6 +40,7 @@ namespace PCI {
                                                 }
                                 }
                 }
+                printk(PREFIX "Done enumerating function.\n");
         }
 
         void EnumerateDevice(uint64_t bus_address, uint64_t device) {
