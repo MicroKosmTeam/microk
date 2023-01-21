@@ -10,6 +10,7 @@
 #include <dev/timer/pit/pit.h>
 #include <fs/fs.h>
 #include <kutil.h>
+#include <fs/vfs.h>
 
 #define PREFIX "[TTY] "
 
@@ -71,7 +72,7 @@ void TTY::ElaborateCommand() {
                        "mem\n"
                        "time\n"
                        "rdinit\n"
-                       "image\n");
+                       );
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
@@ -79,9 +80,9 @@ void TTY::ElaborateCommand() {
         } else if (strcmp(ptr, "module") == 0) {
                 ptr = strtok(NULL, " ");
                 if (ptr != NULL) {
-                        if(GlobalModuleManager.FindModule(ptr)) {
+                        if(GlobalModuleManager->FindModule(ptr)) {
                                 printk("Module found! Loading...\n");
-                                if(GlobalModuleManager.LoadModule(ptr)) {
+                                if(GlobalModuleManager->LoadModule(ptr)) {
                                         printk("Module loaded successfully.\n");
                                 } else {
                                         printk("Loading module failed!\n");
@@ -100,10 +101,11 @@ void TTY::ElaborateCommand() {
                 printk("Reserved memory: %d.\n", GlobalAllocator.GetReservedMem());
         } else if (strcmp(ptr, "time") == 0) {
                 printk("Ticks since initialization: %d.\n", (uint64_t)PIT::TimeSinceBoot);
-        } else if (strcmp(ptr, "image") == 0) {
-                print_image(1);
         } else if (strcmp(ptr, "lsblk") == 0) {
-                GlobalFSManager.ListDrives();
+                GlobalFSManager->ListDrives();
+        } else if (strcmp(ptr, "ls") == 0) {
+                ptr = strtok(NULL, " ");
+                GlobalFSManager->supportedDrives[0].partitions[0].fatDriver.FindDirectory(ptr);
         } else if (strcmp(ptr, "exit") == 0) {
                 GlobalTTY->Deactivate();
                 return;

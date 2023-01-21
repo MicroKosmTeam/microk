@@ -92,7 +92,6 @@ namespace AHCI {
         bool Port::TransferDMA(bool write, uint64_t sector, uint32_t sectorCount, void* buffer) {
                 // Control if busy
 //                uint64_t spin = 0;
-                printk(PREFIX "Checking if the drive is busy...\n");
                 while ((hbaPort->taskFileData & (ATA_DEV_BUSY | ATA_DEV_DRQ)) /*&& spin < 1000000*/){
 //                        spin++; // Timeout
                 }
@@ -100,7 +99,6 @@ namespace AHCI {
 //                        return false;
 //                }
 
-                printk(PREFIX "Setting up...\n");
                 uint32_t sectorLow = (uint32_t)sector;
                 uint32_t sectorHigh = (uint32_t)(sector >> 32);
                 hbaPort->interruptStatus = (uint32_t)-1; // Clean interrupt line
@@ -138,7 +136,6 @@ namespace AHCI {
 
                 hbaPort->commandIssue = 1;
 
-                printk(PREFIX "Waiting until transfer DMA is done...\n");
                 // Wait until done (fix it with interrupts)
                 while (true){
                         if((hbaPort->commandIssue == 0)) break;
@@ -147,8 +144,6 @@ namespace AHCI {
                                 return false;
                         }
                 }
-
-                printk(PREFIX "DMA transfer done.\n");
         
                 return true;
         }
@@ -173,7 +168,7 @@ namespace AHCI {
                         Port *port = ports[i];
                        
                         printk(PREFIX "Sending it to the FS manager...\n");
-                        GlobalFSManager.AddAHCIDrive(port, i, 256 * 0x1000); // 128 pages of DMA
+                        GlobalFSManager->AddAHCIDrive(port, i, 1024 * 1024 * 16); // 16MB
                 }
         }
 

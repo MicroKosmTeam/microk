@@ -1,18 +1,30 @@
 #include <sys/printk.h>
-#include <image.h>
+#include <stdio.h>
 GOP GlobalRenderer;
 
-void print_image(int count) {
-        for (int j = 0; j < count; j++) {
-                for (int i = 0; pixels[i]>-1;) {
-                        int row = pixels[i++];
-                        int col = pixels[i++];
-                        int r = pixels[i++];
-                        int g = pixels[i++];
-                        int b = pixels[i++];
-                        uint32_t color = b | (g << 8) | (r << 16) | (0xff << 24);
+void print_image(const uint8_t *data) {
+        char *ptr = strtok((char*)data, "\n");
+        printk("%s\n", ptr);
 
-                        GlobalRenderer.put_pixel(row + j * 90, col, color);
+        uint16_t height, width;
+
+        ptr = strtok(NULL, " ");
+        width = atoi(ptr);
+        ptr = strtok(NULL, "\n");
+        height = atoi(ptr);
+
+        printk("Width: %d\nHeight: %d\n", width, height);
+
+        ptr = strtok(NULL, "\n");
+
+        for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                        uint8_t r = atoi(strtok(NULL, "\n"));
+                        uint8_t g = atoi(strtok(NULL, "\n"));
+                        uint8_t b = atoi(strtok(NULL, "\n"));
+                        uint32_t color = (b | (g << 8) | (r << 16) | (0xff << 24));
+                        //printk("Color : %d %d %d 0x%x\n", r, g, b, color);
+                        GlobalRenderer.put_pixel(x, y, color);
                 }
         }
 }

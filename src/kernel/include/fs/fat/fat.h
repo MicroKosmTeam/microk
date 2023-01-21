@@ -144,13 +144,12 @@ namespace FAT {
                 uint32_t FindInDirectory(uint32_t directory_cluster, char *find_name);
                 uint32_t FindSizeInDirectory(uint32_t directory_cluster, char *find_name);
                 void ReadDirectory(uint32_t directory_cluster);
-                uint8_t *ReadCluster(uint8_t cluster);
                 void ParseRoot(uint32_t root_cluster);
+                uint8_t drive;
         private:
                 FatBootsect *bootsect;
                 FATType fatType;
 
-                uint8_t drive;
                 uint8_t partition;
                 uint64_t offset;
 

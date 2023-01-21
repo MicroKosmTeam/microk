@@ -98,8 +98,8 @@ uint8_t *FATFSDriver::LoadFile(char *directory_path, char *file_name) {
 
         uint32_t first_sector_of_cluster = ((file_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
         
-        //uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
-        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, file_size / bootsect->bytes_per_sector + 1);
+        uint8_t *read_data = (uint8_t*)malloc(file_size);
+        GlobalFSManager->ReadDrive(drive, first_sector_of_cluster, file_size / bootsect->bytes_per_sector + 1, &read_data, file_size, bootsect->bytes_per_sector);
 
         return read_data;
 }
@@ -126,7 +126,8 @@ uint32_t FATFSDriver::FindDirectory(char *directory_path) {
 uint32_t FATFSDriver::FindSizeInDirectory(uint32_t directory_cluster, char *find_name) {
         uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
         
-        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
+        uint8_t *read_data = (uint8_t*)malloc(bootsect->sectors_per_cluster * bootsect->bytes_per_sector);
+        GlobalFSManager->ReadDrive(drive, first_sector_of_cluster, bootsect->sectors_per_cluster, &read_data, bootsect->sectors_per_cluster * bootsect->bytes_per_sector, bootsect->bytes_per_sector);
         uint8_t *sector_data = (uint8_t*)malloc(32);
 
         uint32_t found_size = 0;
@@ -166,8 +167,9 @@ uint32_t FATFSDriver::FindSizeInDirectory(uint32_t directory_cluster, char *find
 
 uint32_t FATFSDriver::FindInDirectory(uint32_t directory_cluster, char *find_name) {
         uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
-        
-        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
+       
+        uint8_t *read_data = (uint8_t*)malloc(bootsect->sectors_per_cluster * bootsect->bytes_per_sector);
+        GlobalFSManager->ReadDrive(drive, first_sector_of_cluster, bootsect->sectors_per_cluster, &read_data, bootsect->sectors_per_cluster * bootsect->bytes_per_sector, bootsect->bytes_per_sector);
         uint8_t *sector_data = (uint8_t*)malloc(32);
 
         uint32_t found_cluster = 0;
@@ -210,7 +212,9 @@ uint32_t FATFSDriver::FindInDirectory(uint32_t directory_cluster, char *find_nam
 void FATFSDriver::ReadDirectory(uint32_t directory_cluster) {
         uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
         
-        uint8_t *read_data = GlobalFSManager.ReadDrive(1, first_sector_of_cluster, bootsect->sectors_per_cluster);
+        printk(PREFIX "Reading directory in cluster %d.\n", directory_cluster);
+        uint8_t *read_data = (uint8_t*)malloc(bootsect->sectors_per_cluster * bootsect->bytes_per_sector);
+        GlobalFSManager->ReadDrive(drive, first_sector_of_cluster, bootsect->sectors_per_cluster, &read_data, bootsect->sectors_per_cluster * bootsect->bytes_per_sector, bootsect->bytes_per_sector);
         uint8_t *sector_data = (uint8_t*)malloc(32);
 
         printk(PREFIX "Parsing the directory:\n");
@@ -256,10 +260,6 @@ void FATFSDriver::ReadDirectory(uint32_t directory_cluster) {
 
         free(read_data);
         free(sector_data);
-}
-
-uint8_t *FATFSDriver::ReadCluster(uint8_t cluster) {
-        
 }
 
 }

@@ -20,6 +20,8 @@
 #include <sys/cstr.h>
 #include <module/module.h>
 #include <mm/memory.h>
+#include <cpu/cpu.h>
+#include <sys/panik.h>
 
 #define PREFIX "[KINIT] "
 
@@ -138,23 +140,12 @@ void kinit(BootInfo *bootInfo) {
         GlobalRenderer.print_set_color(0xf0f0f0f0, 0x0f0f0f0f);
         GlobalRenderer.print_clear();
  
-        // Perhaps do it like linux does (1 per cpu core?)
-        // We start by rendering one.
-        print_image(1);
-        printk(PREFIX "\n\n\n\n\n\n\n\n");
-
         // Init heap
         printk(PREFIX "Initializing the heap...\n");
-        InitializeHeap((void*)0xffffff0000000000, 0x10);
-        void *address_one = malloc(0x8000);
-        printk(PREFIX "malloc() address: 0x%x\n", (uint64_t)address_one);
-        free(address_one);
-        printk(PREFIX "free().\n");
-        address_one = 0;
-        address_one = malloc(0x8000);
-        printk(PREFIX "malloc() address: 0x%x\n", (uint64_t)address_one);
-        free(address_one);
-        printk(PREFIX "free().\n");
+        InitializeHeap((void*)0xffffff0000000000, 0x100);
+
+        // Init CPU Features
+        CPU::Init();
 
         // Interrupt initialization
         PrepareInterrupts(bootInfo);
@@ -165,55 +156,55 @@ void kinit(BootInfo *bootInfo) {
         printk(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
         // Starting the modules subsystem
-        GlobalModuleManager = ModuleManager();
+        GlobalModuleManager = new ModuleManager();
 
         // Starting the filesystem Manager
-        GlobalFSManager = Filesystem::FSManager();
+        GlobalFSManager = new Filesystem::FSManager();
 
         // ACPI initialization
         PrepareACPI(bootInfo);
 
+        // Initializing a TTY
         GlobalTTY = new TTY();
 }
 
-int oct2bin(unsigned char *str, int size) {
-        int n = 0;
-        unsigned char *c = str;
-        while (size-- > 0) {
-                n *= 8;
-                n += *c - '0';
-                c++;
-        }
-        return n;
-}
-
-/* returns file size and pointer to file data in out */
-int tar_lookup(unsigned char *archive, char *filename, char **out) {
-        unsigned char *ptr = archive;
- 
-        while (!memcmp(ptr + 257, "ustar", 5)) {
-                int filesize = oct2bin(ptr + 0x7c, 11);
-                if (!memcmp(ptr, filename, strlen(filename) + 1)) {
-                        *out = (char*)ptr + 512;
-                        return filesize;
-                }
-                ptr += (((filesize + 511) / 512) + 1) * 512;
-        }
-        return 0;
-}
-
+#include <fs/ustar/ustar.h>
 void rdinit() {
-        char *buffer = (char*)malloc(512 * 1024);
+        USTAR::LoadArchive(kInfo.initrd);
+        USTAR::ReadArchive();
+        USTAR::ReadFile("README.md");
 
-        memset(buffer, 0, 512 * 1024);
-        uint64_t size_elf = tar_lookup(kInfo.initrd, "module.elf", &buffer);
-
-        if (size_elf == 0) {
-                printk(PREFIX "Failed to read module.elf on initrd.\n");
+        size_t size;
+        USTAR::GetFileSize("bad.ppm", &size);
+        printk(PREFIX "Size of bad.ppm: %d\n", size); 
+        uint8_t *buffer = (uint8_t*)malloc(size);
+        memset(buffer, 0, size);
+        if(USTAR::ReadFile("bad.ppm", &buffer, size)) {
+                printk(PREFIX "Printing...\n");
+                print_image(buffer);
         } else {
-                printk(PREFIX "Sending it to the module manager...\n");
-                GlobalModuleManager.LoadELF((uint8_t*)buffer);
+                printk(PREFIX "Failed to read module.elf on initrd.\n");
         }
-
+        
         free(buffer);
+
+
+        while(true) {
+                asm("hlt");
+        }
+        /*
+        size_t size;
+        USTAR::GetFileSize("module.elf", &size);
+        printk(PREFIX "Size of module.elf: %d\n", size);
+        uint8_t *buffer = (uint8_t*)malloc(size);
+        memset(buffer, 0, size);
+        if(USTAR::ReadFile("module.elf", &buffer, size)) {
+                printk(PREFIX "Sending it to the module manager...\n");
+                GlobalModuleManager->LoadELF((uint8_t*)buffer);
+        } else {
+                printk(PREFIX "Failed to read module.elf on initrd.\n");
+        }
+        
+        free(buffer);
+        */
 }

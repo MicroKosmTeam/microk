@@ -11,4 +11,4 @@ public:
 private:
 };
 
-extern ModuleManager GlobalModuleManager;
+extern ModuleManager *GlobalModuleManager;

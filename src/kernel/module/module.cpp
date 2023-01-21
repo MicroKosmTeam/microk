@@ -7,7 +7,7 @@
 #include <elf64.h>
 
 #define PREFIX "[KMOD] "
-ModuleManager GlobalModuleManager;
+ModuleManager *GlobalModuleManager;
 
 ModuleManager::ModuleManager() {
         KRNSYM::Setup();
