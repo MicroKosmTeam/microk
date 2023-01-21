@@ -19,7 +19,7 @@ CPP = x86_64-elf-gcc
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -O -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
+CFLAGS = -Og -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
@@ -83,7 +83,7 @@ clean:
 	@rm -rf $(OBJDIR)
 
 buildimg: kernel
-	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=93750
+	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=250000
 	mformat -F -v "Microk" -i $(BINDIR)/$(OSNAME).img ::
 	mmd -i $(BINDIR)/$(OSNAME).img ::/MICROK
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
