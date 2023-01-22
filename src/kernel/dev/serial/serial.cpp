@@ -1,7 +1,14 @@
 #include <dev/serial/serial.h>
+
+#ifdef KCONSOLE_SERIAL
+
 #include <io/io.h>
 
 int port;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static int is_transmit_empty() {
         return inb(port + 5) & 0x20;
@@ -55,4 +62,8 @@ void serial_print_char(const char ch) {
         outb(port, ch);
 }
 
+#ifdef __cplusplus
+}
+#endif
 
+#endif

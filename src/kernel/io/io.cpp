@@ -1,5 +1,11 @@
 #include <io/io.h>
 
+#ifdef x86_64
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void outb(uint16_t port, uint8_t val) {
         asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
 }
@@ -24,3 +30,8 @@ void io_wait(void){
         outb(0x80, 0);
 }
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

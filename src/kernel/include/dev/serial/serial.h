@@ -1,4 +1,7 @@
 #pragma once
+#include <cdefs.h>
+#ifdef KCONSOLE_SERIAL
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -12,6 +15,14 @@
 #define COM8 0x4e8
 extern int port;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 int serial_init(const int set_port);
 void serial_print_str(const char* str);
 void serial_print_char(const char ch);
+#ifdef __cplusplus
+}
+#endif
+
+#endif
