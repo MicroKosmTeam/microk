@@ -3,13 +3,30 @@
 
 #define KNAME "MicroKernel"
 #define KVER "devel-alpha"
-#define KCOMMENTS "Merry Christmas!"
+#define KCOMMENTS "Touching the sky."
 
-#define KBOOT_MBOOT1
-#define KBOOT_MBOOT2
-#define KMAX_CPUS 16
-#define KMAX_IOAPIC 8
-#define KCONSOLE_SERIAL
-#define KCONSOLE_VGA
-#undef  KCONSOLE_VBE
-#undef  KCONSOLE_GOP
+
+#ifdef x86_64
+
+#elif x86
+        #error "i686 is not supported."
+#elif ARM7
+        #error "ARM7 is not supported."
+#elif AARCH64
+        #error "AARCH64 is not supported."
+#else
+        #error "ARCH is not specified."
+#endif
+
+// PRINTK
+#define PRINTK
+#ifdef PRINTK
+        #define KCONSOLE_SERIAL
+        #define KCONSOLE_GOP
+#endif
+
+// UBSAN
+#undef  UBSAN_NULL_PTR
+#undef  UBSAN_MEM_ALIGN
+#define UBSAN_OOB
+#undef  UBSAN_PANIK
