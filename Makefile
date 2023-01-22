@@ -27,9 +27,11 @@ MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 KSRC = $(call rwildcard,$(KERNDIR),*.cpp)
+KASMSRC = $(call rwildcard,$(KERNDIR),*.asm)
+KCSRC = $(call rwildcard,$(KERNDIR),*.c)
 MSRC =  $(call rwildcard,$(MODDIR),*.cpp)
-KASMSRC  = $(call rwildcard,$(KERNDIR),*.asm)
 KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(OBJDIR)/kernel/%.o, $(KSRC))
+KOBJS += $(patsubst $(KERNDIR)/%.c, $(OBJDIR)/kernel/%_c.o, $(KCSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(OBJDIR)/kernel/%_asm.o, $(KASMSRC))
 MOBJS = $(patsubst $(MODDIR)/%.cpp, $(OBJDIR)/module/%.o, $(MSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
@@ -45,6 +47,11 @@ $(OBJDIR)/kernel/%.o: $(KERNDIR)/%.cpp
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
 	$(CPP) $(CFLAGS) -c $^ -o $@
+
+$(OBJDIR)/kernel/%_c.o: $(KERNDIR)/%.c
+	@ echo !==== COMPILING $^
+	@ mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(OBJDIR)/kernel/%_asm.o: $(KERNDIR)/%.asm
 	@ echo !==== COMPILING $^
