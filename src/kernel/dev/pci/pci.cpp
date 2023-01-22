@@ -39,6 +39,12 @@ namespace PCI {
                                                                 new AHCI::AHCIDriver(pciDeviceHeader);
                                                 }
                                 }
+                        case 0x02:
+                                switch (pciDeviceHeader->Subclass) {
+                                        case 0x00:
+                                                printk(PREFIX "TODO: Implement EthernetDriver.\n");
+                                                //new ETH:EthernetDriver.
+                                }
                 }
                 printk(PREFIX "Done enumerating function.\n");
         }

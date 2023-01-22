@@ -33,6 +33,8 @@ namespace PCI {
                                 return "AMD";
                         case 0x10DE:
                                 return "Nvidia Corp";
+                        case 0x1234:
+                                return "QEMU";
                         default:
                                 return "Unknown vendor";
                 }
@@ -42,6 +44,8 @@ namespace PCI {
                 switch (vendorID){
                         case 0x8086: // Intel
                                 switch(deviceID){
+                                        case 0x10D3:
+                                                return "82574L Gigabit Network [E1000]";
                                         case 0x29C0:
                                                 return "Express DRAM Controller";
                                         case 0x2918:
@@ -52,6 +56,11 @@ namespace PCI {
                                                 return "SMBus Controller";
                                         default:
                                                 return "Unknown Intel device";
+                                }
+                        case 0x1234:
+                                switch(deviceID) {
+                                        case 0x1111:
+                                                return "QEMU Virt VGA Controller";
                                 }
                         default:
                                 return"Unknown device name";
@@ -151,6 +160,11 @@ namespace PCI {
                 switch (classCode){
                         case 0x01:
                                 return MassStorageControllerSubclassName(subclassCode);
+                        case 0x02:
+                                switch (subclassCode) {
+                                        case 0x0:
+                                                return "Ethernet Controller";
+                                }
                         case 0x03:
                                 switch (subclassCode){
                                         case 0x00:
