@@ -19,7 +19,7 @@ CPP = x86_64-elf-gcc
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -Og -fno-builtin -ffreestanding -fshort-wchar -fno-stack-protector -mno-red-zone -fno-exceptions -Wall -I src/kernel/include
+CFLAGS = -Og -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -Wall -I src/kernel/include -fsanitize=undefined -D$(ARCH)
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
@@ -34,7 +34,7 @@ KOBJS += $(patsubst $(KERNDIR)/%.asm, $(OBJDIR)/kernel/%_asm.o, $(KASMSRC))
 MOBJS = $(patsubst $(MODDIR)/%.cpp, $(OBJDIR)/module/%.o, $(MSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-kernel: setup bootloader $(KOBJS) link $(MOBJS) link-module
+kernel: setup bootloader $(KOBJS) link $(MOBJS) #link-module
 
 $(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(KERNDIR)/cpu/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
@@ -95,7 +95,6 @@ buildimg: kernel
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
 
 run: buildimg
-	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none
-
+	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" 
 run-tty: buildimg
-	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -net none -nographic
+	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -nographic
