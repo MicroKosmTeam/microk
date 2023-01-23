@@ -174,24 +174,36 @@ void rdinit() {
         USTAR::ReadArchive();
         USTAR::ReadFile("README.md");
 
-        size_t size;
-        USTAR::GetFileSize("bad.ppm", &size);
-        printk(PREFIX "Size of bad.ppm: %d\n", size); 
-        uint8_t *buffer = (uint8_t*)malloc(size);
-        memset(buffer, 0, size);
-        if(USTAR::ReadFile("bad.ppm", &buffer, size)) {
-                printk(PREFIX "Printing...\n");
-                print_image(buffer);
-        } else {
-                printk(PREFIX "Failed to read module.elf on initrd.\n");
-        }
-        
-        free(buffer);
+        char *filenames[] = {
+                "001.ppm\0",
+                "002.ppm\0",
+                "003.ppm\0",
+                "004.ppm\0",
+                "005.ppm\0",
+                "006.ppm\0",
+                "007.ppm\0",
+                "008.ppm\0",
+                "009.ppm\0",
+                "010.ppm\0",
+        };
+        for (int i = 0; i<100; i++) {
+                size_t size;
+                USTAR::GetFileSize(filenames[i], &size);
+                //printk(PREFIX "Size of 001.ppm: %d\n", size); 
+                uint8_t *buffer = (uint8_t*)malloc(size);
+                memset(buffer, 0, size);
+                if(USTAR::ReadFile(filenames[i], &buffer, size)) {
+                        //printk(PREFIX "Printing...\n");
+                        print_image(buffer);
+                } else {
+                        //printk(PREFIX "Failed to read module.elf on initrd.\n");
+                }
 
+                PIT::Sleep(50);
 
-        while(true) {
-                asm("hlt");
+                free(buffer);
         }
+
         /*
         size_t size;
         USTAR::GetFileSize("module.elf", &size);
