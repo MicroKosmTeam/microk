@@ -71,7 +71,6 @@ void TTY::ElaborateCommand() {
                        "panik\n"
                        "mem\n"
                        "time\n"
-                       "rdinit\n"
                        );
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
@@ -103,9 +102,6 @@ void TTY::ElaborateCommand() {
                 printk("Ticks since initialization: %d.\n", (uint64_t)PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "lsblk") == 0) {
                 GlobalFSManager->ListDrives();
-        } else if (strcmp(ptr, "ls") == 0) {
-                ptr = strtok(NULL, " ");
-                GlobalFSManager->supportedDrives[0].partitions[0].fatDriver.FindDirectory(ptr);
         } else if (strcmp(ptr, "exit") == 0) {
                 GlobalTTY->Deactivate();
                 return;
