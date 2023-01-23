@@ -22,6 +22,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
 #include <kutil.h>
 #include <mm/heap.h>
 #include <mm/pageframe.h>
@@ -36,25 +37,37 @@
 extern "C" void _start(BootInfo* bootInfo){
         kinit(bootInfo);
         
-        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
-        else printk(PREFIX "Loading the initramfs...\n");
-        rdinit();
-
         GlobalTTY->Activate();
-        delete GlobalTTY;
+        //delete GlobalTTY;
 
-        free(kInfo.initrd);
+        GlobalRenderer.print_clear();
 
         // Done
-        printk(" __  __  _                _  __    ___   ___\n");
-        printk("|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n");
-        printk("| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n");
-        printk("|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n");
-        printk("The operating system from the future...at your fingertips.\n");
-        printk("Kernel is %dkb.\n", kInfo.kernel_size / 1024);
-        printk("Free memory: %dkb.\n", GlobalAllocator.GetFreeMem() / 1024);
-        printk("Used memory: %dkb.\n", GlobalAllocator.GetUsedMem() / 1024);
-        printk("Reserved memory: %dkb.\n", GlobalAllocator.GetReservedMem() / 1024);
+        printk(" __  __  _                _  __    ___   ___\n"
+               "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
+               "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
+               "|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n"
+               "The operating system from the future...at your fingertips.\n"
+               "\n"
+               " Memory Status:\n"
+               " -> Kernel:      %dkb.\n"
+               " -> Free:        %dkb.\n"
+               " -> Used:        %dkb.\n"
+               " -> Reserved:    %dkb.\n"
+               " -> Total:       %dkb.\n"
+               "\n"
+               "Continuing startup...\n",
+                kInfo.kernel_size / 1024, 
+                GlobalAllocator.GetFreeMem() / 1024,
+                GlobalAllocator.GetUsedMem() / 1024,
+                GlobalAllocator.GetReservedMem() / 1024,
+                (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
+ 
+        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
+        else printk(PREFIX "Loading the initramfs...\n");       
+
+        rdinit();
+        free(kInfo.initrd);
 
         while (true) {
                 asm("hlt");
