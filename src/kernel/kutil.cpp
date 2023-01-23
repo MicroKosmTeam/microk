@@ -174,6 +174,7 @@ void rdinit() {
         USTAR::ReadArchive();
         USTAR::ReadFile("README.md");
 
+        uint16_t files = 10;
         char *filenames[] = {
                 "001.ppm\0",
                 "002.ppm\0",
@@ -186,7 +187,7 @@ void rdinit() {
                 "009.ppm\0",
                 "010.ppm\0",
         };
-        for (int i = 0; i<100; i++) {
+        for (int i = 0; i<files; i++) {
                 size_t size;
                 USTAR::GetFileSize(filenames[i], &size);
                 //printk(PREFIX "Size of 001.ppm: %d\n", size); 

@@ -69,6 +69,8 @@ extern "C" void _start(BootInfo* bootInfo){
         rdinit();
         free(kInfo.initrd);
 
+        printk("Done!\n");
+
         while (true) {
                 asm("hlt");
         }
