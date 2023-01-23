@@ -19,7 +19,7 @@ CPP = x86_64-elf-gcc
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -Og -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -Wall -I src/kernel/include -fsanitize=undefined -D$(ARCH)
+CFLAGS = -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -Wall -I src/kernel/include -fsanitize=undefined -D$(ARCH)
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
