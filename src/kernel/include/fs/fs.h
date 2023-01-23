@@ -49,7 +49,7 @@ namespace Filesystem {
                 void ListDrives();
                 void AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size);
                 // We need to improove this with cache
-                bool ReadDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size);
+                bool ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size);
                 bool WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t *buffer, size_t buffer_size);
                 Drive supportedDrives[32];
                 uint16_t total_drives;

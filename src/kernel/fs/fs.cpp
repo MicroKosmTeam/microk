@@ -64,7 +64,7 @@ FSManager::FSManager() {
         total_drives = 0;
 }
 
-bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size) {
+bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size) {
         switch(supportedDrives[drive_number].driveType) {
                 case DriveType::AHCI: {
                         for (uint64_t base = 0; base < buffer_size; base += supportedDrives[drive_number].driver.ahciDriver.buffer_size) {
@@ -73,6 +73,10 @@ bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint8_t n
                                        supportedDrives[drive_number].driver.ahciDriver.port->buffer,
                                        supportedDrives[drive_number].driver.ahciDriver.buffer_size > buffer_size ? buffer_size : supportedDrives[drive_number].driver.ahciDriver.buffer_size);
                         }
+                        /*supportedDrives[drive_number].driver.ahciDriver.port->Read(start_sector, number_sectors, supportedDrives[drive_number].driver.ahciDriver.port->buffer);
+                        memcpy(*buffer,
+                               supportedDrives[drive_number].driver.ahciDriver.port->buffer,
+                               buffer_size);*/
                         return true;
                 }
         }
