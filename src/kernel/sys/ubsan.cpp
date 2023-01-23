@@ -94,12 +94,14 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_info *type_mismatch, u
                         printk_location(location);
                 #endif
         } else {
-                printk("\n!!! UBSAN !!!\n");
-                printk("Insufficient size!\n");
-                printk("%s address 0x%x with insufficient space for object of type %s\n",
-                        Type_Check_Kinds[type_mismatch->type_check_kind], (void *)pointer,
-                        type_mismatch->type->name);
-                printk_location(location);
+                #ifdef UBSAN_INSUFFSIZE
+                        printk("\n!!! UBSAN !!!\n");
+                        printk("Insufficient size!\n");
+                        printk("%s address 0x%x with insufficient space for object of type %s\n",
+                                Type_Check_Kinds[type_mismatch->type_check_kind], (void *)pointer,
+                                type_mismatch->type->name);
+                        printk_location(location);
+                #endif
         }
 
         #ifdef UBSAN_PANIK

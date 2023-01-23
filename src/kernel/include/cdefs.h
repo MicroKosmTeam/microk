@@ -29,4 +29,5 @@
 #undef  UBSAN_NULL_PTR
 #undef  UBSAN_MEM_ALIGN
 #define UBSAN_OOB
+#undef  UBSAN_INSUFFSIZE
 #undef  UBSAN_PANIK
