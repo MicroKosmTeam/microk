@@ -38,11 +38,11 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
                 if(fs_buffer[i] != 0) empty = false;
         }
         
+        total_drives++;
         if (!empty) {
                 // We should first initialize partitions, but that's for the future
                 fprintf(VFS_FILE_STDLOG, PREFIX "Initializing FAT Driver:\n");
        
-                total_drives++;
                 if(supportedDrives[total_drives-1].partitions[0].fatDriver.DetectDrive(fs_buffer)) {
                         supportedDrives[total_drives-1].partitions[0].fatDriver.drive = 0;
                         supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::FAT;
@@ -54,6 +54,7 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
                 }
         } else {
                 fprintf(VFS_FILE_STDLOG, PREFIX "Empty drive\n");
+                supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::UNKNOWN;
         }
 
         free(fs_buffer);
@@ -67,11 +68,12 @@ FSManager::FSManager() {
 bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size) {
         switch(supportedDrives[drive_number].driveType) {
                 case DriveType::AHCI: {
-                        for (uint64_t base = 0; base < buffer_size; base += sector_size) {
-                                supportedDrives[drive_number].driver.ahciDriver.port->Read(start_sector + base / sector_size, 1, supportedDrives[drive_number].driver.ahciDriver.port->buffer);
+                        uint16_t sector_mul = supportedDrives[drive_number].driver.ahciDriver.buffer_size / sector_size;
+                        for (uint64_t base = 0; base < buffer_size; base += sector_size * sector_mul) {
+                                supportedDrives[drive_number].driver.ahciDriver.port->Read(start_sector + base / sector_size, sector_mul, supportedDrives[drive_number].driver.ahciDriver.port->buffer);
                                 memcpy(*buffer + base,
                                        supportedDrives[drive_number].driver.ahciDriver.port->buffer,
-                                       sector_size > buffer_size ? buffer_size : sector_size);
+                                       sector_size * sector_mul> buffer_size ? buffer_size : sector_size * sector_mul);
                         }
 /*
                         for (uint64_t base = 0; base < buffer_size; base += supportedDrives[drive_number].driver.ahciDriver.buffer_size) {
@@ -103,18 +105,18 @@ bool FSManager::WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t 
 
 void FSManager::ListDrives() {
         if (total_drives > 0) {
-                fprintf(VFS_FILE_STDLOG, PREFIX "%d drives installed.\n", total_drives);
+                printf("%d drives installed.\n", total_drives);
                 for (int i = 0; i < total_drives; i++) {
                         switch (supportedDrives[i].driveType) {
                                 case DriveType::AHCI:
-                                        fprintf(VFS_FILE_STDLOG, PREFIX " /dev/sd%c %s\n", (supportedDrives[i].driver.ahciDriver.port_number + 97), FilesystemStrings[supportedDrives[i].partitions[0].filesystem]);
+                                        printf(" /dev/sd%c %s\n", (supportedDrives[i].driver.ahciDriver.port_number + 97), FilesystemStrings[supportedDrives[i].partitions[0].filesystem]);
                                         break;
                                 default:
-                                        fprintf(VFS_FILE_STDLOG, PREFIX " /dev/unknown\n");
+                                        printf(" /dev/unknown\n");
                         }
                 }
         } else {
-                fprintf(VFS_FILE_STDLOG, PREFIX "No drives installed.\n");
+                printf(PREFIX "No drives installed.\n");
         }
 }
 }
