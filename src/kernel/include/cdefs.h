@@ -7,7 +7,6 @@
 
 
 #ifdef x86_64
-
 #elif x86
         #error "i686 is not supported."
 #elif ARM7
@@ -25,9 +24,22 @@
         #define KCONSOLE_GOP
 #endif
 
+// PCI
+#define PCI_SUBSYSYEM
+#ifdef PCI_SUBSYSYEM
+        #define AHCI_SUBSYTEM
+        #ifdef AHCI_SUBSYTEM
+                #define AHCI_BUFFER_SIZE 512 * 64
+        #endif
+#endif
+
+
 // UBSAN
-#undef  UBSAN_NULL_PTR
-#undef  UBSAN_MEM_ALIGN
-#define UBSAN_OOB
-#undef  UBSAN_INSUFFSIZE
-#undef  UBSAN_PANIK
+#undef UBSAN
+#ifdef UBSAN
+        #undef  UBSAN_NULL_PTR
+        #undef  UBSAN_MEM_ALIGN
+        #undef  UBSAN_OOB
+        #undef  UBSAN_INSUFFSIZE
+        #undef  UBSAN_PANIK
+#endif

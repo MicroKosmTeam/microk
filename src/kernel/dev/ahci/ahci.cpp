@@ -168,7 +168,7 @@ namespace AHCI {
                         Port *port = ports[i];
                        
                         fprintf(VFS_FILE_STDLOG, PREFIX "Sending it to the FS manager...\n");
-                        GlobalFSManager->AddAHCIDrive(port, i, 1024 * 1024 * 16); // 16MB
+                        GlobalFSManager->AddAHCIDrive(port, i, AHCI_BUFFER_SIZE);
                 }
         }
 
