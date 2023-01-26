@@ -73,11 +73,12 @@ void TTY::ElaborateCommand() {
                        "mem\n"
                        "time\n"
                        "demo\n"
+                       "fetch\n"
                        );
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
-                printf("MicroK Alpha.\n");
+                printf("%s %s\n", KNAME, KVER);
         } else if (strcmp(ptr, "module") == 0) {
                 ptr = strtok(NULL, " ");
                 if (ptr != NULL) {
@@ -118,6 +119,24 @@ void TTY::ElaborateCommand() {
                 } else {
                         printf("Insert a demo name.\n");
                 }
+        } else if(strcmp(ptr, "fetch") == 0) {
+                printf(" __  __  _                _  __    ___   ___\n"
+                       "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
+                       "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
+                       "|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n"
+                       "The operating system from the future...at your fingertips.\n"
+                       "\n"
+                       " Memory Status:\n"
+                       " -> Kernel:      %dkb.\n"
+                       " -> Free:        %dkb.\n"
+                       " -> Used:        %dkb.\n"
+                       " -> Reserved:    %dkb.\n"
+                       " -> Total:       %dkb.\n",
+                        kInfo.kernel_size / 1024, 
+                        GlobalAllocator.GetFreeMem() / 1024,
+                        GlobalAllocator.GetUsedMem() / 1024,
+                        GlobalAllocator.GetReservedMem() / 1024,
+                        (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
         } else {
                 printf("Unknown command: %s\n", ptr);
         }
