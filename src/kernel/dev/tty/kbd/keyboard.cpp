@@ -1,5 +1,5 @@
 #include <dev/tty/kbd/keyboard.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
 #include <dev/tty/tty.h>
 
 bool lshift_pressed;

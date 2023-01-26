@@ -1,5 +1,5 @@
 #include <fs/fs.h>
-#include <sys/printk.h>
+#include <stdio.h>
 #include <sys/panik.h>
 #include <string.h>
 #include <mm/heap.h>
@@ -40,7 +40,7 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
         
         if (!empty) {
                 // We should first initialize partitions, but that's for the future
-                printk(PREFIX "Initializing FAT Driver:\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Initializing FAT Driver:\n");
        
                 total_drives++;
                 if(supportedDrives[total_drives-1].partitions[0].fatDriver.DetectDrive(fs_buffer)) {
@@ -53,14 +53,14 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
                         kInfo.initrd_loaded = true;
                 }
         } else {
-                printk(PREFIX "Empty drive\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Empty drive\n");
         }
 
         free(fs_buffer);
 }
 
 FSManager::FSManager() {
-        printk(PREFIX "Initializing the file system manager.\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Initializing the file system manager.\n");
         total_drives = 0;
 }
 
@@ -103,18 +103,18 @@ bool FSManager::WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t 
 
 void FSManager::ListDrives() {
         if (total_drives > 0) {
-                printk(PREFIX "%d drives installed.\n", total_drives);
+                fprintf(VFS_FILE_STDLOG, PREFIX "%d drives installed.\n", total_drives);
                 for (int i = 0; i < total_drives; i++) {
                         switch (supportedDrives[i].driveType) {
                                 case DriveType::AHCI:
-                                        printk(PREFIX " /dev/sd%c %s\n", (supportedDrives[i].driver.ahciDriver.port_number + 97), FilesystemStrings[supportedDrives[i].partitions[0].filesystem]);
+                                        fprintf(VFS_FILE_STDLOG, PREFIX " /dev/sd%c %s\n", (supportedDrives[i].driver.ahciDriver.port_number + 97), FilesystemStrings[supportedDrives[i].partitions[0].filesystem]);
                                         break;
                                 default:
-                                        printk(PREFIX " /dev/unknown\n");
+                                        fprintf(VFS_FILE_STDLOG, PREFIX " /dev/unknown\n");
                         }
                 }
         } else {
-                printk(PREFIX "No drives installed.\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "No drives installed.\n");
         }
 }
 }

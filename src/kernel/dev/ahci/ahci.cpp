@@ -1,5 +1,5 @@
 #include <dev/ahci/ahci.h>
-#include <sys/printk.h>
+#include <stdio.h>
 #include <mm/pagetable.h>
 #include <mm/pageframe.h>
 #include <mm/heap.h>
@@ -157,7 +157,7 @@ namespace AHCI {
 
         AHCIDriver::AHCIDriver(PCI::PCIDeviceHeader *pciBaseAddress) {
                 this->PCIBaseAddress = pciBaseAddress;
-                printk("AHCI instance initialized.\n");
+                fprintf(VFS_FILE_STDLOG, "AHCI instance initialized.\n");
 
                 ABAR = (HBAMemory*)((PCI::PCIHeader0*)pciBaseAddress)->BAR5;
                 GlobalPageTableManager.MapMemory(ABAR, ABAR);
@@ -167,7 +167,7 @@ namespace AHCI {
                 for (int i = 0; i < portCount; i++) {
                         Port *port = ports[i];
                        
-                        printk(PREFIX "Sending it to the FS manager...\n");
+                        fprintf(VFS_FILE_STDLOG, PREFIX "Sending it to the FS manager...\n");
                         GlobalFSManager->AddAHCIDrive(port, i, 1024 * 1024 * 16); // 16MB
                 }
         }

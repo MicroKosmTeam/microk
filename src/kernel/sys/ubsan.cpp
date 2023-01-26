@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/panik.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
 
 
 
@@ -21,7 +21,7 @@ const char *Type_Check_Kinds[] = {
 extern "C" {
 #endif
 static void printk_location(struct source_location *location) {
-    printk(" file: %s\n line: %d\n column: %d\n",
+    fprintf(VFS_FILE_STDLOG, " file: %s\n line: %d\n column: %d\n",
          location->file, location->line, location->column);
 }
 
@@ -58,7 +58,7 @@ void __ubsan_handle_out_of_bounds(void* data_raw, void* index_raw) {
                 uintptr_t index = (uintptr_t)index_raw;
                 (void)index;
 
-                printk("\n!!! UBSAN !!!\n"
+                fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n"
                        "Out of bounds!\n");
 
                 printk_location(&data->location);
@@ -83,21 +83,21 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_info *type_mismatch, u
 
         if (pointer == 0) {
                 #ifdef UBSAN_NULL_PTR
-                        printk("Null pointer access!\n");
+                        fprintf(VFS_FILE_STDLOG, "Null pointer access!\n");
                         printk_location(location);
                 #endif
         } else if (type_mismatch->alignment != 0 && is_aligned(pointer, type_mismatch->alignment)) {
                 // Most useful on architectures with stricter memory alignment requirements, like ARM.
                 #ifdef UBSAN_MEM_ALIGN
-                        printk("\n!!! UBSAN !!!\n");
-                        printk("Unaligned memory access!\n"); 
+                        fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n");
+                        fprintf(VFS_FILE_STDLOG, "Unaligned memory access!\n"); 
                         printk_location(location);
                 #endif
         } else {
                 #ifdef UBSAN_INSUFFSIZE
-                        printk("\n!!! UBSAN !!!\n");
-                        printk("Insufficient size!\n");
-                        printk("%s address 0x%x with insufficient space for object of type %s\n",
+                        fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n");
+                        fprintf(VFS_FILE_STDLOG, "Insufficient size!\n");
+                        fprintf(VFS_FILE_STDLOG, "%s address 0x%x with insufficient space for object of type %s\n",
                                 Type_Check_Kinds[type_mismatch->type_check_kind], (void *)pointer,
                                 type_mismatch->type->name);
                         printk_location(location);

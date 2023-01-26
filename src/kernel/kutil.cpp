@@ -16,12 +16,13 @@
 #include <dev/timer/pit/pit.h>
 #include <fs/fs.h>
 #include <sys/icxxabi.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
 #include <sys/cstr.h>
 #include <module/module.h>
 #include <mm/memory.h>
 #include <cpu/cpu.h>
 #include <sys/panik.h>
+#include <sys/printk.h>
 
 #define PREFIX "[KINIT] "
 
@@ -46,7 +47,7 @@ void PrepareMemory(BootInfo *bootInfo) {
         // Starting printk
         printk_init_serial();
         printk_init_fb(bootInfo->framebuffer, bootInfo->psf1_Font);
-        printk(PREFIX "MicroK Loading...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "MicroK Loading...\n");
 
         // Initializing the GlobalAllocator with EFI Memory data
         GlobalAllocator = PageFrameAllocator();
@@ -114,21 +115,21 @@ void PrepareACPI(BootInfo *bootInfo) {
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
 
         int entries = (xsdt->Length - sizeof(ACPI::SDTHeader)) / 8;
-        printk(PREFIX "Available ACPI tables: %d\n", entries);
+        fprintf(VFS_FILE_STDLOG, PREFIX "Available ACPI tables: %d\n", entries);
 
-        printk(PREFIX "Loading the FADT table...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the FADT table...\n");
         ACPI::FindTable(xsdt, (char*)"FADT");
 
-        printk(PREFIX "Loading the MADT table...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the MADT table...\n");
         ACPI::FindTable(xsdt, (char*)"MADT");
 
-        printk(PREFIX "Loading the MCFG table...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the MCFG table...\n");
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
 
-        printk(PREFIX "Loading the HPET table...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the HPET table...\n");
         ACPI::FindTable(xsdt, (char*)"HPET");
 
-        printk(PREFIX "Enumerating PCI devices...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
 }
 
@@ -141,7 +142,7 @@ void kinit(BootInfo *bootInfo) {
         GlobalRenderer.print_clear();
  
         // Init heap
-        printk(PREFIX "Initializing the heap...\n");
+        fprintf(VFS_FILE_STDLOG, PREFIX "Initializing the heap...\n");
         InitializeHeap((void*)0xffffff0000000000, 0x100);
 
         // Init CPU Features
@@ -153,7 +154,7 @@ void kinit(BootInfo *bootInfo) {
         // Setting the timer frequency
         PIT::SetFrequency(100);
 
-        printk(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
+        fprintf(VFS_FILE_STDLOG, PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
         // Starting the modules subsystem
         GlobalModuleManager = new ModuleManager();
@@ -172,50 +173,17 @@ void kinit(BootInfo *bootInfo) {
 void rdinit() {
         USTAR::LoadArchive(kInfo.initrd);
         USTAR::ReadArchive();
-        USTAR::ReadFile("README.md");
-
-        uint16_t files = 10;
-        char *filenames[] = {
-                "001.ppm\0",
-                "002.ppm\0",
-                "003.ppm\0",
-                "004.ppm\0",
-                "005.ppm\0",
-                "006.ppm\0",
-                "007.ppm\0",
-                "008.ppm\0",
-                "009.ppm\0",
-                "010.ppm\0",
-        };
-        for (int i = 0; i<files; i++) {
-                size_t size;
-                USTAR::GetFileSize(filenames[i], &size);
-                //printk(PREFIX "Size of 001.ppm: %d\n", size); 
-                uint8_t *buffer = (uint8_t*)malloc(size);
-                memset(buffer, 0, size);
-                if(USTAR::ReadFile(filenames[i], &buffer, size)) {
-                        //printk(PREFIX "Printing...\n");
-                        print_image(buffer);
-                } else {
-                        //printk(PREFIX "Failed to read module.elf on initrd.\n");
-                }
-
-                PIT::Sleep(50);
-
-                free(buffer);
-        }
-
         /*
         size_t size;
         USTAR::GetFileSize("module.elf", &size);
-        printk(PREFIX "Size of module.elf: %d\n", size);
+        fprintf(VFS_FILE_STDLOG, PREFIX "Size of module.elf: %d\n", size);
         uint8_t *buffer = (uint8_t*)malloc(size);
         memset(buffer, 0, size);
         if(USTAR::ReadFile("module.elf", &buffer, size)) {
-                printk(PREFIX "Sending it to the module manager...\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Sending it to the module manager...\n");
                 GlobalModuleManager->LoadELF((uint8_t*)buffer);
         } else {
-                printk(PREFIX "Failed to read module.elf on initrd.\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Failed to read module.elf on initrd.\n");
         }
         
         free(buffer);

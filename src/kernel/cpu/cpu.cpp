@@ -1,5 +1,5 @@
 #include <cpu/cpu.h>
-#include <sys/printk.h>
+#include <stdio.h>
 #include <mm/string.h>
 #include <cpuid.h>
 
@@ -100,14 +100,14 @@ namespace CPU {
                 model[10] = (uint8_t)(edx >> 16);
                 model[11] = (uint8_t)(edx >> 24);
 
-                printk(PREFIX "CPU vendor is: %s\n", model);
+                fprintf(VFS_FILE_STDLOG, PREFIX "CPU vendor is: %s\n", model);
         }
 
         void Init() {
                 __getVendor();
 
                 if(__checkSSE()) {
-                        printk(PREFIX "SSE status: Present!\n");
+                        fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Present!\n");
                 }
         }
 }

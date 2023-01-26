@@ -1,6 +1,6 @@
 #include <cpu/interrupts/interrupts.h>
 #include <sys/panik.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
 #include <io/io.h>
 #include <dev/8259/pic.h>
 #include <dev/timer/pit/pit.h>

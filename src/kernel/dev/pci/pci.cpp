@@ -1,6 +1,6 @@
 #include <dev/pci/pci.h>
 #include <mm/pagetable.h>
-#include <sys/printk.h>
+#include <stdio.h>
 #include <dev/ahci/ahci.h>
 #include <mm/heap.h>
 
@@ -18,7 +18,7 @@ namespace PCI {
                 if(pciDeviceHeader->DeviceID == 0) return;
                 if(pciDeviceHeader->DeviceID == 0xFFFF) return;
 
-                printk(PREFIX "PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
+                fprintf(VFS_FILE_STDLOG, PREFIX "PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
                        DeviceClasses[pciDeviceHeader->Class],
                        GetVendorName(pciDeviceHeader->VendorID),
                        pciDeviceHeader->VendorID,
@@ -29,7 +29,7 @@ namespace PCI {
                        GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
                        pciDeviceHeader->ProgIF);
 
-                printk(PREFIX "Starting eventual driver...\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Starting eventual driver...\n");
                 switch (pciDeviceHeader->Class) {
                         case 0x01: //Mass storage
                                 switch (pciDeviceHeader->Subclass) {
@@ -42,11 +42,11 @@ namespace PCI {
                         case 0x02:
                                 switch (pciDeviceHeader->Subclass) {
                                         case 0x00:
-                                                printk(PREFIX "TODO: Implement EthernetDriver.\n");
+                                                fprintf(VFS_FILE_STDLOG, PREFIX "TODO: Implement EthernetDriver.\n");
                                                 //new ETH:EthernetDriver.
                                 }
                 }
-                printk(PREFIX "Done enumerating function.\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Done enumerating function.\n");
         }
 
         void EnumerateDevice(uint64_t bus_address, uint64_t device) {

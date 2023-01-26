@@ -1,5 +1,6 @@
 #include <module/symbol.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
+#include <stdio.h>
 #include <mm/pagetable.h>
 #include <mm/heap.h>
 
@@ -9,39 +10,30 @@ uint64_t KRNLSYMTABLE[SYMTABLE_SIZE];
 
 namespace KRNSYM {
         void Setup() {
-                printk(PREFIX "Loading symtable...\n");
-                printk(PREFIX "Symtable at: 0x%x\n", &KRNLSYMTABLE);
+                fprintf(VFS_FILE_STDLOG, PREFIX "Loading symtable...\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Symtable at: 0x%x\n", &KRNLSYMTABLE);
 
-                KRNLSYMTABLE[0] = (uint64_t)&printk;
-                printk(PREFIX "Function at: 0x%x\n",&printk);
-                printk(PREFIX "In symtable at: 0x%x\n", KRNLSYMTABLE[0]);
-                KRNLSYMTABLE[1] = (uint64_t)&malloc;
-                printk(PREFIX "Function at: 0x%x\n",&malloc);
-                printk(PREFIX "In symtable at: 0x%x\n", KRNLSYMTABLE[1]);
-                KRNLSYMTABLE[2] = (uint64_t)&free;
-                printk(PREFIX "Function at: 0x%x\n",&free);
-                printk(PREFIX "In symtable at: 0x%x\n", KRNLSYMTABLE[2]);
-
-                printk(PREFIX "Symtable initialized!\n");
+                KRNLSYMTABLE[0] = (uint64_t)&fprintf;
+                fprintf(VFS_FILE_STDLOG, PREFIX "Function at: 0x%x\n",&fprintf);
+                fprintf(VFS_FILE_STDLOG, PREFIX "In symtable at: 0x%x\n", KRNLSYMTABLE[0]);
+                fprintf(VFS_FILE_STDLOG, PREFIX "Symtable initialized!\n");
         
                 Test((uint64_t)&KRNLSYMTABLE);
         }
 
         void Test(uint64_t address) {
-                printk(PREFIX "Assigning function...\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Assigning function...\n");
                 uint64_t *symbolTable = (uint64_t*)address;
 
-                printk(PREFIX "Function address: 0x%x\n", symbolTable[0]);
-                printk(PREFIX "Function address: 0x%x\n", symbolTable[1]);
-                printk(PREFIX "Function address: 0x%x\n", symbolTable[2]);
+                fprintf(VFS_FILE_STDLOG, PREFIX "Function address: 0x%x\n", symbolTable[0]);
 
-                void(*test)(char *format, ...) = (void(*)(char*,...)) (symbolTable[0]);
+                void(*test)(fd_t file, char *format, ...) = (void(*)(fd_t,char*,...)) (symbolTable[0]);
 
-                printk(PREFIX "Running function...\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Running function...\n");
 
-                test("[TESTMOD]" "Hello World!\n");
-                test("[TESTMOD]" "Done!\n");
+                test(VFS_FILE_STDLOG, "[TESTMOD] " "Hello World!\n");
+                test(VFS_FILE_STDLOG, "[TESTMOD] " "Done!\n");
 
-                printk(PREFIX "Done.\n");
+                fprintf(VFS_FILE_STDLOG, PREFIX "Done.\n");
         }
 }

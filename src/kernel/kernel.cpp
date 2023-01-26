@@ -23,13 +23,15 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <sys/printk.h>
 #include <kutil.h>
 #include <mm/heap.h>
 #include <mm/pageframe.h>
 #include <mm/memory.h>
 #include <sys/cstr.h>
 #include <dev/tty/tty.h>
-#include <sys/printk.h>
+#include <fs/vfs.h>
 #include <sys/panik.h>
 
 #define PREFIX "[KINIT] "
@@ -37,13 +39,14 @@
 extern "C" void _start(BootInfo* bootInfo){
         kinit(bootInfo);
         
-        GlobalTTY->Activate();
-        //delete GlobalTTY;
-
+        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
+        else fprintf(VFS_FILE_STDLOG, PREFIX "Loading the initramfs...\n");   
         GlobalRenderer.print_clear();
 
-        // Done
-        printk(" __  __  _                _  __    ___   ___\n"
+        rdinit();
+        free(kInfo.initrd);
+
+        printf(" __  __  _                _  __    ___   ___\n"
                "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
                "| |\\/| || |/ _|| '_|/ _ \\|   <   | (_) |\\__ \\\n"
                "|_|  |_||_|\\__||_|  \\___/|_|\\_\\   \\___/ |___/\n"
@@ -63,13 +66,10 @@ extern "C" void _start(BootInfo* bootInfo){
                 GlobalAllocator.GetReservedMem() / 1024,
                 (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
  
-        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
-        else printk(PREFIX "Loading the initramfs...\n");       
 
-        rdinit();
-        free(kInfo.initrd);
+        GlobalTTY->Activate();
 
-        printk("Done!\n");
+        printf("Done!\n");
 
         while (true) {
                 asm("hlt");
