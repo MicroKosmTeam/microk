@@ -18,6 +18,7 @@ void InitializeHeap(void *heapAddress, size_t pageCount);
 void *malloc(size_t size);
 void free(void *address);
 
+void VisualizeHeap();
 void ExpandHeap(size_t lenght);
 
 inline void *operator new(size_t size) { return malloc(size); }

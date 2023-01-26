@@ -2,8 +2,6 @@
 #include <mm/pagetable.h>
 #include <mm/pageframe.h>
 
-
-
 void *heapStart;
 void *heapEnd;
 HeapSegHeader *lastHeader;
@@ -124,3 +122,21 @@ void ExpandHeap(size_t length) {
         newSegment->length = length - sizeof(HeapSegHeader);
         newSegment->CombineBackward();
 }
+
+#include <stdio.h>
+void VisualizeHeap() {
+        HeapSegHeader *currSeg = (HeapSegHeader*)heapStart;
+        uint16_t segment_number = 0;
+        while(currSeg->next != NULL) {
+                printf(" -> Segment %d: ", segment_number);
+                if (currSeg->free)
+                        printf(" Free ");
+                else
+                        printf(" Used ");
+
+                printf(" Size: %d\n", currSeg->length);
+                currSeg = currSeg->next;
+                segment_number++;
+        }
+}
+

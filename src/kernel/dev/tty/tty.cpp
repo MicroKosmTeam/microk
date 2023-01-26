@@ -71,6 +71,7 @@ void TTY::ElaborateCommand() {
                        "module\n"
                        "panik\n"
                        "mem\n"
+                       "heap\n"
                        "time\n"
                        "demo\n"
                        "fetch\n"
@@ -101,6 +102,8 @@ void TTY::ElaborateCommand() {
                 printf("Free memory: %d.\n", GlobalAllocator.GetFreeMem());
                 printf("Used memory: %d.\n", GlobalAllocator.GetUsedMem());
                 printf("Reserved memory: %d.\n", GlobalAllocator.GetReservedMem());
+        } else if (strcmp(ptr, "heap") == 0) {
+                VisualizeHeap();
         } else if (strcmp(ptr, "time") == 0) {
                 printf("Ticks since initialization: %d.\n", (uint64_t)PIT::TimeSinceBoot);
         } else if (strcmp(ptr, "lsblk") == 0) {
