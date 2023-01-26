@@ -44,15 +44,57 @@ extern "C" int memcmp(const void* buf1, const void* buf2, size_t count) {
 }
 
 extern "C" void memset(void *start, uint8_t value, uint64_t num) {
-        for (uint64_t i = 0; i < num; i++) {
-                *(uint8_t*)((uint64_t)start + i) = value;
+        if(true) { // SSE
+                int d0, d1;
+                __asm__ __volatile__(
+                        "rep\n\t"
+                        "stosb"
+                        : "=&c" (d0), "=&D" (d1)
+                        :"a" (value),"1" (start),"0" (num)
+                        :"memory");
+        } else {
+                for (uint64_t i = 0; i < num; i++) {
+                        *(uint8_t*)((uint64_t)start + i) = value;
+                }
         }
 }
 
 extern "C" void memcpy(void *dest, void *src, size_t n){
-        char *csrc = (char *)src; 
-        char *cdest = (char *)dest; 
+        if(true) { //SSE
+                int i;
+                for(i=0; i<n/16; i++) {
+                        __asm__ __volatile__ (
+                                        "movups (%0), %%xmm0\n"
+                                        "movntdq %%xmm0, (%1)\n"
+                                        ::"r"(src),
+                                        "r"(dest) : "memory");
+
+                        src += 16;
+                        dest += 16;
+                }
+
+                if(n & 7) {
+                        n = n&7;
+
+                        int d0, d1, d2;
+                        __asm__ __volatile__(
+                                "rep ; movsl\n\t"
+                                "testb $2,%b4\n\t"
+                                "je 1f\n\t"
+                                "movsw\n"
+                                "1:\ttestb $1,%b4\n\t"
+                                "je 2f\n\t"
+                                "movsb\n"
+                                "2:"
+                                : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+                                :"0" (n/4), "q" (n),"1" ((long) dest),"2" ((long) src)
+                                : "memory");
+                }
+        } else {
+                char *csrc = (char *)src; 
+                char *cdest = (char *)dest; 
   
-        for (int i=0; i<n; i++) 
-                cdest[i] = csrc[i]; 
+                for (int i=0; i<n; i++) 
+                        cdest[i] = csrc[i]; 
+        }
 } 
