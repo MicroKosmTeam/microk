@@ -86,7 +86,7 @@ namespace CPU {
         static void __getVendor() {
                 uint32_t ebx, edx, ecx, unused;
                 __cpuid(0, unused, ebx, edx, ecx);
-                char model[12];
+                char model[13];
                 model[0] = (uint8_t)ebx;
                 model[1] = (uint8_t)(ebx >> 8);
                 model[2] = (uint8_t)(ebx >> 16);
@@ -99,6 +99,7 @@ namespace CPU {
                 model[9] = (uint8_t)(edx >> 8);
                 model[10] = (uint8_t)(edx >> 16);
                 model[11] = (uint8_t)(edx >> 24);
+                model[12] = '\0';
 
                 fprintf(VFS_FILE_STDLOG, PREFIX "CPU vendor is: %s\n", model);
         }
@@ -107,7 +108,13 @@ namespace CPU {
                 __getVendor();
 
                 if(__checkSSE()) {
-                        fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Present!\n");
+                        #ifdef x86_64
+                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Active\n");
+                        #elif x86
+                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Unknown\n");
+                        #else
+                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Not present\n");
+                        #endif
                 }
         }
 }
