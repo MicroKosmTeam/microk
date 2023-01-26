@@ -1,6 +1,7 @@
 /OVMFbin
 /obj
 /bin
+*.log
 *.fd
 *.img
 *.iso
