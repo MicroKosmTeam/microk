@@ -145,6 +145,15 @@ void kinit(BootInfo *bootInfo) {
         fprintf(VFS_FILE_STDLOG, PREFIX "Initializing the heap...\n");
         InitializeHeap((void*)0xffffff0000000000, 0x100);
 
+        // Starting the modules subsystem
+        GlobalModuleManager = new ModuleManager();
+
+        // Starting the filesystem Manager
+        GlobalFSManager = new Filesystem::FSManager();
+        
+        // Initializing a TTY
+        GlobalTTY = new TTY();
+
         // Init CPU Features
         CPU::Init();
 
@@ -153,20 +162,11 @@ void kinit(BootInfo *bootInfo) {
 
         // Setting the timer frequency
         PIT::SetFrequency(100);
-
         fprintf(VFS_FILE_STDLOG, PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
-
-        // Starting the modules subsystem
-        GlobalModuleManager = new ModuleManager();
-
-        // Starting the filesystem Manager
-        GlobalFSManager = new Filesystem::FSManager();
 
         // ACPI initialization
         PrepareACPI(bootInfo);
 
-        // Initializing a TTY
-        GlobalTTY = new TTY();
 }
 
 #include <fs/ustar/ustar.h>
