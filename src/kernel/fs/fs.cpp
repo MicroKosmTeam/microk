@@ -15,12 +15,9 @@ namespace Filesystem {
 
 void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size) {
         supportedDrives[total_drives].driveType = DriveType::AHCI;
-
         supportedDrives[total_drives].driver.ahciDriver.port = port;
         supportedDrives[total_drives].driver.ahciDriver.port_number = number;
-
         supportedDrives[total_drives].driver.ahciDriver.port->Configure();
-
         supportedDrives[total_drives].driver.ahciDriver.buffer_size = buffer_size;
         supportedDrives[total_drives].driver.ahciDriver.port->buffer = (uint8_t*)GlobalAllocator.RequestPages(buffer_size/0x1000);
         if(supportedDrives[total_drives].driver.ahciDriver.port->buffer == NULL) {
@@ -73,7 +70,7 @@ bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t 
                                 supportedDrives[drive_number].driver.ahciDriver.port->Read(start_sector + base / sector_size, sector_mul, supportedDrives[drive_number].driver.ahciDriver.port->buffer);
                                 memcpy(*buffer + base,
                                        supportedDrives[drive_number].driver.ahciDriver.port->buffer,
-                                       sector_size * sector_mul> buffer_size ? buffer_size : sector_size * sector_mul);
+                                       sector_size * sector_mul > buffer_size - base ? buffer_size - base : sector_size * sector_mul);
                         }
 /*
                         for (uint64_t base = 0; base < buffer_size; base += supportedDrives[drive_number].driver.ahciDriver.buffer_size) {
