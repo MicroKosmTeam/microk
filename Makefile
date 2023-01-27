@@ -19,7 +19,7 @@ CPP = x86_64-elf-gcc
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -Wall -I src/kernel/include -fsanitize=undefined -D$(ARCH)
+CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -Wall -I src/kernel/include -fsanitize=undefined -O1 -D$(ARCH)
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
@@ -102,6 +102,6 @@ buildimg: kernel
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
 
 run: buildimg
-	qemu-system-x86_64 -serial file:serial.log -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" 
+	qemu-system-x86_64 -serial file:serial.log -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" 
 run-tty: buildimg
-	qemu-system-x86_64 -serial file:serial.log -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -nographic
+	qemu-system-x86_64 -serial file:serial.log -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -nographic
