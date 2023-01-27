@@ -12,7 +12,7 @@ namespace PIT {
         void Sleepd(double seconds) {
                 double startTime = TimeSinceBoot;
                 while (TimeSinceBoot < startTime + seconds) {
-                        asm("hlt");
+                        asm volatile("hlt");
                 }
         }
 
