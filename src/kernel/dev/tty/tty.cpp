@@ -12,6 +12,7 @@
 #include <kutil.h>
 #include <fs/vfs.h>
 #include <demo.h>
+#include <cpu/cpu.h>
 
 #define PREFIX "[TTY] "
 
@@ -41,6 +42,7 @@ void TTY::Activate() {
                         fprintf(VFS_FILE_STDLOG, PREFIX "Exiting...\n");
                         return;
                 }
+                
                 asm("hlt");
         }
 }
@@ -75,11 +77,12 @@ void TTY::ElaborateCommand() {
                        "time\n"
                        "demo\n"
                        "fetch\n"
+                       "ls\n"
                        );
         } else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
                 GlobalRenderer.print_clear();
         } else if (strcmp(ptr, "uname") == 0) {
-                printf("%s %s\n", KNAME, KVER);
+                printf("%s %s %s\n", KNAME, KVER, CPU::GetVendor());
         } else if (strcmp(ptr, "module") == 0) {
                 ptr = strtok(NULL, " ");
                 if (ptr != NULL) {
@@ -99,9 +102,17 @@ void TTY::ElaborateCommand() {
         } else if (strcmp(ptr, "panik") == 0) {
                 PANIK("User induced panic.");
         } else if (strcmp(ptr, "mem") == 0) {
-                printf("Free memory: %d.\n", GlobalAllocator.GetFreeMem());
-                printf("Used memory: %d.\n", GlobalAllocator.GetUsedMem());
-                printf("Reserved memory: %d.\n", GlobalAllocator.GetReservedMem());
+                printf("Memory Status:\n"
+                       " -> Kernel:      %dkb.\n"
+                       " -> Free:        %dkb.\n"
+                       " -> Used:        %dkb.\n"
+                       " -> Reserved:    %dkb.\n"
+                       " -> Total:       %dkb.\n",
+                        kInfo.kernel_size / 1024, 
+                        GlobalAllocator.GetFreeMem() / 1024,
+                        GlobalAllocator.GetUsedMem() / 1024,
+                        GlobalAllocator.GetReservedMem() / 1024,
+                        (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
         } else if (strcmp(ptr, "heap") == 0) {
                 VisualizeHeap();
         } else if (strcmp(ptr, "time") == 0) {
@@ -116,6 +127,8 @@ void TTY::ElaborateCommand() {
                 if (ptr != NULL) {
                         if(strcmp(ptr, "badapple") == 0) {
                                 DEMO::BadApple();
+                        } else if(strcmp(ptr, "stress") == 0) {
+                                DEMO::Stress();
                         } else {
                                 printf("No demo found: %s\n", ptr);
                         }
@@ -140,6 +153,8 @@ void TTY::ElaborateCommand() {
                         GlobalAllocator.GetUsedMem() / 1024,
                         GlobalAllocator.GetReservedMem() / 1024,
                         (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
+        } else if(strcmp(ptr, "ls") == 0) {
+                printf("Not yet implemented.\n");
         } else {
                 printf("Unknown command: %s\n", ptr);
         }
