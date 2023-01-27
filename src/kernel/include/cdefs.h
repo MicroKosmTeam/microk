@@ -29,7 +29,7 @@
 #ifdef PCI_SUBSYSYEM
         #define AHCI_SUBSYTEM
         #ifdef AHCI_SUBSYTEM
-                #define AHCI_BUFFER_SIZE 512 * 64
+                #define AHCI_BUFFER_SIZE 1024 * 1024 * 4 // 4MB per disk
         #endif
 #endif
 
