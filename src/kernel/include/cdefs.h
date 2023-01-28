@@ -18,10 +18,19 @@
 #endif
 
 // PRINTK
-#define PRINTK
-#ifdef PRINTK
+#define PRINTK_SUBSYSTEM
+#ifdef PRINTK_SUBSYSTEM
         #define KCONSOLE_SERIAL
         #define KCONSOLE_GOP
+#endif
+
+// FS
+#define VFS_SUBSYSTEM
+#ifdef VFS_SUBSYSTEM
+	#define FS_SUBSYSTEM
+	#ifdef FS_SUBSYSTEM
+		#define FS_TOTAL_SUPPORTED_DRIVES 128
+	#endif
 #endif
 
 // PCI
@@ -33,13 +42,13 @@
         #endif
 #endif
 
-
 // UBSAN
 #undef UBSAN
 #ifdef UBSAN
-        #undef  UBSAN_NULL_PTR
-        #undef  UBSAN_MEM_ALIGN
-        #undef  UBSAN_OOB
-        #undef  UBSAN_INSUFFSIZE
-        #undef  UBSAN_PANIK
+        #undef UBSAN_NULL_PTR
+        #undef UBSAN_MEM_ALIGN
+        #undef UBSAN_OOB
+        #undef UBSAN_INSUFFSIZE
+        #undef UBSAN_PANIK
 #endif
+

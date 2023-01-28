@@ -34,12 +34,12 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
         for (int i = 0; i < 512; i++) {
                 if(fs_buffer[i] != 0) empty = false;
         }
-        
+
         total_drives++;
         if (!empty) {
                 // We should first initialize partitions, but that's for the future
                 fprintf(VFS_FILE_STDLOG, PREFIX "Initializing FAT Driver:\n");
-       
+
                 if(supportedDrives[total_drives-1].partitions[0].fatDriver.DetectDrive(fs_buffer)) {
                         supportedDrives[total_drives-1].partitions[0].fatDriver.drive = 0;
                         supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::FAT;
@@ -79,7 +79,7 @@ bool FSManager::ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t 
                                        supportedDrives[drive_number].driver.ahciDriver.port->buffer,
                                        supportedDrives[drive_number].driver.ahciDriver.buffer_size > buffer_size ? buffer_size : supportedDrives[drive_number].driver.ahciDriver.buffer_size);
                         }
-                        
+
                         supportedDrives[drive_number].driver.ahciDriver.port->Read(start_sector, number_sectors, supportedDrives[drive_number].driver.ahciDriver.port->buffer);
                         memcpy(*buffer,
                                supportedDrives[drive_number].driver.ahciDriver.port->buffer,

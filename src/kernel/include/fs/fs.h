@@ -3,6 +3,7 @@
 #include <dev/ahci/ahci.h>
 #include <fs/fat/fat.h>
 #include <stddef.h>
+#include <cdefs.h>
 
 namespace Filesystem {
         enum DriveType {
@@ -24,7 +25,7 @@ namespace Filesystem {
                 Filesystem filesystem;
                 FAT::FATFSDriver fatDriver;
         };
-        
+
         struct AHCIDriver {
                 AHCI::Port *port;
                 uint8_t port_number;
@@ -51,9 +52,10 @@ namespace Filesystem {
                 // We need to improove this with cache
                 bool ReadDrive(uint8_t drive_number, uint32_t start_sector, uint32_t number_sectors, uint8_t **buffer, size_t buffer_size, size_t sector_size);
                 bool WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t *buffer, size_t buffer_size);
-                Drive supportedDrives[32];
+                Drive supportedDrives[FS_TOTAL_SUPPORTED_DRIVES];
                 uint16_t total_drives;
         };
 }
 
 extern Filesystem::FSManager *GlobalFSManager;
+
