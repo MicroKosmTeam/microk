@@ -47,12 +47,12 @@ void PrepareMemory(BootInfo *bootInfo) {
         // Starting printk
         printk_init_serial();
         printk_init_fb(bootInfo->framebuffer, bootInfo->psf1_Font);
-        fprintf(VFS_FILE_STDLOG, PREFIX "MicroK Loading...\n");
+        printk(PREFIX "MicroK Loading...\n");
 
         // Initializing the GlobalAllocator with EFI Memory data
         GlobalAllocator = PageFrameAllocator();
         GlobalAllocator.ReadEFIMemoryMap(bootInfo->mMap, bootInfo->mMapSize, bootInfo->mMapDescSize);
-  
+
         // Locking kernel pages
         kInfo.kernel_size = (uint64_t)&kernel_end - (uint64_t)&kernel_start;
         uint64_t kernel_pages = (uint64_t)kInfo.kernel_size / 4096 + 1;
@@ -140,17 +140,21 @@ void kinit(BootInfo *bootInfo) {
         // Clearing framebuffer
         GlobalRenderer.print_set_color(0xf0f0f0f0, 0x0f0f0f0f);
         GlobalRenderer.print_clear();
- 
+
+
         // Init heap
-        fprintf(VFS_FILE_STDLOG, PREFIX "Initializing the heap...\n");
+        printk(PREFIX "Initializing the heap...\n");
         InitializeHeap((void*)0xffffff0000000000, 0x100);
+
+	// Starting the VFS subsystem
+	VFS_Init();
 
         // Starting the modules subsystem
         GlobalModuleManager = new ModuleManager();
 
         // Starting the filesystem Manager
         GlobalFSManager = new Filesystem::FSManager();
-        
+
         // Initializing a TTY
         GlobalTTY = new TTY();
 
@@ -185,7 +189,7 @@ void rdinit() {
         } else {
                 fprintf(VFS_FILE_STDLOG, PREFIX "Failed to read module.elf on initrd.\n");
         }
-        
+
         free(buffer);
         */
 }
