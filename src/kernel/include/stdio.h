@@ -6,13 +6,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void fputc(char c, fd_t file);
-void fputs(const char *str, fd_t file);
+void fputc(char c, FILE *file);
+void fputs(const char *str, FILE *file);
 void fprintf(fd_t file, const char *format, ...);
-void vfprintf(fd_t file, const char *format, va_list args);
+void nfprintf(FILE *file, const char *format, ...);
+void vfprintf(FILE *file, const char *format, va_list args);
 void putc(char c);
 void puts(const char *str);
 void printf(const char *format, ...);
 #ifdef __cplusplus
 }
 #endif
+

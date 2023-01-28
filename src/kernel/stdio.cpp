@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <mm/string.h>
 
-void fputc(char c, fd_t file) {
-        VFS_WriteFile(file, (uint8_t*)&c, sizeof(c));
+void fputc(char c, FILE *file) {
+        VFS_Write(file, (uint8_t*)&c, sizeof(c));
 }
 
-void fputs(const char *str, fd_t file) {
+void fputs(const char *str, FILE *file) {
         while(*str) {
                 fputc(*str, file);
                 str++;
@@ -15,11 +15,13 @@ void fputs(const char *str, fd_t file) {
 void fprintf(fd_t file, const char *format, ...) {
         va_list ap;
         va_start(ap, format);
-        vfprintf(file, format, ap);
+
+	if(file == VFS_FILE_STDOUT) vfprintf(stdout, format, ap);
+	else vfprintf(stdlog, format, ap);
         va_end(ap);
 }
 
-void vfprintf(fd_t file, const char *format, va_list args) {
+void vfprintf(FILE *file, const char *format, va_list args) {
         char *ptr = (char*)format;
         char buf[128];
 
@@ -56,7 +58,7 @@ void vfprintf(fd_t file, const char *format, va_list args) {
 }
 
 void putc(char c) {
-        fputc(c, VFS_FILE_STDOUT);
+        fputc(c, stdout);
 }
 
 void puts(const char *str) {
@@ -69,6 +71,6 @@ void puts(const char *str) {
 void printf(const char *format, ...) {
         va_list ap;
         va_start(ap, format);
-        vfprintf(VFS_FILE_STDOUT, format, ap);
+        vfprintf(stdout, format, ap);
         va_end(ap);
 }
