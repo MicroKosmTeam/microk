@@ -1,6 +1,6 @@
 #include <sys/printk.h>
 
-#ifdef PRINTK
+#ifdef PRINTK_SUBSYSTEM
 #include <stdio.h>
 
 #ifdef KCONSOLE_GOP

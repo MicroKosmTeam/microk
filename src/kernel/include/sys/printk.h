@@ -1,7 +1,7 @@
 #pragma once
 #include <cdefs.h>
 
-#ifdef PRINTK
+#ifdef PRINTK_SUBSYSTEM
 #ifdef KCONSOLE_SERIAL
 #include <dev/serial/serial.h>
 #endif
@@ -40,3 +40,4 @@ extern GOP GlobalRenderer;
 #endif
 
 #endif
+

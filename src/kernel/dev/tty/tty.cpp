@@ -31,18 +31,18 @@ TTY::~TTY() {
 void TTY::Activate() {
         fprintf(VFS_FILE_STDLOG, PREFIX "Activating TTY...\n\n");
         user_mask = (char*)malloc(512);
-        
+
         PrintPrompt();
 
         // We activate it at the end
         is_active = true;
-        
+
         while(is_active) {
                 if(exit) {
                         fprintf(VFS_FILE_STDLOG, PREFIX "Exiting...\n");
                         return;
                 }
-                
+
                 asm("hlt");
         }
 }
@@ -108,7 +108,7 @@ void TTY::ElaborateCommand() {
                        " -> Used:        %dkb.\n"
                        " -> Reserved:    %dkb.\n"
                        " -> Total:       %dkb.\n",
-                        kInfo.kernel_size / 1024, 
+                        kInfo.kernel_size / 1024,
                         GlobalAllocator.GetFreeMem() / 1024,
                         GlobalAllocator.GetUsedMem() / 1024,
                         GlobalAllocator.GetReservedMem() / 1024,
@@ -148,7 +148,7 @@ void TTY::ElaborateCommand() {
                        " -> Used:        %dkb.\n"
                        " -> Reserved:    %dkb.\n"
                        " -> Total:       %dkb.\n",
-                        kInfo.kernel_size / 1024, 
+                        kInfo.kernel_size / 1024,
                         GlobalAllocator.GetFreeMem() / 1024,
                         GlobalAllocator.GetUsedMem() / 1024,
                         GlobalAllocator.GetReservedMem() / 1024,
@@ -198,5 +198,3 @@ void TTY::SendChar(char ch) {
                         break;
         }
 }
-
-
