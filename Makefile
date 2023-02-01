@@ -19,7 +19,7 @@ CPP = x86_64-elf-gcc
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -g -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-exceptions -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -O3 -D$(ARCH)
+CFLAGS = -g -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -O3 -D$(ARCH)
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib -Wl,-Map=output.map
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
@@ -36,7 +36,7 @@ KOBJS += $(patsubst $(KERNDIR)/%.asm, $(OBJDIR)/kernel/%_asm.o, $(KASMSRC))
 MOBJS = $(patsubst $(MODDIR)/%.cpp, $(OBJDIR)/module/%.o, $(MSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-kernel: setup bootloader $(KOBJS) link $(MOBJS) #link-module
+kernel: setup bootloader $(KOBJS) link symbols link-again $(MOBJS) #link-module
 
 $(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(KERNDIR)/cpu/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
@@ -78,6 +78,13 @@ link-module: $(MOBJS)
 	$(LD) $(MODLDFLAGS) -o $(BINDIR)/module.elf $(MOBJS)
 
 link: $(KOBJS)
+	@ echo !==== LINKING
+	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel-tmp.elf $(KOBJS)
+
+symbols: link
+	bash ./symbolstocpp.sh
+
+link-again: $(KOBJS)
 	@ echo !==== LINKING
 	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
 
