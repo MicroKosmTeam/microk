@@ -1,25 +1,7 @@
 #include <sys/panik.h>
 #include <sys/printk.h>
+#include <stdlib.h>
 #include <cdefs.h>
-
-/* Assume, as is often the case, that EBP is the first thing pushed. If not, we are in trouble. */
-struct stackframe {
-  struct stackframe* rbp;
-  uint64_t rip;
-};
-
-static void UnwindStack(int MaxFrames) {
-    struct stackframe *stk;
-    stk = (stackframe*)__builtin_frame_address(0);
-    //asm volatile ("mov %%rbp,%0" : "=r"(stk) ::);
-    printk("Stack trace:\n");
-    for(unsigned int frame = 0; stk && frame < MaxFrames; ++frame)
-    {
-        // Unwind to previous stack frame
-        printk("  0x%x     \n", stk->rip);
-        stk = stk->rbp;
-    }
-}
 
 void panik(const char *message, const char *file, const char *function, unsigned int line) {
         asm volatile ("cli"); // We don't want interrupts while we are panicking

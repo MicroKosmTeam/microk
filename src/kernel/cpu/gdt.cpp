@@ -20,9 +20,8 @@ void init_tss() {
         DefaultGDT.TSS.limit1_Flags = 0x00;
         DefaultGDT.TSS.base2 = 0;
         DefaultGDT.TSS.base3 = (uint64_t)&tss;
-
         memset(&tss, 0, sizeof(tss));
-        
+
 //        tss.ss0
 //        tss.esp0
 }

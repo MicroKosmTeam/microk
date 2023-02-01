@@ -30,7 +30,7 @@ extern "C" {
 
 void print_image(const uint8_t *data) {
         char *ptr = strtok((char*)data, "\n");
-        //fprintf(VFS_FILE_STDLOG, "%s\n", ptr);
+        //dprintf("%s\n", ptr);
 
         uint16_t height, width;
 
@@ -39,7 +39,7 @@ void print_image(const uint8_t *data) {
         ptr = strtok(NULL, "\n");
         height = atoi(ptr);
 
-        //fprintf(VFS_FILE_STDLOG, "Width: %d\nHeight: %d\n", width, height);
+        //dprintf("Width: %d\nHeight: %d\n", width, height);
 
         ptr = strtok(NULL, "\n");
 
@@ -49,7 +49,7 @@ void print_image(const uint8_t *data) {
                         uint8_t g = atoi(strtok(NULL, "\n"));
                         uint8_t b = atoi(strtok(NULL, "\n"));
                         uint32_t color = (b | (g << 8) | (r << 16) | (0xff << 24));
-                        //fprintf(VFS_FILE_STDLOG, "Color : %d %d %d 0x%x\n", r, g, b, color);
+                        //dprintf("Color : %d %d %d 0x%x\n", r, g, b, color);
                         GOP_print_pixel(x, y, color);
                 }
         }

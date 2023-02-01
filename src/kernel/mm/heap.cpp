@@ -38,7 +38,7 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
         newSplitHeader->length = splitSeglength;// Set the new header's length
         newSplitHeader->free = free;            // Make sure both free are the same
         length = splitlength;                   // Set the original segment's length to the nes one
-        
+
         if (lastHeader == this) lastHeader = newSplitHeader;
         return newSplitHeader;
 }
@@ -55,7 +55,7 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
 
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
-        
+
         HeapSegHeader *startSeg = (HeapSegHeader*)heapAddress;
         startSeg->length = heaplength - sizeof(HeapSegHeader);
         startSeg->next = NULL;
@@ -88,7 +88,7 @@ void *malloc(size_t size) {
                 if (currSeg->next == NULL) break;
                 currSeg = currSeg->next;
         }
-        
+
         ExpandHeap(size);
         return malloc(size);
 }
@@ -139,4 +139,3 @@ void VisualizeHeap() {
                 segment_number++;
         }
 }
-

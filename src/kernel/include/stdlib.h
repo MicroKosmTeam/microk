@@ -12,20 +12,20 @@ struct source_location {
     uint32_t line;
     uint32_t column;
 };
- 
+
 struct type_descriptor {
     uint16_t kind;
     uint16_t info;
     char *name;
 };
- 
+
 struct type_mismatch_info {
     struct source_location location;
     struct type_descriptor *type;
     uintptr_t alignment;
     uint8_t type_check_kind;
 };
- 
+
 struct out_of_bounds_info {
     struct source_location location;
     struct type_descriptor left_type;
@@ -36,6 +36,7 @@ struct out_of_bounds_info {
 extern "C" {
 #endif
 void __stack_chk_fail(void);
+void UnwindStack(int MaxFrame);
 void __ubsan_handle_pointer_overflow();
 void __ubsan_handle_add_overflow();
 void __ubsan_handle_sub_overflow();
@@ -57,3 +58,4 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_info *type_mismatch, u
 #else
         #define RENAME(f) PREFIX ## f
 #endif
+

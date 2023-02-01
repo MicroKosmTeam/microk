@@ -38,7 +38,7 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
         total_drives++;
         if (!empty) {
                 // We should first initialize partitions, but that's for the future
-                fprintf(VFS_FILE_STDLOG, PREFIX "Initializing FAT Driver:\n");
+                dprintf(PREFIX "Initializing FAT Driver:\n");
 
                 if(supportedDrives[total_drives-1].partitions[0].fatDriver.DetectDrive(fs_buffer)) {
                         supportedDrives[total_drives-1].partitions[0].fatDriver.drive = 0;
@@ -50,7 +50,7 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
                         kInfo.initrd_loaded = true;
                 }
         } else {
-                fprintf(VFS_FILE_STDLOG, PREFIX "Empty drive\n");
+                dprintf(PREFIX "Empty drive\n");
                 supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::UNKNOWN;
         }
 
@@ -58,7 +58,7 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
 }
 
 FSManager::FSManager() {
-        fprintf(VFS_FILE_STDLOG, PREFIX "Initializing the file system manager.\n");
+        dprintf(PREFIX "Initializing the file system manager.\n");
         total_drives = 0;
 }
 

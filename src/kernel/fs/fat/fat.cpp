@@ -55,29 +55,29 @@ bool FATFSDriver::DetectDrive(uint8_t *data) {
         
         switch (fatType) {
                 case FATType::FAT16: {
-                        fprintf(VFS_FILE_STDLOG, PREFIX "We have a FAT 16 drive on our hands.\n");
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Volume label: ");
+                        dprintf(PREFIX "We have a FAT 16 drive on our hands.\n");
+                        dprintf(PREFIX "Volume label: ");
                         for (int i = 0; i < 11; i++) {
-                                fprintf(VFS_FILE_STDLOG, "%c", fat16->volume_label[i]);
+                                dprintf("%c", fat16->volume_label[i]);
                         }
-                        fprintf(VFS_FILE_STDLOG, "\n");
+                        dprintf("\n");
                         }
                         break;
                 case FATType::FAT32: {
-                        fprintf(VFS_FILE_STDLOG, PREFIX "We have a FAT 32 drive on our hands.\n");
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Volume label: ");
+                        dprintf(PREFIX "We have a FAT 32 drive on our hands.\n");
+                        dprintf(PREFIX "Volume label: ");
                         for (int i = 0; i < 11; i++) {
-                                fprintf(VFS_FILE_STDLOG, "%c", fat32->volume_label[i]);
+                                dprintf("%c", fat32->volume_label[i]);
                         }
-                        fprintf(VFS_FILE_STDLOG, "\n");
+                        dprintf("\n");
                         uint32_t root_cluster_32 = fat32->root_cluster;
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Root dir is in the %d cluster.\n", root_cluster_32);
+                        dprintf(PREFIX "Root dir is in the %d cluster.\n", root_cluster_32);
 
                         the_root_cluster = root_cluster_32;
                         }
                         break;
                 default:
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Not handled\n");
+                        dprintf(PREFIX "Not handled\n");
                         return false;
         }
 
@@ -95,7 +95,7 @@ uint8_t *FATFSDriver::LoadFile(char *directory_path, char *file_name) {
         uint32_t file_cluster = FindInDirectory(directory_cluster, file_name);
         uint32_t file_size = FindSizeInDirectory(directory_cluster, file_name);
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "File:\n - Cluster: %d\n - Size: %d\n", file_cluster, file_size);
+        dprintf(PREFIX "File:\n - Cluster: %d\n - Size: %d\n", file_cluster, file_size);
 
         uint32_t first_sector_of_cluster = ((file_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
         
@@ -116,7 +116,7 @@ uint32_t FATFSDriver::FindDirectory(char *directory_path) {
 
         while((dir = strtok(dir, "/")) != NULL) {
                 cluster = FindInDirectory(cluster, dir);
-                if (cluster == 0) { fprintf(VFS_FILE_STDLOG, PREFIX "Not found: %s\n", directory_path); return false; }
+                if (cluster == 0) { dprintf(PREFIX "Not found: %s\n", directory_path); return false; }
 
                 dir = NULL;
         }
@@ -213,44 +213,44 @@ uint32_t FATFSDriver::FindInDirectory(uint32_t directory_cluster, char *find_nam
 void FATFSDriver::ReadDirectory(uint32_t directory_cluster) {
         uint32_t first_sector_of_cluster = ((directory_cluster - 2) * bootsect->sectors_per_cluster) + first_data_sector;
         
-        fprintf(VFS_FILE_STDLOG, PREFIX "Reading directory in cluster %d.\n", directory_cluster);
+        dprintf(PREFIX "Reading directory in cluster %d.\n", directory_cluster);
         uint8_t *read_data = (uint8_t*)malloc(bootsect->sectors_per_cluster * bootsect->bytes_per_sector);
         GlobalFSManager->ReadDrive(drive, first_sector_of_cluster, bootsect->sectors_per_cluster, &read_data, bootsect->sectors_per_cluster * bootsect->bytes_per_sector, bootsect->bytes_per_sector);
         uint8_t *sector_data = (uint8_t*)malloc(32);
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Parsing the directory:\n");
+        dprintf(PREFIX "Parsing the directory:\n");
 
         for (int i = 0;;i+=32) {
                 memcpy(sector_data, read_data + i, 32);
                 if(sector_data[0] == 0) {
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Done!\n");
+                        dprintf(PREFIX "Done!\n");
                         break;
                 } else if(sector_data[0] == 0xE5) {
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Unused\n");
+                        dprintf(PREFIX "Unused\n");
                         continue;
                 } else {
                         uint32_t entry_cluster = 0;
                         if(sector_data[11] == 0x0F) {
 //                                LongEntry *entry;
-                                fprintf(VFS_FILE_STDLOG, PREFIX "Long name.\n");
+                                dprintf(PREFIX "Long name.\n");
                                 continue;
                         } else {
                                 DirectoryEntry *entry = (DirectoryEntry*)sector_data;
                                 entry_cluster = entry->low_bits | (entry->high_bits << 16);
                                 //if (entry_cluster == 0) continue;
-                                fprintf(VFS_FILE_STDLOG, PREFIX "Short name: ");
+                                dprintf(PREFIX "Short name: ");
                                 for (int i = 0; i < 8; i++) {
-                                        fprintf(VFS_FILE_STDLOG, "%c", entry->file_name[i]);
+                                        dprintf("%c", entry->file_name[i]);
                                 }
-                                fprintf(VFS_FILE_STDLOG, " ");
+                                dprintf(" ");
                                 for (int i = 8; i < 11; i++) {
-                                        fprintf(VFS_FILE_STDLOG, "%c", entry->file_name[i]);
+                                        dprintf("%c", entry->file_name[i]);
                                 }
-                                fprintf(VFS_FILE_STDLOG, " Cluster: %d", entry_cluster);
+                                dprintf(" Cluster: %d", entry_cluster);
                                 if (sector_data[11] == 0x10) {
-                                        fprintf(VFS_FILE_STDLOG, " Directory\n");
+                                        dprintf(" Directory\n");
                                 } else {
-                                        fprintf(VFS_FILE_STDLOG, " Size: %d\n", entry->file_size);
+                                        dprintf(" Size: %d\n", entry->file_size);
                                 }
 
                                 continue;

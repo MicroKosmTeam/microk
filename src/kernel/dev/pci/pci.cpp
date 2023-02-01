@@ -18,7 +18,7 @@ namespace PCI {
                 if(pciDeviceHeader->DeviceID == 0) return;
                 if(pciDeviceHeader->DeviceID == 0xFFFF) return;
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
+                dprintf(PREFIX "PCI %s: %s (0x%x) - %s (0x%x) - %s (0x%x) - %s (0x%x)\n",
                        DeviceClasses[pciDeviceHeader->Class],
                        GetVendorName(pciDeviceHeader->VendorID),
                        pciDeviceHeader->VendorID,
@@ -29,7 +29,7 @@ namespace PCI {
                        GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
                        pciDeviceHeader->ProgIF);
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "Starting eventual driver...\n");
+                dprintf(PREFIX "Starting eventual driver...\n");
                 switch (pciDeviceHeader->Class) {
                         case 0x01: //Mass storage
                                 switch (pciDeviceHeader->Subclass) {
@@ -42,11 +42,11 @@ namespace PCI {
                         case 0x02:
                                 switch (pciDeviceHeader->Subclass) {
                                         case 0x00:
-                                                fprintf(VFS_FILE_STDLOG, PREFIX "TODO: Implement EthernetDriver.\n");
+                                                dprintf(PREFIX "TODO: Implement EthernetDriver.\n");
                                                 //new ETH:EthernetDriver.
                                 }
                 }
-                fprintf(VFS_FILE_STDLOG, PREFIX "Done enumerating function.\n");
+                dprintf(PREFIX "Done enumerating function.\n");
         }
 
         void EnumerateDevice(uint64_t bus_address, uint64_t device) {

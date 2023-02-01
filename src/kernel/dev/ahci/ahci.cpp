@@ -136,7 +136,7 @@ namespace AHCI {
 
                 hbaPort->commandIssue = 1;
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "AHCI command sent for sector %d.\n", sector);
+                dprintf(PREFIX "AHCI command sent for sector %d.\n", sector);
 
                 // Wait until done (fix it with interrupts)
                 while (true){
@@ -159,7 +159,7 @@ namespace AHCI {
 
         AHCIDriver::AHCIDriver(PCI::PCIDeviceHeader *pciBaseAddress) {
                 this->PCIBaseAddress = pciBaseAddress;
-                fprintf(VFS_FILE_STDLOG, "AHCI instance initialized.\n");
+                dprintf("AHCI instance initialized.\n");
 
                 ABAR = (HBAMemory*)((PCI::PCIHeader0*)pciBaseAddress)->BAR5;
                 GlobalPageTableManager.MapMemory(ABAR, ABAR);
@@ -169,7 +169,7 @@ namespace AHCI {
                 for (int i = 0; i < portCount; i++) {
                         Port *port = ports[i];
                        
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Sending it to the FS manager...\n");
+                        dprintf(PREFIX "Sending it to the FS manager...\n");
                         GlobalFSManager->AddAHCIDrive(port, i, AHCI_BUFFER_SIZE);
                 }
         }

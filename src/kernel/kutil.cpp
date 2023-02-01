@@ -115,21 +115,21 @@ void PrepareACPI(BootInfo *bootInfo) {
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
 
         int entries = (xsdt->Length - sizeof(ACPI::SDTHeader)) / 8;
-        fprintf(VFS_FILE_STDLOG, PREFIX "Available ACPI tables: %d\n", entries);
+        dprintf(PREFIX "Available ACPI tables: %d\n", entries);
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the FADT table...\n");
+        dprintf(PREFIX "Loading the FADT table...\n");
         ACPI::FindTable(xsdt, (char*)"FADT");
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the MADT table...\n");
+        dprintf(PREFIX "Loading the MADT table...\n");
         ACPI::FindTable(xsdt, (char*)"MADT");
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the MCFG table...\n");
+        dprintf(PREFIX "Loading the MCFG table...\n");
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Loading the HPET table...\n");
+        dprintf(PREFIX "Loading the HPET table...\n");
         ACPI::FindTable(xsdt, (char*)"HPET");
 
-        fprintf(VFS_FILE_STDLOG, PREFIX "Enumerating PCI devices...\n");
+        dprintf(PREFIX "Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
 }
 
@@ -166,7 +166,7 @@ void kinit(BootInfo *bootInfo) {
 
         // Setting the timer frequency
         PIT::SetFrequency(100);
-        fprintf(VFS_FILE_STDLOG, PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
+        dprintf(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
         // ACPI initialization
         PrepareACPI(bootInfo);
@@ -180,14 +180,14 @@ void rdinit() {
         /*
         size_t size;
         USTAR::GetFileSize("module.elf", &size);
-        fprintf(VFS_FILE_STDLOG, PREFIX "Size of module.elf: %d\n", size);
+        dprintf(PREFIX "Size of module.elf: %d\n", size);
         uint8_t *buffer = (uint8_t*)malloc(size);
         memset(buffer, 0, size);
         if(USTAR::ReadFile("module.elf", &buffer, size)) {
-                fprintf(VFS_FILE_STDLOG, PREFIX "Sending it to the module manager...\n");
+                dprintf(PREFIX "Sending it to the module manager...\n");
                 GlobalModuleManager->LoadELF((uint8_t*)buffer);
         } else {
-                fprintf(VFS_FILE_STDLOG, PREFIX "Failed to read module.elf on initrd.\n");
+                dprintf(PREFIX "Failed to read module.elf on initrd.\n");
         }
 
         free(buffer);

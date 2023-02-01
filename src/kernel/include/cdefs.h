@@ -17,6 +17,11 @@
         #error "ARCH is not specified."
 #endif
 
+#define THREAD_SUBSYSTEM
+#ifdef THREAD_SUBSYSTEM
+	#define THREAD_STACK_SIZE 1024 * 1024 * 1 // 1MB stack per thread
+#endif
+
 // PRINTK
 #define PRINTK_SUBSYSTEM
 #ifdef PRINTK_SUBSYSTEM

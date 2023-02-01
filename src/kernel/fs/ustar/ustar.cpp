@@ -35,7 +35,7 @@ namespace USTAR {
                         memcpy(file.data, ptr + 512, filesize);
 //                        file.data = (uint8_t*)ptr + 512;
 
-                        fprintf(VFS_FILE_STDLOG, PREFIX " %s %d\n", file.filename, file.size); 
+                        dprintf(PREFIX " %s %d\n", file.filename, file.size); 
                         files[total_files++] = file;
                         ptr += (((filesize + 511) / 512) + 1) * 512; // Next header
                         //ptr += 512 + filesize;
@@ -43,9 +43,9 @@ namespace USTAR {
         }
 
         void ReadArchive() {
-                fprintf(VFS_FILE_STDLOG, PREFIX "Files:\n");
+                dprintf(PREFIX "Files:\n");
                 for (int i = 0; i < total_files; i++) {
-                        fprintf(VFS_FILE_STDLOG, PREFIX " %s %d\n", files[i].filename, files[i].size); 
+                        dprintf(PREFIX " %s %d\n", files[i].filename, files[i].size); 
                 }
         }
 
@@ -64,19 +64,19 @@ namespace USTAR {
                 for (int i = 0; i < total_files; i++) {
                         if(strcmp(filename, files[i].filename) != 0) continue;
                         
-                        fprintf(VFS_FILE_STDLOG, PREFIX "File found: %s %d\n", files[i].filename, files[i].size); 
+                        dprintf(PREFIX "File found: %s %d\n", files[i].filename, files[i].size); 
 
-                        fprintf(VFS_FILE_STDLOG, PREFIX "Data:\n");
+                        dprintf(PREFIX "Data:\n");
                         for (int j = 0; j < files[i].size; j++) {
-                                fprintf(VFS_FILE_STDLOG, "%c", files[i].data[j]);
+                                dprintf("%c", files[i].data[j]);
                         }
-                        fprintf(VFS_FILE_STDLOG, "\n");
+                        dprintf("\n");
 
                         return true;
                 }
                 
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "No file named %s found.\n", filename);
+                dprintf(PREFIX "No file named %s found.\n", filename);
                 return false;
         }
 
@@ -84,14 +84,14 @@ namespace USTAR {
                 for (int i = 0; i < total_files; i++) {
                         if(strcmp(filename, files[i].filename) != 0) continue;
                         
-                        fprintf(VFS_FILE_STDLOG, PREFIX "File found: %s %d\n", files[i].filename, files[i].size); 
+                        dprintf(PREFIX "File found: %s %d\n", files[i].filename, files[i].size); 
 
                         memcpy(*buffer, files[i].data, size > files[i].size ? files[i].size : size);
 
                         return true;
                 }
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "No file named %s found.\n", filename);
+                dprintf(PREFIX "No file named %s found.\n", filename);
                 return false;
         }
 }

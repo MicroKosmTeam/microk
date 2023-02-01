@@ -60,7 +60,7 @@ namespace CPU {
                 model[11] = (uint8_t)(edx >> 24);
                 model[12] = '\0';
 
-                fprintf(VFS_FILE_STDLOG, PREFIX "CPU vendor is: %s\n", model);
+                dprintf(PREFIX "CPU vendor is: %s\n", model);
                 if(strcmp(model, cpuVendorNames[0]) == 0)
                         return CPU_VENDOR_AMD;
                 if(strcmp(model, cpuVendorNames[1]) == 0)
@@ -77,11 +77,11 @@ namespace CPU {
 
                 if(__checkSSE()) {
                         #ifdef x86_64
-                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Active\n");
+                                dprintf(PREFIX "SSE status: Active\n");
                         #elif x86
-                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Unknown\n");
+                                dprintf(PREFIX "SSE status: Unknown\n");
                         #else
-                                fprintf(VFS_FILE_STDLOG, PREFIX "SSE status: Not present\n");
+                                dprintf(PREFIX "SSE status: Not present\n");
                         #endif
                 }
                 

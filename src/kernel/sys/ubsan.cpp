@@ -17,7 +17,7 @@ const char *Type_Check_Kinds[] = {
 };
 
 static void print_location(struct source_location *location) {
-    fprintf(VFS_FILE_STDLOG, " file: %s\n line: %d\n column: %d\n",
+    dprintf(" file: %s\n line: %d\n column: %d\n",
          location->file, location->line, location->column);
 }
 
@@ -48,7 +48,7 @@ void __ubsan_handle_out_of_bounds(void* data_raw, void* index_raw) {
                 uintptr_t index = (uintptr_t)index_raw;
                 (void)index;
 
-                fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n"
+                dprintf("\n!!! UBSAN !!!\n"
                        "Out of bounds!\n");
 
                 print_location(&data->location);
@@ -71,22 +71,22 @@ void __ubsan_handle_type_mismatch_v1(struct type_mismatch_info *type_mismatch, u
 
         if (pointer == 0) {
                 #ifdef UBSAN_NULL_PTR
-                        fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n");
-                        fprintf(VFS_FILE_STDLOG, "Null pointer access!\n");
+                        dprintf("\n!!! UBSAN !!!\n");
+                        dprintf("Null pointer access!\n");
                         print_location(location);
                 #endif
         } else if (type_mismatch->alignment != 0 && is_aligned(pointer, type_mismatch->alignment)) {
                 // Most useful on architectures with stricter memory alignment requirements, like ARM.
                 #ifdef UBSAN_MEM_ALIGN
-                        fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n");
-                        fprintf(VFS_FILE_STDLOG, "Unaligned memory access!\n"); 
+                        dprintf("\n!!! UBSAN !!!\n");
+                        dprintf("Unaligned memory access!\n"); 
                         print_location(location);
                 #endif
         } else {
                 #ifdef UBSAN_INSUFFSIZE
-                        fprintf(VFS_FILE_STDLOG, "\n!!! UBSAN !!!\n");
-                        fprintf(VFS_FILE_STDLOG, "Insufficient size!\n");
-                        fprintf(VFS_FILE_STDLOG, "%s address 0x%x with insufficient space for object of type %s\n",
+                        dprintf("\n!!! UBSAN !!!\n");
+                        dprintf("Insufficient size!\n");
+                        dprintf("%s address 0x%x with insufficient space for object of type %s\n",
                                 Type_Check_Kinds[type_mismatch->type_check_kind], (void *)pointer,
                                 type_mismatch->type->name);
                         print_location(location);

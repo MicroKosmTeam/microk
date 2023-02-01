@@ -33,14 +33,42 @@
 #include <dev/tty/tty.h>
 #include <fs/vfs.h>
 #include <sys/panik.h>
+//#include <proc/thread.h>
 
 #define PREFIX "[KINIT] "
+/*
+struct thread *current, *next;
+
+void thread_function() {
+	int thread_id = current->tid;
+
+	while(true) {
+		printk("Thread %d\n", thread_id);
+
+		struct thread *_next = next;
+		struct thread *_current = current;
+
+		// Update "scheduler"
+		next = _current;
+		current = _next;
+
+		// Switch thread
+		switch_stack(&_current->stack_ptr, &_next->stack_ptr);
+	}
+}
+
+current = new_thread(thread_function);
+next = new_thread(thread_function);
+
+uint64_t dummy_stack_ptr;
+switch_stack(&dummy_stack_ptr, &current->stack_ptr);
+*/
 
 extern "C" void _start(BootInfo* bootInfo){
         kinit(bootInfo);
 
         if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
-        else fprintf(VFS_FILE_STDLOG, PREFIX "Loading the initramfs...\n");
+        else dprintf(PREFIX "Loading the initramfs...\n");
         GlobalRenderer.print_clear();
 
         rdinit();
@@ -67,9 +95,10 @@ extern "C" void _start(BootInfo* bootInfo){
                 (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
 
 
-        GlobalTTY->Activate();
-
+	GlobalTTY->Activate();
         printf("Done!\n");
+
+
 
         while (true) {
                 asm("hlt");
