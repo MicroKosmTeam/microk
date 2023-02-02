@@ -2,16 +2,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define VFS_FILE_STDOUT 0
-#define VFS_FILE_STDIN  1
-#define VFS_FILE_STDERR 2
-#define VFS_FILE_STDLOG 3
-
 typedef struct {
 	uint32_t descriptor;
 } FILE;
 
-typedef int fd_t;
+struct VFilesystem{
+	uint16_t mountpoints = 0;
+	VFilesystem *up[256];
+	char *mountpoint;
+	char *drive;
+	uint64_t flags;
+};
 
 extern FILE *stdout;
 extern FILE *stdlog;
@@ -20,9 +21,9 @@ extern FILE *stdlog;
 extern "C" {
 #endif
 
+void VFS_Tree();
 void VFS_Init();
-
-int VFS_WriteFile(fd_t file, uint8_t *data, size_t size);
+int VFS_Mount(VFilesystem *base, char *path, char *drive, uint64_t flags);
 int VFS_Write(FILE *file, uint8_t *data, size_t size);
 
 #ifdef __cplusplus

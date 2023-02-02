@@ -166,7 +166,7 @@ void TTY::ElaborateCommand() {
 			GlobalAllocator.GetReservedMem() / 1024,
 			(GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
 	} else if(strcmp(ptr, "ls") == 0) {
-		printf("Not yet implemented.\n");
+		VFS_Tree();
 	} else {
 		printf("Unknown command: %s\n", ptr);
 	}
