@@ -66,4 +66,3 @@ namespace QWERTYKeyboard {
                 else return ASCIITable[scancode];
         }
 }
-

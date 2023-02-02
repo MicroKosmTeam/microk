@@ -170,7 +170,6 @@ void kinit(BootInfo *bootInfo) {
 
         // ACPI initialization
         PrepareACPI(bootInfo);
-
 }
 
 #include <fs/ustar/ustar.h>
