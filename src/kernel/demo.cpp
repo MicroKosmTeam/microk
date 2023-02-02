@@ -81,8 +81,9 @@ void Raytrace() {
 		Sphere(Vec3(W*0.75, H*0.75, 60), 50),
 
 	};
-	for (double i = 0; i < 1; i+= 0.25) {
-		for (double j = 0; j < 1; j+=0.25) {
+
+	for (double i = 0; i <= 1; i+= 0.25) {
+		for (double j = 0; j <= 1; j+=0.25) {
 			const Sphere light(Vec3(W * i, H * j, 0), 1);
 
 			double t;
