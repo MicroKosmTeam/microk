@@ -125,6 +125,7 @@ void ExpandHeap(size_t length) {
 
 #include <stdio.h>
 void VisualizeHeap() {
+	uint64_t totalSize = 0;
         HeapSegHeader *currSeg = (HeapSegHeader*)heapStart;
         uint16_t segment_number = 0;
         while(currSeg->next != NULL) {
@@ -135,7 +136,10 @@ void VisualizeHeap() {
                         printf(" Used ");
 
                 printf(" Size: %d\n", currSeg->length);
+		totalSize += currSeg->length;
                 currSeg = currSeg->next;
                 segment_number++;
         }
+
+	printf(" Size total: %dkb\n", totalSize / 1024);
 }
