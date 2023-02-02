@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <cdefs.h>
 
+__attribute__((noreturn))
 void panik(const char *message, const char *file, const char *function, unsigned int line) {
         asm volatile ("cli"); // We don't want interrupts while we are panicking
 
