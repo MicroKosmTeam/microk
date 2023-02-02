@@ -1,6 +1,9 @@
 /OVMFbin
 /obj
 /bin
+/symbols.txt
+/symbols_unordered.txt
+/output.map
 *.log
 *.fd
 *.img
