@@ -4,6 +4,9 @@
 
 typedef struct {
 	uint32_t descriptor;
+	uint8_t *buffer;
+	uint64_t bufferSize;
+	uint64_t bufferPos = 0;
 } FILE;
 
 struct VFilesystem{
@@ -15,6 +18,8 @@ struct VFilesystem{
 };
 
 extern FILE *stdout;
+extern FILE *stdin;
+extern FILE *stderr;
 extern FILE *stdlog;
 
 #ifdef __cplusplus

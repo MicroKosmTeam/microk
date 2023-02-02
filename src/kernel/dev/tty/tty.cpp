@@ -59,6 +59,7 @@ void TTY::Deactivate() {
 
 void TTY::PrintPrompt() {
 	printf("(kernel mode) $ ");
+	fflush(stdout);
 }
 
 void TTY::ElaborateCommand() {

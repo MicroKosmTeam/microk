@@ -14,6 +14,10 @@ void swapbuf(FILE *framebuffer);
 
 */
 
+void fflush(FILE *file) {
+	fputc('\f', file);
+}
+
 void fputc(char c, FILE *file) {
         VFS_Write(file, (uint8_t*)&c, sizeof(c));
 }
