@@ -104,7 +104,6 @@ void Raytrace() {
 							else if (i < 6) pix_col = (green + white*dt) * 0.5;
 							else pix_col = (blue + white*dt) * 0.5;
 							clamp255(pix_col);
-							break;
 						}
 					}
 
