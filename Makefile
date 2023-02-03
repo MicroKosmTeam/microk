@@ -15,7 +15,7 @@ OVMFDIR = OVMFbin
 LDS64 = kernel64.ld
 MODLDS64 = module64.ld
 CC = x86_64-elf-gcc
-CPP = x86_64-elf-gcc
+CPP = x86_64-elf-g++
 ASMC = nasm
 LD = x86_64-elf-gcc
 
