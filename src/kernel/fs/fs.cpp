@@ -36,8 +36,42 @@ struct GPTHeader {
 	uint32_t crc32_array;
 }__attribute__((packed));
 
+
 Filesystem::FSManager *GlobalFSManager;
+
 namespace Filesystem {
+void FSManager::InitializeMBRPartitions(uint8_t *bootsector) {
+	uint8_t *partitionTable = bootsector + 0x1BE;
+
+	for (int i = 0; i < 4; i++) {
+		MBRPartition *partition = (MBRPartition*)malloc(sizeof(MBRPartition));
+		memcpy(partition, partitionTable +  i * sizeof(MBRPartition), sizeof(MBRPartition));
+		switch(partition->partition_type) {
+			case 0x01: {// All disk FAT
+				dprintf(PREFIX "Initializing FAT Driver:\n");
+
+				if(supportedDrives[total_drives-1].partitions[i].fatDriver.DetectDrive(bootsector)) {
+					supportedDrives[total_drives-1].partitions[i].fatDriver.drive = total_drives - 1;
+					supportedDrives[total_drives-1].partitions[i].fatDriver.partition = i;
+					//supportedDrives[total_drives-1].partitions[i].fatDriver.offset = partition->chs_addr_start;
+
+				        supportedDrives[total_drives-1].partitions[i].filesystem = Filesystem::FAT;
+					supportedDrives[total_drives-1].partitions[i].fatDriver.ReadDirectory(supportedDrives[total_drives-1].partitions[0].fatDriver.FindDirectory("/MICROK"));
+					uint8_t *file = supportedDrives[total_drives-1].partitions[i].fatDriver.LoadFile("/MICROK", "INITRD");
+
+					kInfo.initrd = file;
+					kInfo.initrd_loaded = true;
+				}
+				}
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+void FSManager::InitializeGPTPartitions(uint8_t *partitionTable) {
+}
 
 void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size) {
         supportedDrives[total_drives].driveType = DriveType::AHCI;
@@ -63,8 +97,8 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
 
         total_drives++;
         if (!empty) {
-		uint8_t *partition = (uint8_t*)malloc(16);
-		memcpy(partition, fs_buffer + 0x1BE, 16);
+		uint8_t *partition = (uint8_t*)malloc(sizeof(MBRPartition));
+		memcpy(partition, fs_buffer + 0x1BE, sizeof(MBRPartition));
 
 		MBRPartition *first = (MBRPartition*)malloc(sizeof(MBRPartition));
 		memcpy(first, partition, sizeof(MBRPartition));
@@ -87,28 +121,11 @@ void FSManager::AddAHCIDrive(AHCI::Port *port, int number, uint32_t buffer_size)
 			free(header);
 		} else {
 			dprintf(PREFIX "Found a legacy MBR.\n");
-
-			switch(first->partition_type) {
-				case 0x01: {// All disk FAT
-			                dprintf(PREFIX "Initializing FAT Driver:\n");
-
-			                if(supportedDrives[total_drives-1].partitions[0].fatDriver.DetectDrive(fs_buffer)) {
-			                        supportedDrives[total_drives-1].partitions[0].fatDriver.drive = 0;
-			                        supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::FAT;
-						supportedDrives[total_drives-1].partitions[0].fatDriver.ReadDirectory(supportedDrives[total_drives-1].partitions[0].fatDriver.FindDirectory("/MICROK"));
-						uint8_t *file = supportedDrives[total_drives-1].partitions[0].fatDriver.LoadFile("/MICROK", "INITRD");
-
-						kInfo.initrd = file;
-						kInfo.initrd_loaded = true;
-			                }
-					}
-					break;
-				default:
-					break;
-			}
+			InitializeMBRPartitions(fs_buffer);
 		}
 
 		free(first);
+		free(partition);
         } else {
                 dprintf(PREFIX "Empty drive\n");
                 supportedDrives[total_drives-1].partitions[0].filesystem = Filesystem::UNKNOWN;

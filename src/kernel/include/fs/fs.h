@@ -54,6 +54,9 @@ namespace Filesystem {
                 bool WriteDrive(uint8_t drive_number, uint32_t start_sector, uint8_t number_sectors, uint8_t *buffer, size_t buffer_size);
                 Drive supportedDrives[FS_TOTAL_SUPPORTED_DRIVES];
                 uint16_t total_drives;
+	private:
+		void InitializeMBRPartitions(uint8_t *bootsector);
+		void InitializeGPTPartitions(uint8_t *partitionTable);
         };
 }
 

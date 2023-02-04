@@ -58,7 +58,7 @@ namespace FAT {
         	unsigned short		head_side_count;
         	unsigned int 		hidden_sector_count;
         	unsigned int 		total_sectors_32;
- 
+
 	        //this will be cast to it's specific type once the driver actually knows what type of FAT this is.
         	unsigned char		extended_section[54];
         }__attribute__((packed));
@@ -78,9 +78,9 @@ namespace FAT {
         	unsigned int 		volume_id;
         	unsigned char		volume_label[11];
         	unsigned char		fat_type_label[8];
- 
+
         }__attribute__((packed)) ;
- 
+
         struct Fat16Bootsect {
 	        //extended fat12 and fat16 stuff
         	unsigned char		bios_drive_num;
@@ -91,7 +91,7 @@ namespace FAT {
         	unsigned char		fat_type_label[8];
 
         }__attribute__((packed));
- 
+
         struct DirectoryEntry {
         	unsigned char file_name[11];
 	        unsigned char attributes;
@@ -146,12 +146,11 @@ namespace FAT {
                 void ReadDirectory(uint32_t directory_cluster);
                 void ParseRoot(uint32_t root_cluster);
                 uint8_t drive;
+		uint8_t partition;
+                uint64_t offset;
         private:
                 FatBootsect *bootsect;
                 FATType fatType;
-
-                uint8_t partition;
-                uint64_t offset;
 
                 uint32_t total_sectors;
                 uint32_t fat_size;
@@ -165,3 +164,4 @@ namespace FAT {
                 uint32_t root_cluster;
         };
 }
+
