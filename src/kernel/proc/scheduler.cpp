@@ -60,6 +60,10 @@ void start_scheduler() {
 	}
 }
 
+void scheduler_stop() {
+	scheduler_running = false;
+}
+
 void scheduler_list() {
 	printf("Total ktasks: %d\n"
 	       "Listing addresses: \n", TASK_NUMBER);
