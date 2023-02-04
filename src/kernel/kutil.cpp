@@ -141,7 +141,6 @@ void kinit(BootInfo *bootInfo) {
         GlobalRenderer.print_set_color(0xf0f0f0f0, 0x0f0f0f0f);
         GlobalRenderer.print_clear();
 
-
         // Init heap
         printk(PREFIX "Initializing the heap...\n");
         InitializeHeap((void*)0xffffff0000000000, 0x100);
@@ -165,7 +164,7 @@ void kinit(BootInfo *bootInfo) {
         PrepareInterrupts(bootInfo);
 
         // Setting the timer frequency
-        PIT::SetFrequency(100);
+        PIT::SetFrequency(1000);
         dprintf(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
         // ACPI initialization
