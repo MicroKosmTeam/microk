@@ -5,8 +5,23 @@
 bool lshift_pressed;
 bool rshift_pressed;
 
+bool lctrl_pressed;
+bool rctrl_pressed;
+
 void HandleKeyboard(uint8_t scancode) {
         switch (scancode) {
+		case LCTRL:
+                        lctrl_pressed = true;
+                        break;
+                case LCTRL + 0x80:
+                        lctrl_pressed = false;
+                        break;
+                case RCTRL:
+                        rctrl_pressed = true;
+                        break;
+                case RCTRL + 0x80:
+                        rctrl_pressed = false;
+                        break;
                 case LSHIFT:
                         lshift_pressed = true;
                         break;

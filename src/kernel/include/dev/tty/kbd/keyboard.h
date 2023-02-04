@@ -4,6 +4,8 @@
 void HandleKeyboard(uint8_t scancode);
 
 namespace QWERTYKeyboard {
+	#define LCTRL 0x1D
+        #define RCTRL 0xE0
         #define LSHIFT 0x2A
         #define RSHIFT 0x36
         #define RETURN 0x1C
@@ -13,3 +15,4 @@ namespace QWERTYKeyboard {
         extern const char ASCIITable[];
         char Translate(uint8_t scancode, bool uppercase);
 }
+
