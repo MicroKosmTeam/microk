@@ -36,11 +36,17 @@ static const char *cpuVendorNames[] = {
 namespace CPU {
         CPU_VENDOR vendor;
 
-        static int __checkSSE(void) {
+        static int __checkSSE() {
                 unsigned int eax, unused, edx;
                 __cpuid(1, eax, unused, unused, edx);
                 return edx & CPUID_FEAT_EDX_SSE;
         }
+
+	static int __checkAPIC() {
+		unsigned int eax, unused, edx;
+                __cpuid(1, eax, unused, unused, edx);
+		return edx & CPUID_FEAT_EDX_APIC;
+	}
 
         static CPU_VENDOR __getVendor() {
                 uint32_t ebx, edx, ecx, unused;
@@ -65,7 +71,7 @@ namespace CPU {
                         return CPU_VENDOR_AMD;
                 if(strcmp(model, cpuVendorNames[1]) == 0)
                         return CPU_VENDOR_INTEL;
-                
+
         }
 
         const char *GetVendor() {
@@ -79,11 +85,17 @@ namespace CPU {
                         #ifdef x86_64
                                 dprintf(PREFIX "SSE status: Active\n");
                         #elif x86
-                                dprintf(PREFIX "SSE status: Unknown\n");
-                        #else
-                                dprintf(PREFIX "SSE status: Not present\n");
+                                dprintf(PREFIX "SSE status: Present but not active\n");
                         #endif
-                }
-                
+                } else {
+                        dprintf(PREFIX "SSE status: Not present\n");
+		}
+
+		if (__checkAPIC()) {
+                        dprintf(PREFIX "APIC status: Present\n");
+		} else {
+                        dprintf(PREFIX "APIC status: Not present\n");
+		}
+
         }
 }
