@@ -1,6 +1,6 @@
 #include <dev/tty/kbd/keyboard.h>
-#include <fs/vfs.h>
 #include <dev/tty/tty.h>
+#include <stdio.h>
 
 bool lshift_pressed;
 bool rshift_pressed;
@@ -20,19 +20,19 @@ void HandleKeyboard(uint8_t scancode) {
                         rshift_pressed = false;
                         break;
                 case RETURN:
-                        GlobalTTY->SendChar('\n');
+                        fputc('\n', stdin);
                         break;
                 case BACKSP:
-                        GlobalTTY->SendChar('\b');
+                        fputc('\b', stdin);
                         break;
                 case SPCBAR:
-                        GlobalTTY->SendChar(' ');
+                        fputc(' ', stdin);
                         break;
                 default:
                         char character = QWERTYKeyboard::Translate(scancode, lshift_pressed | rshift_pressed);
 
                         if(character != 0)
-                                GlobalTTY->SendChar(character);
+                                fputc(character, stdin);
                         break;
         }
 

@@ -8,7 +8,7 @@ public:
         ~TTY();
         void Activate();
         void Deactivate();
-        void SendChar(char ch);
+	void GetChar();
 private:
         void PrintPrompt();
         void ElaborateCommand();
@@ -18,3 +18,4 @@ private:
 };
 
 extern TTY *GlobalTTY;
+

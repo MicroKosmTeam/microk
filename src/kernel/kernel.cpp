@@ -33,6 +33,7 @@
 #include <dev/tty/tty.h>
 #include <fs/vfs.h>
 #include <sys/panik.h>
+#include <proc/scheduler.h>
 //#include <proc/thread.h>
 
 #define PREFIX "[KINIT] "
@@ -93,9 +94,11 @@ extern "C" void _start(BootInfo* bootInfo){
                 GlobalAllocator.GetUsedMem() / 1024,
                 GlobalAllocator.GetReservedMem() / 1024,
                 (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
-
-
 	GlobalTTY->Activate();
+
+	init_scheduler();
+	start_scheduler();
+
         printf("Done!\n");
 
 

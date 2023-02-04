@@ -13,6 +13,7 @@
 #include <fs/vfs.h>
 #include <demo.h>
 #include <cpu/cpu.h>
+#include <proc/scheduler.h>
 
 #define PREFIX "[TTY] "
 
@@ -37,14 +38,14 @@ void TTY::Activate() {
 	// We activate it at the end
 	is_active = true;
 
-	while(is_active) {
+	/*while(is_active) {
 		if(exit) {
 			dprintf(PREFIX "Exiting...\n");
 			return;
 		}
 
 		asm("hlt");
-	}
+	}*/
 }
 
 void TTY::Deactivate() {
@@ -80,6 +81,7 @@ void TTY::ElaborateCommand() {
 		       "demo\n"
 		       "fetch\n"
 		       "ls\n"
+		       "top\n"
 		       );
 	} else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
 		GlobalRenderer.print_clear();
@@ -168,6 +170,8 @@ void TTY::ElaborateCommand() {
 			(GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
 	} else if(strcmp(ptr, "ls") == 0) {
 		VFS_Tree();
+	} else if(strcmp(ptr, "top") == 0) {
+		scheduler_list();
 	} else {
 		printf("Unknown command: %s\n", ptr);
 	}
@@ -176,8 +180,11 @@ void TTY::ElaborateCommand() {
 
 }
 
-void TTY::SendChar(char ch) {
+void TTY::GetChar() {
 	if (!is_active) return;
+
+	char ch = getch();
+	if (ch == '\0') return;
 
 	static uint8_t curr_char;
 
