@@ -17,7 +17,7 @@ namespace PIT {
         }
 
         void Sleep(uint64_t milliseconds) {
-                Sleepd((double)milliseconds / 1000);
+                Sleepd((double)milliseconds / (double)1000);
         }
 
         void SetDivisor(uint16_t divisor) {
