@@ -39,6 +39,10 @@ void TTY::Activate() {
 	// We activate it at the end
 	is_active = true;
 
+	/*while(is_active) {
+		GetChar();
+	}*/
+
 	return;
 }
 
