@@ -94,14 +94,13 @@ extern "C" void _start(BootInfo* bootInfo){
                 GlobalAllocator.GetUsedMem() / 1024,
                 GlobalAllocator.GetReservedMem() / 1024,
                 (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
+
 	GlobalTTY->Activate();
 
 	init_scheduler();
 	start_scheduler();
 
         printf("Done!\n");
-
-
 
         while (true) {
                 asm("hlt");

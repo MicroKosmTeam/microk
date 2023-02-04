@@ -94,14 +94,14 @@ void Raytrace() {
 					pix_col = black;
 					const Ray ray(Vec3(x,y,0),Vec3(0,0,1));
 
-					for (int i = 0; i < spheresSize; i++) {
-						if (spheres[i].intersect(ray, t)) {
+					for (int f = 0; i < spheresSize; f++) {
+						if (spheres[f].intersect(ray, t)) {
 							const Vec3 pi = ray.o + ray.d*t;
 							const Vec3 L = light.c - pi;
-							const Vec3 N = spheres[i].getNormal(pi);
+							const Vec3 N = spheres[f].getNormal(pi);
 							const double dt = dot(L.normalize(), N.normalize());
-							if (i < 3) pix_col = (red + white*dt) * 0.5;
-							else if (i < 6) pix_col = (green + white*dt) * 0.5;
+							if (f < 3) pix_col = (red + white*dt) * 0.5;
+							else if (f < 6) pix_col = (green + white*dt) * 0.5;
 							else pix_col = (blue + white*dt) * 0.5;
 							clamp255(pix_col);
 						}
