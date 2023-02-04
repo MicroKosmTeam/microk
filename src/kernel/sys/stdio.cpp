@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <mm/string.h>
 #include <sys/printk.h>
+#include <mm/heap.h>
 
 /*
 
@@ -13,6 +14,18 @@ void putpx(FILE *framebuffer, int x, int y, uint32_t color);
 void swapbuf(FILE *framebuffer);
 
 */
+char fgetch(FILE *file) {
+	char ch;
+	uint8_t *buf = (uint8_t*)malloc(sizeof(char));
+	VFS_Read(file, &buf, sizeof(char));
+	ch = buf[0];
+	free(buf);
+	return ch;
+}
+
+char getch() {
+	return fgetch(stdin);
+}
 
 void fflush(FILE *file) {
 	fputc('\f', file);

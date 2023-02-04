@@ -6,6 +6,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+char fgetch(FILE *file);
+char getch();
 void fflush(FILE *file);
 void fputc(char c, FILE *file);
 void fputs(const char *str, FILE *file);
