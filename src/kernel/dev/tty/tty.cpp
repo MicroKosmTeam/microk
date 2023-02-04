@@ -32,20 +32,14 @@ TTY::~TTY() {
 void TTY::Activate() {
 	dprintf(PREFIX "Activating TTY...\n\n");
 	user_mask = (char*)malloc(512);
+	memset(user_mask, ' ', 512);
 
 	PrintPrompt();
 
 	// We activate it at the end
 	is_active = true;
 
-	/*while(is_active) {
-		if(exit) {
-			dprintf(PREFIX "Exiting...\n");
-			return;
-		}
-
-		asm("hlt");
-	}*/
+	return;
 }
 
 void TTY::Deactivate() {
@@ -125,7 +119,7 @@ void TTY::ElaborateCommand() {
 		if (ptr != NULL) {
 			stackFrames = atoi(ptr);
 		} else {
-			stackFrames = 5;
+			stackFrames = 2;
 		}
 		UnwindStack(stackFrames);
 	} else if (strcmp(ptr, "time") == 0) {
@@ -133,6 +127,7 @@ void TTY::ElaborateCommand() {
 	} else if (strcmp(ptr, "lsblk") == 0) {
 		GlobalFSManager->ListDrives();
 	} else if (strcmp(ptr, "exit") == 0) {
+		scheduler_stop();
 		GlobalTTY->Deactivate();
 		return;
 	} else if (strcmp(ptr, "demo") == 0) {
@@ -159,8 +154,8 @@ void TTY::ElaborateCommand() {
 		       "\n"
 		       " Memory Status:\n"
 		       " -> Kernel:      %dkb.\n"
-		       " -> Free:	%dkb.\n"
-		       " -> Used:	%dkb.\n"
+		       " -> Free:        %dkb.\n"
+		       " -> Used:        %dkb.\n"
 		       " -> Reserved:    %dkb.\n"
 		       " -> Total:       %dkb.\n",
 			kInfo.kernel_size / 1024,
@@ -205,7 +200,7 @@ void TTY::GetChar() {
 				return;
 			} else {
 				PrintPrompt();
-				memset(user_mask, 0, 512);
+				memset(user_mask, ' ', 512);
 				curr_char = 0;
 				is_active = true;
 			}
