@@ -171,7 +171,7 @@ int VFS_Read(FILE *file, uint8_t **buffer, size_t size) {
                 case VFS_FILE_STDOUT:
                         return 1;
                 case VFS_FILE_STDIN: {
-			if (size > file->bufferSize) {
+			/*if (size > file->bufferSize) {
 				memcpy(*buffer, file->buffer, file->bufferSize);
 				memset(file->buffer, 0, file->bufferSize);
 				file->bufferPos = 0;
@@ -179,7 +179,12 @@ int VFS_Read(FILE *file, uint8_t **buffer, size_t size) {
 				memcpy(*buffer, file->buffer, size);
 				memcpy(file->buffer, file->buffer + size, file->bufferSize - size);
 				file->bufferPos = file->bufferSize - size;
-			}
+			}*/
+
+			// TMP fix
+			memcpy(*buffer, file->buffer, size);
+			memset(file->buffer, '\0', file->bufferSize);
+			file->bufferPos = 0;
 			}
                         return 0;
                 case VFS_FILE_STDERR:

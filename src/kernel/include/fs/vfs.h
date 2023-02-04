@@ -30,6 +30,7 @@ void VFS_Tree();
 void VFS_Init();
 int VFS_Mount(VFilesystem *base, char *path, char *drive, uint64_t flags);
 int VFS_Write(FILE *file, uint8_t *data, size_t size);
+int VFS_Read(FILE *file, uint8_t **buffer, size_t size);
 
 #ifdef __cplusplus
 }
