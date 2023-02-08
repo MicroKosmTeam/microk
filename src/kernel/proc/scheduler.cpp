@@ -41,13 +41,14 @@ static void run_scheduler() {
 	if (tasks[task_index] == NULL && task_index == 0) scheduler_running = false;
 
 	start_function(tasks[task_index]);
-	PIT::Sleep(10000);
+	PIT::Sleep(10);
 
 	task_index++;
 	return;
 }
 
 static void check_state() {
+	// Do things here
 	return;
 }
 
