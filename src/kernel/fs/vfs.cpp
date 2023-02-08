@@ -65,8 +65,7 @@ FSNode *VFS_FindDirNode(FSNode *node, char *name) {
 }
 
 void VFS_Init() {
-	rootfs->driver = new RAMFSDriver(1000000); // A million inodes should be fine.
-
+	// Creating IO buffers
 	stdout = (FILE*)malloc(sizeof(FILE) + 1);
 	stdout->descriptor = VFS_FILE_STDOUT;
 	stdout->bufferSize = 1024 * 64; // 64kb
@@ -86,6 +85,23 @@ void VFS_Init() {
 	stdlog->descriptor = VFS_FILE_STDLOG;
 	stdlog->bufferSize = 1024 * 64; // 64kb
 	stdlog->buffer = (uint8_t*)malloc(stdlog->bufferSize);
+
+	// Creating the ROOT driver
+	rootfs->driver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
+	rootfs->node = rootfs->driver->rootNode;
+	rootfs->driver->FSMakeDir(rootfs->node, "dev");
+	rootfs->driver->FSMakeDir(rootfs->node, "sys");
+	rootfs->driver->FSMakeDir(rootfs->node, "proc");
+	printf("Rootfs:\n");
+	DirectoryEntry *result = rootfs->driver->FSReadDir(rootfs->node, 0);
+	printf("%s -> %d\n", result->name, result->inode);
+	result = rootfs->driver->FSReadDir(rootfs->node, 1);
+	printf("%s -> %d\n", result->name, result->inode);
+	result = rootfs->driver->FSReadDir(rootfs->node, 2);
+	printf("%s -> %d\n", result->name, result->inode);
+	free(result);
+
+	while(true);
 }
 
 static void std_print_buf(FILE *file, void (*print)(char ch)) {

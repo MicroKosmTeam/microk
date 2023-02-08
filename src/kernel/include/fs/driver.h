@@ -40,6 +40,7 @@ public:
 	virtual DirectoryEntry *FSReadDir(FSNode *node, uint64_t index) = 0;
 	virtual uint64_t        FSMakeDir(FSNode *node, const char *name) = 0;
 	virtual FSNode         *FSFindDir(FSNode *node, const char *name) = 0;
+	FSNode *rootNode;
 private:
 
 };

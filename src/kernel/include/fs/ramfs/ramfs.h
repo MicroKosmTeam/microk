@@ -72,6 +72,8 @@ public:
 	DirectoryEntry *FSReadDir(FSNode *node, uint64_t index) override;
 	uint64_t        FSMakeDir(FSNode *node, const char *name) override;
 	FSNode         *FSFindDir(FSNode *node, const char *name) override;
+
+	FSNode *rootNode;
 private:
 	uint64_t currentInode;     // The first free inode
 	const uint64_t maxInodes;  // The maximum number of inodes (has to be defined at the start)

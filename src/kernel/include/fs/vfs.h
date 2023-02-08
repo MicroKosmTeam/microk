@@ -23,17 +23,16 @@
 #define VFS_NODE_MOUNTPOINT	0x0008
 
 struct FILE {
-	uint32_t descriptor;
+	uint64_t descriptor;
+	FSNode *node;
 	uint8_t *buffer;
 	uint64_t bufferSize;
 	uint64_t bufferPos = 0;
 };
 
 struct VFilesystem{
+	FSNode *node;
 	FSDriver *driver;
-	char *mountpoint;
-	char *drive;
-	uint64_t flags;
 };
 
 struct DirectoryEntry {
