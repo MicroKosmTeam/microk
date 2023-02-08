@@ -1,17 +1,40 @@
 #include <sys/icxxabi.h>
-#include <stdio.h> 
+#include <stdio.h>
 
 #define PREFIX "Debug "
 
-#ifdef __cplusplus
-	extern "C" {
-#endif
- 
 atexit_func_entry_t __atexit_funcs[ATEXIT_MAX_FUNCS];
 uarch_t __atexit_func_count = 0;
- 
+
+namespace __cxxabiv1
+{
+	/* guard variables */
+
+	/* The ABI requires a 64-bit type.  */
+	__extension__ typedef int __guard __attribute__((mode(__DI__)));
+
+	extern "C" int __cxa_guard_acquire (__guard *);
+	extern "C" void __cxa_guard_release (__guard *);
+	extern "C" void __cxa_guard_abort (__guard *);
+
+	extern "C" int __cxa_guard_acquire (__guard *g)
+	{
+		return !*(char *)(g);
+	}
+
+	extern "C" void __cxa_guard_release (__guard *g)
+	{
+		*(char *)g = 1;
+	}
+
+	extern "C" void __cxa_guard_abort (__guard *)
+	{
+
+	}
+}
+
 void *__dso_handle = 0; //Attention! Optimally, you should remove the '= 0' part and define this in your asm script.
- 
+
 int __cxa_atexit(void (*f)(void *), void *objptr, void *dso)
 {
         dprintf(PREFIX "Called __cxa_atexit.\n");
@@ -20,9 +43,9 @@ int __cxa_atexit(void (*f)(void *), void *objptr, void *dso)
 	__atexit_funcs[__atexit_func_count].obj_ptr = objptr;
 	__atexit_funcs[__atexit_func_count].dso_handle = dso;
 	__atexit_func_count++;
-	return 0; /*I would prefer if functions returned 1 on success, but the ABI says...*/
+	return 0;
 };
- 
+
 void __cxa_finalize(void *f)
 {
         dprintf(PREFIX "Called __cxa_finalize.\n");
@@ -31,13 +54,13 @@ void __cxa_finalize(void *f)
 	{
 		/*
 		* According to the Itanium C++ ABI, if __cxa_finalize is called without a
-		* function ptr, then it means that we should destroy EVERYTHING MUAHAHAHA!!
+		* function ptr, then it means that we should destroy everything.
 		*
 		* TODO:
 		* Note well, however, that deleting a function from here that contains a __dso_handle
 		* means that one link to a shared object file has been terminated. In other words,
-		* We should monitor this list (optional, of course), since it tells us how many links to 
-		* an object file exist at runtime in a particular application. This can be used to tell 
+		* We should monitor this list (optional, of course), since it tells us how many links to
+		* an object file exist at runtime in a particular application. This can be used to tell
 		* when a shared object is no longer in use. It is one of many methods, however.
 		**/
 		//You may insert a prinf() here to tell you whether or not the function gets called. Testing
@@ -49,7 +72,7 @@ void __cxa_finalize(void *f)
 				/* ^^^ That if statement is a safeguard...
 				* To make sure we don't call any entries that have already been called and unset at runtime.
 				* Those will contain a value of 0, and calling a function with value 0
-				* will cause undefined behaviour. Remember that linear address 0, 
+				* will cause undefined behaviour. Remember that linear address 0,
 				* in a non-virtual address space (physical) contains the IVT and BDA.
 				*
 				* In a virtual environment, the kernel will receive a page fault, and then probably
@@ -61,7 +84,7 @@ void __cxa_finalize(void *f)
 		};
 		return;
 	};
- 
+
 	while (i--)
 	{
 		/*
@@ -82,7 +105,7 @@ void __cxa_finalize(void *f)
 		**/
 		if (__atexit_funcs[i].destructor_func == f)
 		{
-			/* 
+			/*
 			* Note that in the next line, not every destructor function is a class destructor.
 			* It is perfectly legal to register a non class destructor function as a simple cleanup
 			* function to be called on program termination, in which case, it would not NEED an
@@ -94,7 +117,7 @@ void __cxa_finalize(void *f)
 			**/
 			(*__atexit_funcs[i].destructor_func)(__atexit_funcs[i].obj_ptr);
 			__atexit_funcs[i].destructor_func = 0;
- 
+
 			/*
 			* Notice that we didn't decrement __atexit_func_count: this is because this algorithm
 			* requires patching to deal with the FIXME outlined above.
@@ -102,7 +125,3 @@ void __cxa_finalize(void *f)
 		};
 	};
 };
- 
-#ifdef __cplusplus
-	};
-#endif
