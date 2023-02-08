@@ -5,42 +5,67 @@
 #include <mm/string.h>
 #include <sys/panik.h>
 #include <mm/memory.h>
+#include <fs/ramfs/ramfs.h>
 
-#define VFS_FILE_STDOUT 0x0000
-#define VFS_FILE_STDIN  0x0001
-#define VFS_FILE_STDERR 0x0002
-#define VFS_FILE_STDLOG 0x0003
-
-#define VFS_FLAG_ROOT   0x0001
-#define VFS_FLAG_RAMFS  0x0002
-#define VFS_FLAG_DEVFS  0x0004
-#define VFS_FLAG_SYSFS  0x0008
-#define VFS_FLAG_PROC   0x0010
+#define PREFIX "[VFS] "
 
 FILE *stdout = NULL;
 FILE *stdin = NULL;
 FILE *stderr = NULL;
 FILE *stdlog = NULL;
 
-VFilesystem *rootfs = NULL;
+VFilesystem *rootfs;
 
-void VFS_Tree() {
-	printf("Root mounts: %d:\n", rootfs->mountpoints);
-	int i = 0;
-	while(i < rootfs->mountpoints) {
-		printf(" - %s\n", rootfs->up[i]->mountpoint);
-		i++;
-	}
+uint64_t VFS_ReadNode(FSNode *node, uint64_t offset, uint64_t size, uint8_t **buffer) {
+	if (node->read != 0)
+		return node->read(node, offset, size, buffer);
+	else
+		return 0;
+}
+
+
+uint64_t VFS_WriteNode(FSNode *node, uint64_t offset, uint64_t size, uint8_t *buffer) {
+	if (node->write != 0)
+		return node->write(node, offset, size, buffer);
+	else
+		return 0;
+}
+void VFS_OpenNode(FSNode *node, uint8_t read, uint8_t write) {
+	if (node->open != 0)
+		return node->open(node);
+	else
+		return 0;
+}
+
+void VFS_CloseNode(FSNode *node) {
+	if (node->close != 0)
+		return node->close(node);
+	else
+		return 0;
+}
+
+DirectoryEntry *VFS_ReadDirNode(FSNode *node, uint64_t index) {
+	if (node->read != 0) {
+		if ((node->flags&0x7) == VFS_NODE_DIRECTORY && node->readdir != 0 )
+			return node->readdir(node, index);
+		else
+			return 0;
+	} else
+		return 0;
+}
+
+FSNode *VFS_FindDirNode(FSNode *node, char *name) {
+	if (node->read != 0) {
+		if ((node->flags&0x7) == VFS_NODE_DIRECTORY && node->readdir != 0 )
+			return node->finddir(node, name);
+		else
+			return 0;
+	} else
+		return 0;
 }
 
 void VFS_Init() {
-	if(VFS_Mount(NULL, "/", NULL, VFS_FLAG_RAMFS | VFS_FLAG_ROOT)) {
-		PANIK("Failed to mount root");
-	} else {
-		VFS_Mount(rootfs, "/dev", NULL, VFS_FLAG_RAMFS | VFS_FLAG_DEVFS);
-		VFS_Mount(rootfs, "/sys", NULL, VFS_FLAG_RAMFS | VFS_FLAG_SYSFS);
-		VFS_Mount(rootfs, "/proc", NULL, VFS_FLAG_RAMFS | VFS_FLAG_PROC);
-	}
+	rootfs->driver = new RAMFSDriver(1000000); // A million inodes should be fine.
 
 	stdout = (FILE*)malloc(sizeof(FILE) + 1);
 	stdout->descriptor = VFS_FILE_STDOUT;
@@ -61,37 +86,6 @@ void VFS_Init() {
 	stdlog->descriptor = VFS_FILE_STDLOG;
 	stdlog->bufferSize = 1024 * 64; // 64kb
 	stdlog->buffer = (uint8_t*)malloc(stdlog->bufferSize);
-}
-
-int VFS_Mount(VFilesystem *base, char *path, char *drive, uint64_t flags) {
-	if(base == NULL && (flags & VFS_FLAG_ROOT)) {
-		if (rootfs != NULL) return -1;
-
-		rootfs = (VFilesystem*)malloc(sizeof(VFilesystem) + 1);
-		rootfs->mountpoints=0;
-		rootfs->mountpoint = (char*)malloc((strlen("/\0") + 1) * sizeof(char));
-		strcpy(rootfs->mountpoint, "/\0");
-
-		rootfs->drive= (char*)malloc((strlen(drive) + 1) * sizeof(char));
-		strcpy(rootfs->drive, drive); // This has to be overhauled
-
-		rootfs->flags = flags;
-		return 0;
-	} else if (base != NULL) {
-		base->up[base->mountpoints] = (VFilesystem*)malloc(sizeof(VFilesystem) + 1);
-		base->up[base->mountpoints]->mountpoints = 0;
-		base->up[base->mountpoints]->mountpoint = (char*)malloc((strlen(path) + 1) * sizeof(char));
-		strcpy(base->up[base->mountpoints]->mountpoint, path);
-		base->up[base->mountpoints]->drive= (char*)malloc((strlen(drive) + 1) * sizeof(char));
-		strcpy(base->up[base->mountpoints]->drive, drive); // This has to be overhauled
-
-		base->up[base->mountpoints]->flags = flags;
-		base->mountpoints++;
-
-		return 0;
-	} else {
-		return-1;
-	}
 }
 
 static void std_print_buf(FILE *file, void (*print)(char ch)) {
