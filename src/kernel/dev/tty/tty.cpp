@@ -168,7 +168,6 @@ void TTY::ElaborateCommand() {
 			GlobalAllocator.GetReservedMem() / 1024,
 			(GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
 	} else if(strcmp(ptr, "ls") == 0) {
-		VFS_Tree();
 	} else if(strcmp(ptr, "top") == 0) {
 		scheduler_list();
 	} else {

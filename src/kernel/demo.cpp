@@ -59,6 +59,7 @@ void clamp255(Vec3& col) {
 }
 
 void Raytrace() {
+	printf("Raytracing...\n");
 	const int H = 640;
 	const int W = 640;
 
@@ -94,7 +95,7 @@ void Raytrace() {
 					pix_col = black;
 					const Ray ray(Vec3(x,y,0),Vec3(0,0,1));
 
-					for (int f = 0; i < spheresSize; f++) {
+					for (int f = 0; f < spheresSize; f++) {
 						if (spheres[f].intersect(ray, t)) {
 							const Vec3 pi = ray.o + ray.d*t;
 							const Vec3 L = light.c - pi;
