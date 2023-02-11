@@ -22,13 +22,6 @@ void RAMFSDriver::FSInit() {
 	rootFile->node->mask = rootFile->node->uid = rootFile->node->gid = rootFile->node->size = rootFile->node->impl = 0;
 	rootFile->node->flags = VFS_NODE_DIRECTORY;
 	rootFile->node->inode = currentInode;
-	rootFile->node->read = NULL;
-	rootFile->node->write = NULL;
-	rootFile->node->open = NULL;
-	rootFile->node->close = NULL;
-	rootFile->node->readdir = (readdir_type_t)&this->FSReadDir;
-	rootFile->node->finddir = (finddir_type_t)&this->FSFindDir;
-	rootFile->node->ptr = NULL;
 
 	rootFile->nextObject = NULL;
 
@@ -50,7 +43,7 @@ void RAMFSDriver::FSOpen(FSNode *node) {
 }
 
 #include <sys/printk.h>
-DirectoryEntry *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {
+FSNode *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {
 	if(node->inode > maxInodes) return 0;
 	if(inodeTable[node->inode] == NULL) return 0;
 	if(inodeTable[node->inode]->firstObject == NULL) return 0;
@@ -63,10 +56,17 @@ DirectoryEntry *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {
 		directoryEntry = directoryEntry->nextObject;
 	}
 
-	DirectoryEntry *entry = (DirectoryEntry*)malloc(sizeof(DirectoryEntry)); // Remember to deallocate this!
+	FSNode *entry = (FSNode*)malloc(sizeof(FSNode)); // Remember to deallocate this!
 
 	strcpy(entry->name, directoryEntry->name);
+	entry->mask = directoryEntry->node->mask;
+	entry->uid = directoryEntry->node->uid;
+	entry->gid = directoryEntry->node->gid;
+	entry->flags = directoryEntry->node->flags;
 	entry->inode = directoryEntry->node->inode;
+	entry->size = directoryEntry->node->size;
+	entry->impl = directoryEntry->node->impl;
+
 	return entry;
 }
 
@@ -89,24 +89,12 @@ uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name) {
 		inodeTable[node->inode]->firstObject->node->mask = inodeTable[node->inode]->firstObject->node->uid = inodeTable[node->inode]->firstObject->node->gid = inodeTable[node->inode]->firstObject->node->size = inodeTable[node->inode]->firstObject->node->impl = 0;
 		inodeTable[node->inode]->firstObject->node->flags = VFS_NODE_DIRECTORY;
 		inodeTable[node->inode]->firstObject->node->inode = currentInode;
-		inodeTable[node->inode]->firstObject->node->read = NULL;
-		inodeTable[node->inode]->firstObject->node->write = NULL;
-		inodeTable[node->inode]->firstObject->node->open = NULL;
-		inodeTable[node->inode]->firstObject->node->close = NULL;
-		inodeTable[node->inode]->firstObject->node->readdir = (readdir_type_t)&this->FSReadDir;
-		inodeTable[node->inode]->firstObject->node->finddir = (finddir_type_t)&this->FSFindDir;
-		inodeTable[node->inode]->firstObject->node->ptr = NULL;
 		inodeTable[node->inode]->firstObject->nextObject = NULL;
 		inodeTable[currentInode++] = inodeTable[node->inode]->firstObject;
 
 		return currentInode-1;
 	} else {
-		RAMFSObject *newDirectoryEntry = prevDirectoryEntry->nextObject;
-
-		while (newDirectoryEntry->nextObject != NULL) {
-			newDirectoryEntry = newDirectoryEntry->nextObject;
-			prevDirectoryEntry = prevDirectoryEntry->nextObject;
-		}
+		RAMFSObject *newDirectoryEntry;
 
 		newDirectoryEntry = (RAMFSObject*)malloc(sizeof(RAMFSObject));
 		newDirectoryEntry->magic = 0;
@@ -119,22 +107,59 @@ uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name) {
 		newDirectoryEntry->node->mask = newDirectoryEntry->node->uid = newDirectoryEntry->node->gid = newDirectoryEntry->node->size = newDirectoryEntry->node->impl = 0;
 		newDirectoryEntry->node->flags = VFS_NODE_DIRECTORY;
 		newDirectoryEntry->node->inode = currentInode;
-		newDirectoryEntry->node->read = NULL;
-		newDirectoryEntry->node->write = NULL;
-		newDirectoryEntry->node->open = NULL;
-		newDirectoryEntry->node->close = NULL;
-		newDirectoryEntry->node->readdir = (readdir_type_t)&this->FSReadDir;
-		newDirectoryEntry->node->finddir = (finddir_type_t)&this->FSFindDir;
-		newDirectoryEntry->node->ptr = NULL;
-		newDirectoryEntry->nextObject = NULL;
+		newDirectoryEntry->nextObject = prevDirectoryEntry;
 
 		inodeTable[currentInode++] = newDirectoryEntry;
-		prevDirectoryEntry->nextObject = newDirectoryEntry;
+		inodeTable[node->inode]->firstObject = newDirectoryEntry;
 
 		return currentInode-1;
 	}
 }
 
 FSNode *RAMFSDriver::FSFindDir(FSNode *node, const char *name) {
+	if(node->inode > maxInodes) return 0;
+	if(inodeTable[node->inode] == NULL) return 0;
+	if(inodeTable[node->inode]->firstObject == NULL) return 0;
+	if(inodeTable[node->inode]->isFile == true) return 0;
 
+	RAMFSObject *directoryEntry = inodeTable[node->inode]->firstObject;
+	FSNode *entry = (FSNode*)malloc(sizeof(FSNode)); // Remember to deallocate this!
+
+	while (directoryEntry != NULL) {
+		if (strcmp(directoryEntry->name, name) == 0) {
+			strcpy(entry->name, directoryEntry->name);
+			entry->mask = directoryEntry->node->mask;
+			entry->uid = directoryEntry->node->uid;
+			entry->gid = directoryEntry->node->gid;
+			entry->flags = directoryEntry->node->flags;
+			entry->inode = directoryEntry->node->inode;
+			entry->size = directoryEntry->node->size;
+			entry->impl = directoryEntry->node->impl;
+
+			return entry;
+		}
+		directoryEntry = directoryEntry->nextObject;
+	}
+
+	free(entry);
+
+	return 0;
+}
+
+uint64_t RAMFSDriver::FSGetDirElements(FSNode *node) {
+	if(node->inode > maxInodes) return 0;
+	if(inodeTable[node->inode] == NULL) return 0;
+	if(inodeTable[node->inode]->firstObject == NULL) return 0;
+	if(inodeTable[node->inode]->isFile == true) return 0;
+
+	RAMFSObject *directoryEntry = inodeTable[node->inode]->firstObject;
+
+	uint64_t elements = 0;
+
+	while (directoryEntry != NULL) {
+		elements++;
+		directoryEntry = directoryEntry->nextObject;
+	}
+
+	return elements;
 }

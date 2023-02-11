@@ -69,9 +69,10 @@ public:
 	uint64_t        FSRead(FSNode *node, uint64_t offset, size_t size, uint8_t **buffer) override;
 	uint64_t        FSWrite(FSNode *node, uint64_t offset, size_t size, uint8_t *buffer) override;
 	void            FSOpen(FSNode *node) override;
-	DirectoryEntry *FSReadDir(FSNode *node, uint64_t index) override;
+	FSNode         *FSReadDir(FSNode *node, uint64_t index) override;
 	uint64_t        FSMakeDir(FSNode *node, const char *name) override;
 	FSNode         *FSFindDir(FSNode *node, const char *name) override;
+	uint64_t        FSGetDirElements(FSNode *node) override;
 
 	FSNode *rootNode;
 private:
