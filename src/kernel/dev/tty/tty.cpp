@@ -11,7 +11,6 @@
 #include <fs/fs.h>
 #include <kutil.h>
 #include <fs/vfs.h>
-#include <demo.h>
 #include <cpu/cpu.h>
 #include <proc/scheduler.h>
 
@@ -76,7 +75,6 @@ void TTY::ElaborateCommand() {
 		       "heap\n"
 		       "stack\n"
 		       "time\n"
-		       "demo\n"
 		       "fetch\n"
 		       "ls\n"
 		       "top\n"
@@ -134,21 +132,6 @@ void TTY::ElaborateCommand() {
 		scheduler_stop();
 		GlobalTTY->Deactivate();
 		return;
-	} else if (strcmp(ptr, "demo") == 0) {
-		ptr = strtok(NULL, " ");
-		if (ptr != NULL) {
-			if(strcmp(ptr, "badapple") == 0) {
-				DEMO::BadApple();
-			} else if(strcmp(ptr, "stress") == 0) {
-				DEMO::Stress();
-			} else if(strcmp(ptr, "raytrace") == 0) {
-				DEMO::Raytrace();
-			} else {
-				printf("No demo found: %s\n", ptr);
-			}
-		} else {
-			printf("Insert a demo name.\n");
-		}
 	} else if(strcmp(ptr, "fetch") == 0) {
 		printf(" __  __  _                _  __    ___   ___\n"
 		       "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
@@ -167,9 +150,11 @@ void TTY::ElaborateCommand() {
 			GlobalAllocator.GetUsedMem() / 1024,
 			GlobalAllocator.GetReservedMem() / 1024,
 			(GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
-	} else if(strcmp(ptr, "ls") == 0) {
 	} else if(strcmp(ptr, "top") == 0) {
 		scheduler_list();
+	} else if(strcmp(ptr, "ls") == 0) {
+		ptr = strtok(NULL, " ");
+		VFS_LS(ptr);
 	} else {
 		printf("Unknown command: %s\n", ptr);
 	}
