@@ -4,6 +4,7 @@ ENTRY(_start)
 SECTIONS
 {
         . = 0x100000;
+
         kernel_start = .;
 	.text : ALIGN(0x1000)
 	{
@@ -13,10 +14,18 @@ SECTIONS
 	{
 		*(.data)
 	}
+
 	.rodata : ALIGN(0x1000)
 	{
 		*(.rodata)
 	}
+
+	.eh_frame : ALIGN(0x1000)
+	{
+		*(.eh_frame)
+	}
+
+
 	.bss : ALIGN(0x1000)
 	{
 		*(COMMON)
@@ -24,4 +33,7 @@ SECTIONS
 	}
 
         kernel_end = .;
+
+	/DISCARD/ : {
+	}
 }

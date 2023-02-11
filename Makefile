@@ -19,7 +19,7 @@ CPP = x86_64-elf-g++
 ASMC = nasm
 LD = x86_64-elf-gcc
 
-CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++11 -D$(ARCH)
+CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17 -D$(ARCH)
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib -Wl,-Map=output.map
 MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
