@@ -169,13 +169,16 @@ void kinit(BootInfo *bootInfo) {
 
         // ACPI initialization
         PrepareACPI(bootInfo);
+
+	// Return
+	//jump_usermode();
 }
 
 #include <fs/ustar/ustar.h>
 void rdinit() {
+        /*
         USTAR::LoadArchive(kInfo.initrd);
         USTAR::ReadArchive();
-        /*
         size_t size;
         USTAR::GetFileSize("module.elf", &size);
         dprintf(PREFIX "Size of module.elf: %d\n", size);

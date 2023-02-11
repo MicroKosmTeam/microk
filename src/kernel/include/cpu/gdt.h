@@ -36,9 +36,21 @@ struct GDT {
 }__attribute__((packed)) __attribute__((aligned(0x1000)));
 
 struct tss_entry {
-	uint64_t prev_tss; // The previous TSS - with hardware task switching these form a kind of backward linked list.
-	uint64_t rsp0;     // The stack pointer to load when changing to kernel mode.
-	uint64_t ss0;      // The stack segment to load when changing to kernel mode.
+	uint32_t r1;
+	uint64_t rsp0;
+	uint64_t rsp1;
+	uint64_t rsp2;
+	uint64_t r2;
+	uint64_t ist1;
+	uint64_t ist2;
+	uint64_t ist3;
+	uint64_t ist4;
+	uint64_t ist5;
+	uint64_t ist6;
+	uint64_t ist7;
+	uint64_t r3;
+	uint16_t r4;
+	uint16_t io_mba;
 }__attribute__((packed));
 
 extern GDT DefaultGDT;
@@ -46,4 +58,8 @@ extern GDT DefaultGDT;
 extern "C" void LoadGDT(GDTDescriptor *gdtDescriptor);
 
 void init_tss();
+
+extern "C" void interrupt_stack(void *rsp0);
+extern "C" void jump_usermode();
+extern "C" int test_user_function();
 
