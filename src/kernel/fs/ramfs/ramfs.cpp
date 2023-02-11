@@ -42,7 +42,6 @@ void RAMFSDriver::FSOpen(FSNode *node) {
 
 }
 
-#include <sys/printk.h>
 FSNode *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {
 	if(node->inode > maxInodes) return 0;
 	if(inodeTable[node->inode] == NULL) return 0;
@@ -70,7 +69,7 @@ FSNode *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {
 	return entry;
 }
 
-uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name) {
+uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) {
 	if(node->inode > maxInodes) return 0;
 	if(inodeTable[node->inode] == NULL) return 0;
 	if(inodeTable[node->inode]->isFile == true) return 0;
@@ -86,7 +85,10 @@ uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name) {
 		inodeTable[node->inode]->firstObject->firstObject = NULL;
 		inodeTable[node->inode]->firstObject->node = (FSNode*)malloc(sizeof(FSNode));
 		strcpy(inodeTable[node->inode]->firstObject->node->name, name);
-		inodeTable[node->inode]->firstObject->node->mask = inodeTable[node->inode]->firstObject->node->uid = inodeTable[node->inode]->firstObject->node->gid = inodeTable[node->inode]->firstObject->node->size = inodeTable[node->inode]->firstObject->node->impl = 0;
+		inodeTable[node->inode]->firstObject->node->mask = mask;
+		inodeTable[node->inode]->firstObject->node->uid = uid;
+		inodeTable[node->inode]->firstObject->node->gid = gid;
+		inodeTable[node->inode]->firstObject->node->size = inodeTable[node->inode]->firstObject->node->impl = 0;
 		inodeTable[node->inode]->firstObject->node->flags = VFS_NODE_DIRECTORY;
 		inodeTable[node->inode]->firstObject->node->inode = currentInode;
 		inodeTable[node->inode]->firstObject->nextObject = NULL;
@@ -104,8 +106,63 @@ uint64_t RAMFSDriver::FSMakeDir(FSNode *node, const char *name) {
 		newDirectoryEntry->firstObject = NULL;
 		newDirectoryEntry->node = (FSNode*)malloc(sizeof(FSNode));
 		strcpy(newDirectoryEntry->node->name, name);
-		newDirectoryEntry->node->mask = newDirectoryEntry->node->uid = newDirectoryEntry->node->gid = newDirectoryEntry->node->size = newDirectoryEntry->node->impl = 0;
+		newDirectoryEntry->node->mask = mask;
+		newDirectoryEntry->node->uid = uid;
+		newDirectoryEntry->node->gid = gid;
+		newDirectoryEntry->node->size = newDirectoryEntry->node->impl = 0;
 		newDirectoryEntry->node->flags = VFS_NODE_DIRECTORY;
+		newDirectoryEntry->node->inode = currentInode;
+		newDirectoryEntry->nextObject = prevDirectoryEntry;
+
+		inodeTable[currentInode++] = newDirectoryEntry;
+		inodeTable[node->inode]->firstObject = newDirectoryEntry;
+
+		return currentInode-1;
+	}
+}
+
+uint64_t RAMFSDriver::FSMakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) {
+	if(node->inode > maxInodes) return 0;
+	if(inodeTable[node->inode] == NULL) return 0;
+	if(inodeTable[node->inode]->isFile == true) return 0;
+
+	RAMFSObject *prevDirectoryEntry = inodeTable[node->inode]->firstObject;
+
+	if(prevDirectoryEntry == NULL) {
+		inodeTable[node->inode]->firstObject = (RAMFSObject*)malloc(sizeof(RAMFSObject));
+		inodeTable[node->inode]->firstObject->magic = 0;
+		strcpy(inodeTable[node->inode]->firstObject->name, name);
+		inodeTable[node->inode]->firstObject->length = 0;
+		inodeTable[node->inode]->firstObject->isFile = true;
+		inodeTable[node->inode]->firstObject->fileData = NULL;
+		inodeTable[node->inode]->firstObject->node = (FSNode*)malloc(sizeof(FSNode));
+		strcpy(inodeTable[node->inode]->firstObject->node->name, name);
+		inodeTable[node->inode]->firstObject->node->mask = mask;
+		inodeTable[node->inode]->firstObject->node->uid = uid;
+		inodeTable[node->inode]->firstObject->node->gid = gid;
+		inodeTable[node->inode]->firstObject->node->size = inodeTable[node->inode]->firstObject->node->impl = 0;
+		inodeTable[node->inode]->firstObject->node->flags = VFS_NODE_FILE;
+		inodeTable[node->inode]->firstObject->node->inode = currentInode;
+		inodeTable[node->inode]->firstObject->nextObject = NULL;
+		inodeTable[currentInode++] = inodeTable[node->inode]->firstObject;
+
+		return currentInode-1;
+	} else {
+		RAMFSObject *newDirectoryEntry;
+
+		newDirectoryEntry = (RAMFSObject*)malloc(sizeof(RAMFSObject));
+		newDirectoryEntry->magic = 0;
+		strcpy(newDirectoryEntry->name, name);
+		newDirectoryEntry->length = 0;
+		newDirectoryEntry->isFile = true;
+		inodeTable[node->inode]->firstObject->fileData = NULL;
+		newDirectoryEntry->node = (FSNode*)malloc(sizeof(FSNode));
+		strcpy(newDirectoryEntry->node->name, name);
+		newDirectoryEntry->node->mask = mask;
+		newDirectoryEntry->node->uid = uid;
+		newDirectoryEntry->node->gid = gid;
+		newDirectoryEntry->node->size = newDirectoryEntry->node->impl = 0;
+		newDirectoryEntry->node->flags = VFS_NODE_FILE;
 		newDirectoryEntry->node->inode = currentInode;
 		newDirectoryEntry->nextObject = prevDirectoryEntry;
 

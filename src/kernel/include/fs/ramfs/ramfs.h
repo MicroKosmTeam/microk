@@ -1,4 +1,5 @@
 #pragma once
+#include <cdefs.h>
 #include <fs/vfs.h>
 #include <fs/driver.h>
 
@@ -49,7 +50,7 @@
 
 struct RAMFSObject {
 	uint8_t magic;            // Magic number
-	char name[128];           // The object's name
+	char name[VFS_FILE_MAX_NAME_LENGTH];           // The object's name
 	uint64_t length;          // The total length of the object (0 for directories)
 	bool isFile;              // Is it a file.
 	RAMFSObject *firstObject; // If it's a directory.
@@ -70,7 +71,8 @@ public:
 	uint64_t        FSWrite(FSNode *node, uint64_t offset, size_t size, uint8_t *buffer) override;
 	void            FSOpen(FSNode *node) override;
 	FSNode         *FSReadDir(FSNode *node, uint64_t index) override;
-	uint64_t        FSMakeDir(FSNode *node, const char *name) override;
+	uint64_t        FSMakeDir(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) override;
+	uint64_t        FSMakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) override;
 	FSNode         *FSFindDir(FSNode *node, const char *name) override;
 	uint64_t        FSGetDirElements(FSNode *node) override;
 
