@@ -156,7 +156,7 @@ void TTY::ElaborateCommand() {
 		scheduler_list();
 	} else if(strcmp(ptr, "ls") == 0) {
 		ptr = strtok(NULL, " ");
-		if (ptr == NULL) {
+		if (ptr == NULL)
 			printf("Insert a path.\n");
 		else
 			VFS_LS(ptr);
