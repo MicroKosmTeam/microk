@@ -30,9 +30,10 @@ struct FILE {
 	uint64_t bufferPos = 0;
 };
 
-struct VFilesystem{
-	FSNode *node;
+struct VFilesystem {
 	FSDriver *driver;
+	FSNode *node;
+	FSNode *mountdir;
 };
 
 struct DirectoryEntry {
@@ -48,12 +49,10 @@ extern FILE *stdlog;
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint64_t VFS_ReadNode(FSNode *node, uint64_t offset, uint64_t size, uint8_t **buffer);
-uint64_t VFS_WriteNode(FSNode *node, uint64_t offset, uint64_t size, uint8_t *buffer);
-void VFS_OpenNode(FSNode *node, uint8_t read, uint8_t write);
-void VFS_CloseNode(FSNode *node);
-struct DirectoryEntry *VFS_ReadDirNode(FSNode *node, uint64_t index);
-FSNode *VFS_FindDirNode(FSNode *node, char *name);
+FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name);
+FSNode *VFSReadDir(VFilesystem *fs, FSNode *node, uint64_t index);
+uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name);
+VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver);
 void VFS_Init();
 int VFS_Write(FILE *file, uint8_t *data, size_t size);
 int VFS_Read(FILE *file, uint8_t **buffer, size_t size);
