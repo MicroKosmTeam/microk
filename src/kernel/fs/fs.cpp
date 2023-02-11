@@ -56,11 +56,11 @@ void FSManager::InitializeMBRPartitions(uint8_t *bootsector) {
 					//supportedDrives[total_drives-1].partitions[i].fatDriver.offset = partition->chs_addr_start;
 
 				        supportedDrives[total_drives-1].partitions[i].filesystem = Filesystem::FAT;
-					supportedDrives[total_drives-1].partitions[i].fatDriver.ReadDirectory(supportedDrives[total_drives-1].partitions[0].fatDriver.FindDirectory("/MICROK"));
-					uint8_t *file = supportedDrives[total_drives-1].partitions[i].fatDriver.LoadFile("/MICROK", "INITRD");
+					//supportedDrives[total_drives-1].partitions[i].fatDriver.ReadDirectory(supportedDrives[total_drives-1].partitions[0].fatDriver.FindDirectory("/MICROK"));
+					//uint8_t *file = supportedDrives[total_drives-1].partitions[i].fatDriver.LoadFile("/MICROK", "INITRD");
 
-					kInfo.initrd = file;
-					kInfo.initrd_loaded = true;
+					//kInfo.initrd = file;
+					//kInfo.initrd_loaded = true;
 				}
 				}
 				break;

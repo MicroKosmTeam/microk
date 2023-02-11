@@ -68,12 +68,12 @@ switch_stack(&dummy_stack_ptr, &current->stack_ptr);
 extern "C" void _start(BootInfo* bootInfo){
         kinit(bootInfo);
 
-        if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
-        else dprintf(PREFIX "Loading the initramfs...\n");
-        GlobalRenderer.print_clear();
+        //if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
+        //else dprintf(PREFIX "Loading the initramfs...\n");
+	//rdinit();
+        //free(kInfo.initrd);
 
-        rdinit();
-        free(kInfo.initrd);
+        GlobalRenderer.print_clear();
 
         printf(" __  __  _                _  __    ___   ___\n"
                "|  \\/  |(_) __  _ _  ___ | |/ /   / _ \\ / __|\n"
@@ -87,13 +87,19 @@ extern "C" void _start(BootInfo* bootInfo){
                " -> Used:        %dkb.\n"
                " -> Reserved:    %dkb.\n"
                " -> Total:       %dkb.\n"
-               "\n"
-               "Continuing startup...\n",
+               "\n",
                 kInfo.kernel_size / 1024,
                 GlobalAllocator.GetFreeMem() / 1024,
                 GlobalAllocator.GetUsedMem() / 1024,
                 GlobalAllocator.GetReservedMem() / 1024,
                 (GlobalAllocator.GetFreeMem() + GlobalAllocator.GetUsedMem()) / 1024);
+
+	printf(" Active Filesystems:\n");
+	VFS_Print(rootfs);
+	VFS_Print(devtmpfs);
+	VFS_Print(sysfs);
+
+	printf("\n\nContinuing startup...\n");
 
 	GlobalTTY->Activate();
 
