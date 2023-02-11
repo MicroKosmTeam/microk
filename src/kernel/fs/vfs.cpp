@@ -108,11 +108,6 @@ void VFS_Init() {
 	drives[activeVFSs++] = sysfs;
 	drives[activeVFSs++] = devtmpfs;
 	drives[activeVFSs] = NULL;
-
-	VFS_LS("/");
-	VFS_LS("/sys");
-	VFS_LS("/sys/block");
-	VFS_LS("/dev");
 }
 
 #include <mm/string.h>
@@ -169,6 +164,80 @@ void VFS_LS(char *path) {
 		free(result);
 	}
 	free(entries);
+}
+
+void VFS_Mkdir(char *path, char *name) {
+	VFilesystem *fs = rootfs;
+	FSNode *directory = rootfs->node;
+
+        if (path[0] == '/' && strlen(path) == 1) {
+		VFSMakeDir(fs, directory, name, 0, 0, 0);
+		return;
+	}
+
+	printf("  %s\n", path);
+
+	char *dirName = path;
+	dirName = strtok(dirName, "/");
+
+	do {
+		directory = VFSFindDir(fs, directory, dirName);
+
+		if (directory == NULL) return;
+
+		for (int i = 0; i < activeVFSs; i++) {
+			if(drives[i]->mountdir->impl == directory->impl &&
+			   drives[i]->mountdir->inode == directory->inode &&
+			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
+			// But I will fix this later
+			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
+			//if(drives[i]->mountdir == directory) {
+				fs = drives[i];
+				directory = fs->node;
+				break;
+			}
+		}
+	} while ((dirName = strtok(NULL, "/")) != NULL);
+
+	VFSMakeDir(fs, directory, name, 0, 0, 0);
+}
+
+void VFS_Touch(char *path, char *name) {
+	VFilesystem *fs = rootfs;
+	FSNode *directory = rootfs->node;
+
+        if (path[0] == '/' && strlen(path) == 1) {
+		VFSMakeFile(fs, directory, name, 0, 0, 0);
+		return;
+	}
+
+	printf("  %s\n", path);
+
+	char *dirName = path;
+	dirName = strtok(dirName, "/");
+
+	do {
+		directory = VFSFindDir(fs, directory, dirName);
+
+		if (directory == NULL) return;
+
+		for (int i = 0; i < activeVFSs; i++) {
+			if(drives[i]->mountdir->impl == directory->impl &&
+			   drives[i]->mountdir->inode == directory->inode &&
+			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
+			// But I will fix this later
+			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
+			//if(drives[i]->mountdir == directory) {
+				fs = drives[i];
+				directory = fs->node;
+				break;
+			}
+		}
+	} while ((dirName = strtok(NULL, "/")) != NULL);
+
+	VFSMakeFile(fs, directory, name, 0, 0, 0);
 }
 
 void VFS_Print(VFilesystem *fs) {

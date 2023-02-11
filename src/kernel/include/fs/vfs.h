@@ -61,6 +61,8 @@ uint64_t VFSMakeFile(VFilesystem *fs, FSNode *node, const char *name, uint64_t m
 VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver);
 void VFS_Init();
 void VFS_LS(char *path);
+void VFS_Mkdir(char *path, char *name);
+void VFS_Touch(char *path, char *name);
 void VFS_Print(VFilesystem *fs);
 int VFS_Write(FILE *file, uint8_t *data, size_t size);
 int VFS_Read(FILE *file, uint8_t **buffer, size_t size);

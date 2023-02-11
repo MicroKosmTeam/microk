@@ -77,6 +77,8 @@ void TTY::ElaborateCommand() {
 		       "time\n"
 		       "fetch\n"
 		       "ls\n"
+		       "mkdir\n"
+		       "touch\n"
 		       "top\n"
 		       );
 	} else if (strcmp(ptr, "cls") == 0 || strcmp(ptr, "clear") == 0 || strcmp(ptr, "clean") == 0) {
@@ -154,7 +156,34 @@ void TTY::ElaborateCommand() {
 		scheduler_list();
 	} else if(strcmp(ptr, "ls") == 0) {
 		ptr = strtok(NULL, " ");
-		VFS_LS(ptr);
+		if (ptr == NULL) {
+			printf("Insert a path.\n");
+		else
+			VFS_LS(ptr);
+	} else if(strcmp(ptr, "mkdir") == 0) {
+		ptr = strtok(NULL, " ");
+		char name[128];
+		strcpy(name, strtok(NULL, " "));
+
+		if (ptr == NULL) {
+			printf("Insert a path.\n");
+		} else if (name == NULL) {
+			printf("Insert a name.\n");
+		} else {
+			VFS_Mkdir(ptr, name);
+		}
+	} else if(strcmp(ptr, "touch") == 0) {
+		ptr = strtok(NULL, " ");
+		char name[128];
+		strcpy(name, strtok(NULL, " "));
+
+		if (ptr == NULL) {
+			printf("Insert a path.\n");
+		} else if (name == NULL) {
+			printf("Insert a name.\n");
+		} else {
+			VFS_Touch(ptr, name);
+		}
 	} else {
 		printf("Unknown command: %s\n", ptr);
 	}
