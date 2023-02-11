@@ -19,7 +19,7 @@ VFilesystem *sysfs;
 VFilesystem *devtmpfs;
 VFilesystem *proc;
 
-VFilesystem *drivers[128];
+VFilesystem *drives[128];
 static uint64_t activeVFSs = 0;
 
 FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name) {
@@ -30,8 +30,12 @@ FSNode *VFSReadDir(VFilesystem *fs, FSNode *node, uint64_t index) {
 	return fs->driver->FSReadDir(node, index);
 }
 
-uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name) {
-	return fs->driver->FSMakeDir(node, name);
+uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid) {
+	return fs->driver->FSMakeDir(node, name, mask, uid, gid);
+}
+
+uint64_t VFSMakeFile(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid) {
+	return fs->driver->FSMakeFile(node, name, mask, uid, gid);
 }
 
 FSNode **VFSListDir(VFilesystem *fs, FSNode *node) {
@@ -54,22 +58,22 @@ VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver) {
 
 void VFS_Init() {
 	// Creating IO buffers
-	stdout = (FILE*)malloc(sizeof(FILE) + 1);
+	stdout = new FILE;
 	stdout->descriptor = VFS_FILE_STDOUT;
 	stdout->bufferSize = 1024 * 64; // 64kb
 	stdout->buffer = (uint8_t*)malloc(stdout->bufferSize);
 
-	stdin= (FILE*)malloc(sizeof(FILE) + 1);
+	stdin = new FILE;
 	stdin->descriptor = VFS_FILE_STDIN;
 	stdin->bufferSize = 1024 * 64; // 64kb
 	stdin->buffer = (uint8_t*)malloc(stdout->bufferSize);
 
-	stderr = (FILE*)malloc(sizeof(FILE) + 1);
+	stderr = new FILE;
 	stderr->descriptor = VFS_FILE_STDERR;
 	stderr->bufferSize = 1024 * 64; // 64kb
 	stderr->buffer = (uint8_t*)malloc(stdout->bufferSize);
 
-	stdlog = (FILE*)malloc(sizeof(FILE) + 1);
+	stdlog = new FILE;
 	stdlog->descriptor = VFS_FILE_STDLOG;
 	stdlog->bufferSize = 1024 * 64; // 64kb
 	stdlog->buffer = (uint8_t*)malloc(stdlog->bufferSize);
@@ -78,56 +82,106 @@ void VFS_Init() {
 	FSDriver *rootfsDriver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
 	rootfs = VFSMountFS(NULL, rootfsDriver);
 
-	VFSMakeDir(rootfs, rootfs->node, "dev");
-	VFSMakeDir(rootfs, rootfs->node, "sys");
-	VFSMakeDir(rootfs, rootfs->node, "proc");
+	VFSMakeDir(rootfs, rootfs->node, "dev", 0, 0, 0);
+	VFSMakeDir(rootfs, rootfs->node, "sys", 0, 0, 0);
+	VFSMakeDir(rootfs, rootfs->node, "proc", 0, 0, 0);
 
-	printf("/\n");
-
-	FSNode **entries = VFSListDir(rootfs, rootfs->node);
-	for (int i = 0;; i++) {
-		FSNode *result = entries[i];
-		if (result == NULL) break;
-		printf("  /%s\n", result->name, result->inode);
-		free(result);
-	}
-	free(entries);
-
-	FSDriver *sysfsDriver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
-	FSNode *sysdir = VFSFindDir(rootfs, rootfs->node, "sys");
-	sysfs = VFSMountFS(sysdir, sysfsDriver);
-
-	printf("/sys\n");
-	VFSMakeDir(sysfs, sysfs->node, "block");
-	VFSMakeDir(sysfs, sysfs->node, "bus");
-	VFSMakeDir(sysfs, sysfs->node, "dev");
-	VFSMakeDir(sysfs, sysfs->node, "fs");
-	VFSMakeDir(sysfs, sysfs->node, "kernel");
-	entries = VFSListDir(sysfs, sysfs->node);
-	for (int i = 0;; i++) {
-		FSNode *result = entries[i];
-		if (result == NULL) break;
-		printf("  /sys/%s\n", result->name, result->inode);
-		free(result);
-	}
-	free(entries);
-	free(sysdir);
-
-	FSDriver *devtmpfsDriver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
+	FSDriver *devtmpfsDriver = new RAMFSDriver(10000);
 	FSNode *devdir = VFSFindDir(rootfs, rootfs->node, "dev");
 	devtmpfs = VFSMountFS(devdir, devtmpfsDriver);
 
-	printf("/dev\n");
-	VFSMakeDir(devtmpfs, devtmpfs->node, "fb");
-	entries = VFSListDir(devtmpfs, devtmpfs->node);
-	for (int i = 0;; i++) {
+	VFSMakeDir(devtmpfs, devtmpfs->node, "fb", 0, 0, 0);
+	VFSMakeFile(devtmpfs, devtmpfs->node, "tty0", 0, 0, 0);
+
+	FSDriver *sysfsDriver = new RAMFSDriver(10000);
+	FSNode *sysdir = VFSFindDir(rootfs, rootfs->node, "sys");
+	sysfs = VFSMountFS(sysdir, sysfsDriver);
+
+	VFSMakeDir(sysfs, sysfs->node, "block", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "bus", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "dev", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "fs", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "kernel", 0, 0, 0);
+	VFSMakeFile(sysfs, VFSFindDir(sysfs, sysfs->node, "block"), "test", 0, 0, 0);
+
+	drives[activeVFSs++] = rootfs;
+	drives[activeVFSs++] = sysfs;
+	drives[activeVFSs++] = devtmpfs;
+	drives[activeVFSs] = NULL;
+
+	VFS_LS("/");
+	VFS_LS("/sys");
+	VFS_LS("/sys/block");
+	VFS_LS("/dev");
+}
+
+#include <mm/string.h>
+void VFS_LS(char *path) {
+	VFilesystem *fs = rootfs;
+	FSNode *directory = rootfs->node;
+
+        if (path[0] == '/' && strlen(path) == 1) {
+		FSNode **entries = VFSListDir(fs, directory);
+		for (int i = 0; i < fs->driver->FSGetDirElements(directory); i++) {
+			FSNode *result = entries[i];
+			if (result == NULL) break;
+			printf("%d %d %d %s\n", result->mask, result->uid, result->gid, result->name);
+			free(result);
+		}
+		free(entries);
+
+		return;
+	}
+
+	printf("  %s\n", path);
+
+	char *dirName = path;
+	dirName = strtok(dirName, "/");
+
+	do {
+		directory = VFSFindDir(fs, directory, dirName);
+
+		if (directory == NULL) return;
+
+		for (int i = 0; i < activeVFSs; i++) {
+			if(drives[i]->mountdir->impl == directory->impl &&
+			   drives[i]->mountdir->inode == directory->inode &&
+			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
+			// But I will fix this later
+			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
+			//if(drives[i]->mountdir == directory) {
+				fs = drives[i];
+				directory = fs->node;
+				break;
+			}
+		}
+	} while ((dirName = strtok(NULL, "/")) != NULL);
+
+	int elements = fs->driver->FSGetDirElements(directory);
+	if(elements <= 0) return;
+
+	FSNode **entries = VFSListDir(fs, directory);
+	for (int i = 0; i < elements; i++) {
 		FSNode *result = entries[i];
 		if (result == NULL) break;
-		printf("  /dev/%s\n", result->name, result->inode);
+			printf("%d %d %d %s\n", result->mask, result->uid, result->gid, result->name);
 		free(result);
 	}
 	free(entries);
-	free(devdir);
+}
+
+void VFS_Print(VFilesystem *fs) {
+	printf("  /%s\n", fs->mountdir->name == NULL ? "" : fs->mountdir->name);
+
+	FSNode **entries = VFSListDir(fs, fs->node);
+	for (int i = 0; i < fs->driver->FSGetDirElements(fs->node); i++) {
+		FSNode *result = entries[i];
+		if (result == NULL) break;
+		printf("  |--> %s\n", result->name);
+		free(result);
+	}
+	free(entries);
 }
 
 static void std_print_buf(FILE *file, void (*print)(char ch)) {
