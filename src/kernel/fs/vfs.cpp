@@ -6,6 +6,7 @@
 #include <sys/panik.h>
 #include <mm/memory.h>
 #include <fs/ramfs/ramfs.h>
+#include <sys/vector.h>
 
 #define PREFIX "[VFS] "
 
@@ -19,7 +20,7 @@ VFilesystem *sysfs;
 VFilesystem *devtmpfs;
 VFilesystem *proc;
 
-VFilesystem *drives[128];
+Vector<VFilesystem*> drives;
 static uint64_t activeVFSs = 0;
 
 FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name) {
@@ -104,10 +105,12 @@ void VFS_Init() {
 	VFSMakeDir(sysfs, sysfs->node, "kernel", 0, 0, 0);
 	VFSMakeFile(sysfs, VFSFindDir(sysfs, sysfs->node, "block"), "test", 0, 0, 0);
 
-	drives[activeVFSs++] = rootfs;
-	drives[activeVFSs++] = sysfs;
-	drives[activeVFSs++] = devtmpfs;
-	drives[activeVFSs] = NULL;
+	drives.Push(rootfs);
+	activeVFSs++;
+	drives.Push(sysfs);
+	activeVFSs++;
+	drives.Push(devtmpfs);
+	activeVFSs++;
 }
 
 #include <mm/string.h>
@@ -139,14 +142,15 @@ void VFS_LS(char *path) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			if(drives[i]->mountdir->impl == directory->impl &&
-			   drives[i]->mountdir->inode == directory->inode &&
-			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			VFilesystem *drive = drives.Get(i);
+			if(drive->mountdir->impl == directory->impl &&
+			   drive->mountdir->inode == directory->inode &&
+			   strcmp(drive->mountdir->name, directory->name) == 0) {
 			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
 			// But I will fix this later
 			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
 			//if(drives[i]->mountdir == directory) {
-				fs = drives[i];
+				fs = drive;
 				directory = fs->node;
 				break;
 			}
@@ -186,14 +190,15 @@ void VFS_Mkdir(char *path, char *name) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			if(drives[i]->mountdir->impl == directory->impl &&
-			   drives[i]->mountdir->inode == directory->inode &&
-			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			VFilesystem *drive = drives.Get(i);
+			if(drive->mountdir->impl == directory->impl &&
+			   drive->mountdir->inode == directory->inode &&
+			   strcmp(drive->mountdir->name, directory->name) == 0) {
 			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
 			// But I will fix this later
 			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
 			//if(drives[i]->mountdir == directory) {
-				fs = drives[i];
+				fs = drive;
 				directory = fs->node;
 				break;
 			}
@@ -223,14 +228,15 @@ void VFS_Touch(char *path, char *name) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			if(drives[i]->mountdir->impl == directory->impl &&
-			   drives[i]->mountdir->inode == directory->inode &&
-			   strcmp(drives[i]->mountdir->name, directory->name) == 0) {
+			VFilesystem *drive = drives.Get(i);
+			if(drive->mountdir->impl == directory->impl &&
+			   drive->mountdir->inode == directory->inode &&
+			   strcmp(drive->mountdir->name, directory->name) == 0) {
 			// This would be the right way, as there could be some files with the same inode, the same name and the same implementation number
 			// But I will fix this later
 			//if(drives[i]->mountdir == NULL || directory == NULL) continue;
 			//if(drives[i]->mountdir == directory) {
-				fs = drives[i];
+				fs = drive;
 				directory = fs->node;
 				break;
 			}
