@@ -20,8 +20,34 @@ VFilesystem *sysfs;
 VFilesystem *devtmpfs;
 VFilesystem *proc;
 
-Vector<VFilesystem*> drives;
+// TODO: This fails.
+//Vector<VFilesystem*> drives;
+VFilesystem *drives[128];
 static uint64_t activeVFSs = 0;
+
+static uint64_t currFileDescriptor = 128;
+
+FILE *VFSOpen(VFilesystem *fs, FSNode *node, size_t bufferSize) {
+	FILE *file = fs->driver->FSOpen(node, currFileDescriptor++);
+	file->bufferSize = bufferSize;
+	file->buffer = new uint8_t[bufferSize];
+	file->fsDescriptor = fs->descriptor;
+	return file;
+}
+
+void VFSClose(VFilesystem *fs, FILE *file) {
+	fs->driver->FSClose(file);
+	if(file->bufferSize > 0) delete[] file->buffer;
+	file = NULL;
+}
+
+uint64_t VFSRead(VFilesystem *fs, FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
+	return fs->driver->FSRead(file, offset, size, buffer);
+}
+
+uint64_t VFSWrite(VFilesystem *fs, FILE *file, uint64_t offset, size_t size, uint8_t buffer) {
+	return fs->driver->FSWrite(file, offset, size, buffer);
+}
 
 FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name) {
 	return fs->driver->FSFindDir(node, name);
@@ -54,10 +80,71 @@ VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver) {
 	fs->driver = fsdriver;
 	fs->node = fsdriver->rootNode;
 	fs->mountdir = mountroot;
+	// TODO: Deal with this later
+	//fs->descriptor = activeVFSs++;
 	return fs;
 }
 
+FILE *VFSMakeNode(VFilesystem *fs, FSNode *node, const char *name, uint64_t type, uint64_t nodeMajor, uint64_t nodeMinor) {
+	FILE *file;
+	VFSMakeFile(fs, node, name, 0, 0, 0);
+	file->node = VFSFindDir(fs, node, name);
+	file = VFSOpen(fs, file->node, 64 * 1024);
+
+	file->node->flags |= type;
+
+	// TODO: Major and minors have to wait for the driver redesign.
+	// For now...
+	file->descriptor = nodeMinor;
+
+	return file;
+}
+
 void VFS_Init() {
+	// Creating the ROOT driver
+	FSDriver *rootfsDriver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
+	rootfs = VFSMountFS(NULL, rootfsDriver);
+
+	VFSMakeDir(rootfs, rootfs->node, "dev", 0, 0, 0);
+	VFSMakeDir(rootfs, rootfs->node, "sys", 0, 0, 0);
+	VFSMakeDir(rootfs, rootfs->node, "proc", 0, 0, 0);
+
+	FSDriver *sysfsDriver = new RAMFSDriver(10000);
+	FSNode *sysdir = VFSFindDir(rootfs, rootfs->node, "sys");
+	sysfs = VFSMountFS(sysdir, sysfsDriver);
+
+	VFSMakeDir(sysfs, sysfs->node, "block", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "bus", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "dev", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "fs", 0, 0, 0);
+	VFSMakeDir(sysfs, sysfs->node, "kernel", 0, 0, 0);
+	VFSMakeFile(sysfs, sysfs->node, "memory", 0, 0, 0);
+
+	FSDriver *devtmpfsDriver = new RAMFSDriver(10000);
+	FSNode *devdir = VFSFindDir(rootfs, rootfs->node, "dev");
+	devtmpfs = VFSMountFS(devdir, devtmpfsDriver);
+
+	VFSMakeDir(devtmpfs, devtmpfs->node, "fb", 0, 0, 0);
+	VFSMakeFile(devtmpfs, devtmpfs->node, "tty0", 0, 0, 0);
+
+	drives[activeVFSs++] = rootfs;
+	drives[activeVFSs++] = devtmpfs;
+	drives[activeVFSs++] = sysfs;
+	drives[activeVFSs] = NULL;
+
+	/*
+	drives.Push(devtmpfs, activeVFSs++);
+	drives.Push(sysfs, activeVFSs++);
+	drives.Push(rootfs, activeVFSs++);
+	*/
+
+	/*
+	stdout = VFSMakeNode(devtmpfs, devtmpfs->node, "stdout", VFS_NODE_FIFO, VFS_NODE_MAJOR_STDIO, VFS_NODE_MINOR_STDOUT);
+	stdin  = VFSMakeNode(devtmpfs, devtmpfs->node, "stdin" , VFS_NODE_FIFO, VFS_NODE_MAJOR_STDIO, VFS_NODE_MINOR_STDIN);
+	stderr = VFSMakeNode(devtmpfs, devtmpfs->node, "stderr", VFS_NODE_FIFO, VFS_NODE_MAJOR_STDIO, VFS_NODE_MINOR_STDERR);
+	stdlog = VFSMakeNode(devtmpfs, devtmpfs->node, "stdlog", VFS_NODE_FIFO, VFS_NODE_MAJOR_STDIO, VFS_NODE_MINOR_STDLOG);
+	*/
+
 	// Creating IO buffers
 	stdout = new FILE;
 	stdout->descriptor = VFS_FILE_STDOUT;
@@ -78,39 +165,6 @@ void VFS_Init() {
 	stdlog->descriptor = VFS_FILE_STDLOG;
 	stdlog->bufferSize = 1024 * 64; // 64kb
 	stdlog->buffer = (uint8_t*)malloc(stdlog->bufferSize);
-
-	// Creating the ROOT driver
-	FSDriver *rootfsDriver = new RAMFSDriver(100000); // A hundred thousand inodes should be fine (that's one hundred thousand files and folders).
-	rootfs = VFSMountFS(NULL, rootfsDriver);
-
-	VFSMakeDir(rootfs, rootfs->node, "dev", 0, 0, 0);
-	VFSMakeDir(rootfs, rootfs->node, "sys", 0, 0, 0);
-	VFSMakeDir(rootfs, rootfs->node, "proc", 0, 0, 0);
-
-	FSDriver *devtmpfsDriver = new RAMFSDriver(10000);
-	FSNode *devdir = VFSFindDir(rootfs, rootfs->node, "dev");
-	devtmpfs = VFSMountFS(devdir, devtmpfsDriver);
-
-	VFSMakeDir(devtmpfs, devtmpfs->node, "fb", 0, 0, 0);
-	VFSMakeFile(devtmpfs, devtmpfs->node, "tty0", 0, 0, 0);
-
-	FSDriver *sysfsDriver = new RAMFSDriver(10000);
-	FSNode *sysdir = VFSFindDir(rootfs, rootfs->node, "sys");
-	sysfs = VFSMountFS(sysdir, sysfsDriver);
-
-	VFSMakeDir(sysfs, sysfs->node, "block", 0, 0, 0);
-	VFSMakeDir(sysfs, sysfs->node, "bus", 0, 0, 0);
-	VFSMakeDir(sysfs, sysfs->node, "dev", 0, 0, 0);
-	VFSMakeDir(sysfs, sysfs->node, "fs", 0, 0, 0);
-	VFSMakeDir(sysfs, sysfs->node, "kernel", 0, 0, 0);
-	VFSMakeFile(sysfs, VFSFindDir(sysfs, sysfs->node, "block"), "test", 0, 0, 0);
-
-	drives.Push(rootfs);
-	activeVFSs++;
-	drives.Push(sysfs);
-	activeVFSs++;
-	drives.Push(devtmpfs);
-	activeVFSs++;
 }
 
 #include <mm/string.h>
@@ -142,7 +196,7 @@ void VFS_LS(char *path) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			VFilesystem *drive = drives.Get(i);
+			VFilesystem *drive = drives[i]; // drives.Get(i);
 			if(drive->mountdir->impl == directory->impl &&
 			   drive->mountdir->inode == directory->inode &&
 			   strcmp(drive->mountdir->name, directory->name) == 0) {
@@ -190,7 +244,7 @@ void VFS_Mkdir(char *path, char *name) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			VFilesystem *drive = drives.Get(i);
+			VFilesystem *drive = drives[i]; // drives.Get(i);
 			if(drive->mountdir->impl == directory->impl &&
 			   drive->mountdir->inode == directory->inode &&
 			   strcmp(drive->mountdir->name, directory->name) == 0) {
@@ -228,7 +282,7 @@ void VFS_Touch(char *path, char *name) {
 		if (directory == NULL) return;
 
 		for (int i = 0; i < activeVFSs; i++) {
-			VFilesystem *drive = drives.Get(i);
+			VFilesystem *drive = drives[i]; // drives.Get(i);
 			if(drive->mountdir->impl == directory->impl &&
 			   drive->mountdir->inode == directory->inode &&
 			   strcmp(drive->mountdir->name, directory->name) == 0) {
@@ -265,6 +319,7 @@ static void std_print_buf(FILE *file, void (*print)(char ch)) {
 	}
 }
 
+// Use the 'descriptor' field to automatically deduce the relevant virtual filesystem.
 int VFS_Write(FILE *file, uint8_t *data, size_t size) {
 	if (file->bufferPos + 1 >= file->bufferSize) {
 
