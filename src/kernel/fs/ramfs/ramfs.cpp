@@ -1,5 +1,6 @@
 #include <fs/ramfs/ramfs.h>
 #include <mm/memory.h>
+#include <mm/heap.h>
 #include <mm/string.h>
 
 void RAMFSDriver::FSInit() {
@@ -30,16 +31,62 @@ void RAMFSDriver::FSInit() {
 	inodeTable[currentInode] = NULL;
 }
 
-uint64_t RAMFSDriver::FSRead(FSNode *node, uint64_t offset, size_t size, uint8_t **buffer) {
+uint64_t RAMFSDriver::FSRead(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
+	if(file->node == NULL) return 0;
+	if(file->node->inode > maxInodes) return 0;
+	if(inodeTable[file->node->inode] == NULL) return 0;
+	if(inodeTable[file->node->inode]->isFile == false) return 0;
+	if(inodeTable[file->node->inode]->firstObject == NULL) return 0;
 
+	if(offset > inodeTable[file->node->inode]->length) return 0;
+	if(offset + size > inodeTable[file->node->inode]->length) size = inodeTable[file->node->inode]->length - offset;
+
+	memcpy(*buffer, inodeTable[file->node->inode]->fileData, size);
+	return size;
 }
 
-uint64_t RAMFSDriver::FSWrite(FSNode *node, uint64_t offset, size_t size, uint8_t *buffer) {
+uint64_t RAMFSDriver::FSWrite(FILE *file, uint64_t offset, size_t size, uint8_t *buffer) {
+	if(file->node->inode > maxInodes) return 0;
+	if(inodeTable[file->node->inode] == NULL) return 0;
+	if(inodeTable[file->node->inode]->firstObject == NULL) return 0;
+	if(inodeTable[file->node->inode]->isFile == false) return 0;
 
+	if(offset + size > inodeTable[file->node->inode]->length) {
+		if (inodeTable[file->node->inode]->length == 0) {
+			inodeTable[file->node->inode]->fileData = new uint8_t[offset + size];
+			memset(inodeTable[file->node->inode]->fileData, 0, inodeTable[file->node->inode]->length);
+
+		} else {
+			uint8_t *tempBuffer = new uint8_t[inodeTable[file->node->inode]->length];
+			memcpy(tempBuffer, inodeTable[file->node->inode]->fileData, inodeTable[file->node->inode]->length);
+
+			delete[] inodeTable[file->node->inode]->fileData;
+			inodeTable[file->node->inode]->fileData = new uint8_t[offset+size];
+			memset(inodeTable[file->node->inode]->fileData, 0, offset+size);
+
+			memcpy(inodeTable[file->node->inode]->fileData, tempBuffer, inodeTable[file->node->inode]->length);
+			inodeTable[file->node->inode]->length = offset + size;
+
+			delete[] tempBuffer;
+		}
+	}
+
+	inodeTable[file->node->inode]->length += offset + size;
+	memcpy(inodeTable[file->node->inode]->fileData + offset, buffer + offset, size);
+	file->bufferPos = offset + size;
+
+	return file->bufferPos;
 }
 
-void RAMFSDriver::FSOpen(FSNode *node) {
+FILE *RAMFSDriver::FSOpen(FSNode *node, uint64_t descriptor) {
+	FILE *file = new FILE;
+	file->node = node;
+	file->descriptor = descriptor;
+}
 
+void RAMFSDriver::FSClose(FILE *file) {
+	delete[] file->buffer;
+	delete file;
 }
 
 FSNode *RAMFSDriver::FSReadDir(FSNode *node, uint64_t index) {

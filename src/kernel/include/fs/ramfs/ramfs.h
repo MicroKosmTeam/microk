@@ -67,9 +67,10 @@ public:
 	}
 
 	void            FSInit() override;
-	uint64_t        FSRead(FSNode *node, uint64_t offset, size_t size, uint8_t **buffer) override;
-	uint64_t        FSWrite(FSNode *node, uint64_t offset, size_t size, uint8_t *buffer) override;
-	void            FSOpen(FSNode *node) override;
+	uint64_t        FSRead(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) override;
+	uint64_t        FSWrite(FILE *file, uint64_t offset, size_t size, uint8_t *buffer) override;
+	FILE           *FSOpen(FSNode *node, uint64_t descriptor) override;
+	void            FSClose(FILE *file) override;
 	FSNode         *FSReadDir(FSNode *node, uint64_t index) override;
 	uint64_t        FSMakeDir(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) override;
 	uint64_t        FSMakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) override;
