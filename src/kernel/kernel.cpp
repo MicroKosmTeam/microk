@@ -68,11 +68,6 @@ switch_stack(&dummy_stack_ptr, &current->stack_ptr);
 extern "C" void _start(BootInfo* bootInfo){
         kinit(bootInfo);
 
-        //if(!kInfo.initrd_loaded) PANIK("Could not load the intrd!");
-        //else dprintf(PREFIX "Loading the initramfs...\n");
-	//rdinit();
-        //free(kInfo.initrd);
-
         GlobalRenderer.print_clear();
 
         printf(" __  __  _                _  __    ___   ___\n"
@@ -83,12 +78,14 @@ extern "C" void _start(BootInfo* bootInfo){
                "\n"
                " Memory Status:\n"
                " -> Kernel:      %dkb.\n"
+	       " -> Initrd:      %dkb.\n"
                " -> Free:        %dkb.\n"
                " -> Used:        %dkb.\n"
                " -> Reserved:    %dkb.\n"
                " -> Total:       %dkb.\n"
                "\n",
                 kInfo.kernel_size / 1024,
+		bootInfo->initrdSize / 1024,
                 GlobalAllocator.GetFreeMem() / 1024,
                 GlobalAllocator.GetUsedMem() / 1024,
                 GlobalAllocator.GetReservedMem() / 1024,

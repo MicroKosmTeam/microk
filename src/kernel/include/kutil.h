@@ -13,15 +13,15 @@ struct BootInfo {
 	uint64_t mMapSize;
 	uint64_t mMapDescSize;
         ACPI::RSDP2 *rsdp;
+	void *initrdData;
+	uint64_t initrdSize;
 };
 
 struct KernelInfo {
         uint64_t kernel_size;
-        bool initrd_loaded;
-        uint8_t *initrd;
 };
 
 extern KernelInfo kInfo;
 
 void kinit(BootInfo *bootInfo);
-void rdinit();
+

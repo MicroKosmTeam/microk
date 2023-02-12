@@ -133,6 +133,7 @@ void PrepareACPI(BootInfo *bootInfo) {
         PCI::EnumeratePCI(mcfg);
 }
 
+#include <fs/ustar/ustar.h>
 void kinit(BootInfo *bootInfo) {
         // Memory initialization
         PrepareMemory(bootInfo);
@@ -167,18 +168,13 @@ void kinit(BootInfo *bootInfo) {
         PIT::SetFrequency(1000);
         dprintf(PREFIX "PIT Frequency: %d\n", PIT::GetFrequency());
 
-        // ACPI initialization
-        PrepareACPI(bootInfo);
-
-	// Return
-	//jump_usermode();
-}
-
-#include <fs/ustar/ustar.h>
-void rdinit() {
-        /*
-        USTAR::LoadArchive(kInfo.initrd);
+	// Load and parse the initrd
+        USTAR::LoadArchive(bootInfo->initrdData);
         USTAR::ReadArchive();
+
+	// ACPI initialization
+        PrepareACPI(bootInfo);
+	/*
         size_t size;
         USTAR::GetFileSize("module.elf", &size);
         dprintf(PREFIX "Size of module.elf: %d\n", size);

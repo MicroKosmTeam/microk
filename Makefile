@@ -100,10 +100,9 @@ clean:
 buildimg: kernel
 	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=250000
 	mformat -F -v "Microk" -i $(BINDIR)/$(OSNAME).img ::
-	mmd -i $(BINDIR)/$(OSNAME).img ::/MICROK
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI/BOOT
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/initrd.tar ::/MICROK
+	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/initrd.tar ::
 	mcopy -i $(BINDIR)/$(OSNAME).img startup.nsh ::
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/kernel.elf ::
