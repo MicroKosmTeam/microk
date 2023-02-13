@@ -31,6 +31,8 @@ void RAMFSDriver::FSInit() {
 	inodeTable[currentInode] = NULL;
 }
 
+#include <sys/printk.h>
+//TODO: This is buggy
 uint64_t RAMFSDriver::FSRead(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
 	if(file->node == NULL) return 0;
 	if(file->node->inode > maxInodes) return 0;
@@ -41,7 +43,7 @@ uint64_t RAMFSDriver::FSRead(FILE *file, uint64_t offset, size_t size, uint8_t *
 	if(offset > inodeTable[file->node->inode]->length) return 0;
 	if(offset + size > inodeTable[file->node->inode]->length) size = inodeTable[file->node->inode]->length - offset;
 
-	memcpy(*buffer, inodeTable[file->node->inode]->fileData, size);
+	memcpy(*buffer + offset, inodeTable[file->node->inode]->fileData + offset, size);
 	return size;
 }
 
@@ -82,6 +84,7 @@ FILE *RAMFSDriver::FSOpen(FSNode *node, uint64_t descriptor) {
 	FILE *file = new FILE;
 	file->node = node;
 	file->descriptor = descriptor;
+	return file;
 }
 
 void RAMFSDriver::FSClose(FILE *file) {

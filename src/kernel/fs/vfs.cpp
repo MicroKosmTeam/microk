@@ -29,6 +29,7 @@ static uint64_t currFileDescriptor = 128;
 
 FILE *VFSOpen(VFilesystem *fs, FSNode *node, size_t bufferSize) {
 	FILE *file = fs->driver->FSOpen(node, currFileDescriptor++);
+	if (file == NULL) return NULL;
 	file->bufferSize = bufferSize;
 	file->buffer = new uint8_t[bufferSize];
 	file->fsDescriptor = fs->descriptor;
@@ -57,6 +58,7 @@ FSNode *VFSReadDir(VFilesystem *fs, FSNode *node, uint64_t index) {
 	return fs->driver->FSReadDir(node, index);
 }
 
+// Transfrom this from uint64_t to FSNode*
 uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid) {
 	return fs->driver->FSMakeDir(node, name, mask, uid, gid);
 }
@@ -95,7 +97,7 @@ FILE *VFSMakeNode(VFilesystem *fs, FSNode *node, const char *name, uint64_t type
 
 	// TODO: Major and minors have to wait for the driver redesign.
 	// For now...
-	file->descriptor = nodeMinor;
+	// file->descriptor = nodeMinor;
 
 	return file;
 }
@@ -127,10 +129,39 @@ void VFS_Init() {
 	VFSMakeDir(devtmpfs, devtmpfs->node, "fb", 0, 0, 0);
 	VFSMakeFile(devtmpfs, devtmpfs->node, "tty0", 0, 0, 0);
 
+	FSDriver *procDriver = new RAMFSDriver(10000);
+	FSNode *procdir = VFSFindDir(rootfs, rootfs->node, "proc");
+	proc = VFSMountFS(procdir, procDriver);
+
+	VFSMakeFile(proc, proc->node, "mem", 0, 0, 0);
+
 	drives[activeVFSs++] = rootfs;
 	drives[activeVFSs++] = devtmpfs;
 	drives[activeVFSs++] = sysfs;
+	drives[activeVFSs++] = proc;
 	drives[activeVFSs] = NULL;
+
+	// TODO: Actually files don't work
+	FSNode *node = VFSFindDir(devtmpfs, devtmpfs->node, "tty0");
+	if (node == NULL) printk("File not found.\n");
+	else printk("File found.\n");
+	printk("Opening.\n");
+	FILE *tty = VFSOpen(devtmpfs, node, 1024);
+	if (tty == NULL) printk("File failed to open.\n");
+	else printk("Done opening.\n");
+	uint8_t *buffer = new uint8_t[128];
+	memset(buffer, 'A', 128);
+	printk("Write.\n");
+	VFSWrite(devtmpfs, tty, 0, 128, buffer); // This part fails
+	memset(buffer, 'B', 128);
+	printk("Read.\n");
+	VFSRead(devtmpfs, tty, 0, 128, &buffer); // Or this one
+	printk("\nA: %c\n", buffer[0]);
+	VFSClose(devtmpfs, tty);
+
+	//while(true);
+
+
 
 	/*
 	drives.Push(devtmpfs, activeVFSs++);
