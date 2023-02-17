@@ -1,0 +1,153 @@
+properties_version 0x101
+
+message 1 Project UDI
+message 2 http://www.project-UDI.org/participants.html
+message 3 Guinea_Pig-Driver
+message 4 Generic UDI Driver used for experimentation
+release  3 1.01
+
+supplier	1
+contact		2
+name		3
+shortname	udi_gpig
+
+##
+## Interface dependencies
+##
+requires udi	 	0x101
+requires udi_physio 	0x101
+requires udi_gio 	0x101
+requires udi_bridge 	0x101
+
+##
+## Build instructions.
+## _META entries must match 'meta n' declarations below.
+##
+
+module udi_guinea
+compile_options -DGUINEA_GIO_META=1 -DGUINEA_BUS_META=2
+source_files udi_guinea.c udi_guinea.h
+region 0
+region 1
+region 2
+
+##
+## Metalanguage usage
+##
+
+meta 1 udi_gio			# Generic I/O Metalanguage
+meta 2 udi_bridge		# Bus Bridge Metalanguage
+
+child_bind_ops 1 0 1		# GIO meta, primary region, ops_index 1
+parent_bind_ops 2 0 2 3		# Bridge meta, primary region, ops_index 2
+internal_bind_ops 1 1 3 5 10	# GIO meta, region 1, primary_ops 3, sec_ops 5
+internal_bind_ops 1 2 4 6 10	# GIO meta, region 2, primary_ops 4, sec_ops 6
+
+##
+## Describe Supported Devices
+##
+
+# Posix test-frame harness device definitions to match the posix_bridge mapper
+# enumeration results
+
+message 5 Posix Test pseudo device
+
+## POSIX TEST FRAME START
+#device 5 2 \
+#	bus_type		string pci \
+#	pci_vendor_id		ubit32 0x1111 \
+#	pci_device_id		ubit32 0x1111 \
+#	pci_revision_id		ubit32 0x11 \
+#	pci_base_class		ubit32 0x11 \
+#	pci_sub_class		ubit32 0x11 \
+#	pci_subsystem_vendor_id	ubit32 0x1111 \
+#	pci_subsystem_id	ubit32 0x1111 \
+#	pci_unit_address	ubit32 0x1111 \
+#	pci_slot		ubit32 0x11
+
+#device 5 2 \
+#	bus_type		string pci \
+#	pci_vendor_id		ubit32 0x1234 \
+#	pci_device_id		ubit32 0x1234 \
+#	pci_revision_id		ubit32 0x12 \
+#	pci_base_class		ubit32 0x12 \
+#	pci_sub_class		ubit32 0x12 \
+#	pci_subsystem_vendor_id	ubit32 0x1234 \
+#	pci_subsystem_id	ubit32 0x1234 \
+#	pci_unit_address	ubit32 0x1234 \
+#	pci_slot		ubit32 0x12
+## POSIX TEST FRAME END
+	
+
+# This is a pseudo driver but to easily instantiate the device using the bus
+# bridge enumeration mechanism, we fake ourselves to be recognised from some
+# common PCI bridge and/or video controller IDs.
+# This list can be changed to add or remove other controller IDs depending
+# on the system being used.
+#
+# NOTE: At the moment only the first device line is referenced for matching
+#	against the enumerated PCI devices. This means the order has to be
+#	changed to match what PCI devices are physically present in the PC.
+#	This will work properly when multiple device lines are handled by the
+#	udi_MA code
+
+# Toshiba Vendor ID = 0x1179 (These are probably pcmcia masters)
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x1179 \
+	pci_device_id	ubit32 0x0701
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x1179 \
+	pci_device_id	ubit32 0x0406
+
+# Intel vendor ID = 0x8086
+# Common Intel motherboard PCI masters
+
+device 4 2 \
+	bus_type 	string pci \
+	pci_vendor_id	ubit32 0x8086 \
+	pci_device_id	ubit32 0x7180
+
+device 4 2 \
+	bus_type 	string pci \
+	pci_vendor_id	ubit32 0x8086 \
+	pci_device_id	ubit32 0x7181
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x8086 \
+	pci_device_id	ubit32 0x7111
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x8086 \
+	pci_device_id	ubit32 0x7113
+
+# Motorola Vendor ID = 0x1057
+# Devices:
+# Motorola MPC 105 (Eagle)   = 0x0001
+# Motorola MPC 106 (Grackle) = 0x0002
+# Both of these PCI bridges can be found in Apple PowerPC machines
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x1057 \
+	pci_device_id	ubit32 0x0001
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x1057 \
+	pci_device_id	ubit32 0x0002
+
+# Apple Vendor ID = 0x106B
+# Devices:
+# PowerMac G4 sawtooth (New World/AGP) host bridge: 0x0020
+
+device 4 2 \
+	bus_type	string pci \
+	pci_vendor_id	ubit32 0x106B \
+	pci_device_id	ubit32 0x0020
+

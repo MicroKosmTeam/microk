@@ -1,0 +1,57 @@
+# UDI driver properties for the static properties test driver.
+
+properties_version 0x101
+
+##
+## Identify ourselves
+##
+
+message 1 Project UDI
+message 2 http://www.project-UDI.org/participants.html
+message 3 POSIX static properties test driver
+message 4 Sprops Test Driver
+
+supplier  1
+contact   2
+name      3
+shortname sp_drv
+
+release 3 1.01
+
+requires udi 0x101
+message_file gibberish
+readable_file read_file
+
+##
+## There shouldn't be provides in driver, but we need them for the
+## static properties posix test
+##
+provides some_interface 0x95
+
+##
+## Describe devices supported
+##
+
+module sp_driver
+compile_options -DSP_DRIVER_OPTION=1 -DSP_EXTRA_OPTION=0
+source_files sp_driver.c
+# Add this to just make sure option resetting is working
+compile_options -DSP_DRIVER_OPTION=0 -DSP_EXTRA_OPTION=1
+source_files sp_extra.c
+region 0 overrun_time 0xdead
+
+##
+## Describe our configuration
+##
+
+meta 1 udi_scsi
+meta 2 udi_bridge
+
+device 4 2 bus_type string pci \
+		pci_vendor_id ubit32 0x1044 pci_device_id ubit32 0xA400 \
+		init_code array 48454c50204d452100
+
+child_bind_ops 1 0 2
+parent_bind_ops 2 0 1
+internal_bind_ops 1 2 3 4
+internal_bind_ops 4 3 2 1

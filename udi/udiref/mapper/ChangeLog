@@ -1,0 +1,491 @@
+2001-09-28  Robert Lipe  <robertl@caldera.com>
+        * common/bridge/udi_bridge.c (intr_attach_req_2): Alloc a cb
+        for the child context.
+        (intr_detach_cleanup): Free it.
+        (intr_attach_req_3):  New.
+        (_udi_bridge_mapper_isr): Don't dequeue a cb we don't have
+        in ds_overrunning.  Use new cb allocated above.
+        (_udi_bridge_mapper_isr_1): Don't put the overrunning cb back
+        on the list.
+        * common/bridge/udi_bridgeP.h (intr_attach_context_t): Orun_cb,
+        intr_attach_result added.
+
+2001-09-25  Christoph Hellwig  <hch@caldera.de>
+
+	* linux/gio/giomap_linux.c (osnsr_bind_done2): New.
+	(devfs_register_chrdev): New. Define if !CONFIG_DEVFS_FS
+	(devfs_unregister_chrdev): New. Define if !CONFIG_DEVFS_FS
+	(drv_attach): Always use devfs_register_chrdev
+	(drv_detach): Always use devfs_unregister_chrdev
+
+2001-09-25  Bryan Smant  <bryan@stg.com>
+
+	* common/scsi/scsimap.c (scsimap_scsi_bind_start): Set proper
+	queue_depth during bind request.
+
+2001-09-23  Steven Bytnar  <sbytnar@stg.com>
+
+	* linux/net/netmap_linux.c: Removed stray semicolon.
+
+2001-09-20  Burkhard Daniel  <burk@stg.com>
+
+	* linux/net/netmap_linux.c (osnsr_bind_done2): New.
+	(osnsr_bind_done3): New.
+	(OSNSR_GET_BIND_CB): New.
+	(OSNSR_RETURN_BIND_CB): New.
+	(osnsr_bind_done): Use udi_mem_alloc rather than _OSDEP_MEM_ALLOC with 
+	UDI_WAITOK.
+	(osnsr_bind_done2): Allocate a bunch of control blocks that will be used
+	to "get into" UDI from OS routines. This was needed because Linux 
+	occasionally interleaved several requests that hadn't been completed 
+	internally, so we need extra cb's to deal with this.
+	(osnsr_enable_complete, osnsr_disable_complete, osnsr_open, osnsr_stop, 
+	osnsr_info_cb, osnsr_get_stats, osnsr_ctrl_req_cb, 
+	osnsr_set_multicast_list, osnsr_set_mac_address): Changed to use the new
+	bind_cb pool rather than a single cb.
+	(osnsr_unbind_done): Free the net_device struct using udi_mem_free 
+	rather than _OSDEP_MEM_FREE.
+	* linux/net/netmap_linux.h (OSNSR_BIND_CB_NUM): New. Size of the bind_cb
+	pool.
+	(NUM_CB_PER_NETDEV): Removed dead code.
+	(netmap_osdep_t): Add bind_cb_pool member.
+
+2001-09-19  Burkhard Daniel  <burk@stg.com>
+
+	* common/net/netmap.h (_nsr_defer_op): Add needs_free member.
+	(): Define NSRMAP_GIO_OP_WRITE to be UDI_GIO_OP_CUSTOM.
+	* common/net/netmap.c (nsr_cb_init_list): udi_nic_status_cb_t should
+	have enough scratch space to hold an _nsr_defer_op.
+	(nsrmap_status_ind_defer_op): New
+	(nsrmap_defer_timeout, nsrmap_defer_Tx_timeout): Only free op if so 
+	requested.
+	(nsrmap_defer_unbind_op, nsrmap_defer_txrdy_op): op should be freed.
+	(nsrmap_tx_cmd_cbfn, nsrmap_gio_Tx_xfer_req): Use NSRMAP_GIO_OP_WRITE,
+	not UDI_GIO_OP_WRITE. 
+	(nsrmap_status_ind): Defer processing of udi_nsr_status_ind if the Tx 
+	region is busy.
+	(nsrmap_gio_xfer_ack, nsrmap_gio_xfer_nak): Process any pending
+	requests for the Tx region on completion of a previous request. 
+	(nsrmap_got_cb_batch): Add comment.
+
+2001-09-17  Burkhard Daniel  <burk@stg.com>
+
+	* linux/net/netmap_linux.h (osnsr_info_t): Added lock.
+	* linux/net/netmap_linux.c (*): Improve and unify procedure
+	entry/exit logging.
+	(osnsr_max_xfer_size): Change MTU for ethernet drivers from 1514 to
+	1500.
+	(osnsr_bind_done, osnsr_process_rxcb, osnsr_unbind_done): Lock
+	interface during packet receive.
+	(osnsr_start_xmit): Fix region locking. Record most recent transmit
+	time.  Free previously used skbuffs and record number of transmitted
+	frames. 
+	(osnsr_txbuf_alloc): Fix region locking & transmit frame tally.
+	(osnsr_return_stats): Fix statistics.
+	(osnsr_process_rxcb): Cleaner handling of skbuffs. Remember packet
+	drops & # of received bytes for statistics.
+	(osnsr_got_rxcb, osnsr_got_rxbuf): Cleaner handling of skb's.
+
+2001-09-16  Steven Bytnar  <sbytnar@stg.com>
+
+	* linux/gio/giomap_linux.c (drv_attach): Specify the minor number,
+	0, of the node the user should create.
+	* linux/net/netmap_linux.c: Added Linux 2.2.18 support.
+
+2001-08-09  Burkhard Daniel  <burk@stg.com>
+
+	* linux/scsi/scsimap_linux.c (osdep_scsimap_proc_info,
+	osdep_scsimap_device_attach, osdep_scsimap_device_rm): Use udi_snprintf
+	rather than sprintf's.
+
+2001-08-03  Burkhard Daniel  <burk@stg.com>
+
+	* linux/net/netmap_linux.c (osnsr_open, osnsr_start_xmit, osnsr_tx_rdy):
+	Stop tx queue after we dequeue the last available tx cb and start it 
+	again as soon as we have at least one new txcb.
+	(osnsr_set_multicast_list, osnsr_set_mac_address): Don't assert if we
+	couldn't get memory, instead fail the OS request.
+	* linux/net/netmap_linux.h: Add flag for transmit queue status.
+
+2001-08-03  Burkhard Daniel  <burk@stg.com>
+
+	* linux/net/netmap_linux.c: Run through indent to get rid of
+	tab<->space weirdnesses.
+
+2001-07-31  Burkhard Daniel  <burk@stg.com>
+
+	* linux/Makefile: Build Net and SCSI mappers on 2.4 kernels.
+	* linux/net/netmap_linux.c: Remove unneeded compatibility macros, they
+	are provided by include/linux/kcomp.h.
+	Comment updates. Code beautifications.
+	(osnsr_init, osnsr_get_stats, osnsr_process_ctrl_req,
+	osnsr_set_multicast_list, osnsr_set_mac_address, osnsr_final_cleanup): 
+	Remove use of unneeded semaphores.
+	(osnsr_bind_done, osnsr_open, osnsr_stop, osnsr_start_xmit,
+	osnsr_tx_rdy): Fix 2.2.x compatibility code.
+	(osnsr_enable_complete, osnsr_disable_complete, osnsr_txbuf_alloc, 
+	osnsr_ctrl_req_cb): Re-remember cb used for channel ops (to allow for
+	re-allocation of cb).
+	(osnsr_stop): Fix multicast handling on interface stop.
+	(osnsr_skb_free): Handle free's on irq and free's without valid skb's.
+	(osnsr_start_xmit): Fix region locking. Free old tx skb's.
+	(osnsr_get_stats): Don't return anything on interrupts.
+	(osnsr_process_rxcb): Provide support for rx zero-copy.
+	(osnsr_process_rxcb2): New, used for rx zero-copy.
+	(osnsr_cb_alloc_batch): Fix prototype.
+	(osnsr_got_rxcb): Mark skb's as valid.
+	(osnsr_got_rxbuf): Mark skb's as valid.
+	* linux/net/netmap_linux.h: Remove unneeded semaphores. Disable rx
+	zero-copy by default.
+	* linux/scsi/scsimap_linux.c (osdep_scsimap_hba_detach,
+	osdep_scsimap_hba_attach, osdep_scsimap_device_attach,
+	osdep_scsimap_device_rm): Add 2.4 support.
+
+2001-07-31  Burkhard Daniel  <burk@stg.com>
+
+	* common/net/netmap.c (nsrmap_got_rxmem): Reinstate osdep hook for
+	batch rxcb allocation.
+	* common/net/netmap.h (NSRMAP_CB_ALLOC_BATCH): Provide default 
+	implementation for osdep hook.
+
+2001-07-13  Robert Lipe  <robertl@sco.com>
+
+	* common/bridge/udi_bridge.c (intr_attach_req_2): Invalidate 
+	our copy of preprocessing handle when _OSDEP_INTR_ATTACH fails.
+
+2001-06-29  Rob Tarte <robt@PacificCodeWorks.com>
+
+        * osr5/scsi/scsimap_osr5.c: Various Fixes including:  Removed
+        debug.  Changed default HS geometry.  Added command retry code.
+        Fixed sense data.  Added support for native named SCSI devices
+        (instead of udi_scsi).  Added debug.  Turned off debug.  No
+        longer alloc a new CB after SCSIMAP_GET_INQ_ATTR.  This fix is
+        needed to allow unbind to work.  Fixed unbind and multi_lun.
+        Got rid of stale code. support for SMP.
+
+        * osr5/scsi/scsimap_osr5.h: Various Fixes including:  Added
+        command retry code.  Added support for native named SCSI devices
+        (instead of udi_scsi).  Added debug.  Turned off debug. support
+        for SMP.
+
+2001-06-29  Rob Tarte <robt@PacificCodeWorks.com>
+
+        * osr5/gio/giomap_osr5.c: Comment change.
+        * osr5/gio/giomap_osr5.h: Comment change.
+        * osr5/bridge/udi_bridge_osr5.c: Comment change.
+
+2001-06-29  Rob Tarte <robt@PacificCodeWorks.com>
+
+        * osr5/net/netmap_osr5.c: Numerous fixes including:  Fixed
+        loopback when out of tx buffers.  Added an attempt to make the
+        code ifdef-able with the UnixWare mapper.  Removed redundant
+        check.  Picked up the out of transmit buffers restart code.
+        Fixed promiscuous code.  Turned off debug.  Fixed multple
+        instances of the same driver.  Fixed multicast code.  Flush
+        multicast table on close to fix ANT issue.  Added some debug
+        code.  Added debug.  Partial resync with UW net mapper.
+
+        * osr5/net/netmap_osr5.h: Numerous fixes including:  An attempt
+        to make the code ifdef-able with the UnixWare mapper.  Picked up
+        the out of transmit buffers restart code.  Added bound flag to
+        fix multiple bind problem. Changed UDI_MCA to in line with UW.
+        Partial resync with UW net mapper.
+
+2001-06-21  Robert Lipe  <robertl@sco.com>
+
+	* common/bridge/udi_bridge.c (bridge_mapper_enumerate_req): Move
+	pci enumeration settings...
+	(bridge_mapper_create_pci_enum_attrs): ...to this new function.
+
+2001-06-18  Burkhard Daniel <burk@stg.com>
+
+	* linux/gio(giomap_linux.c: Only include linux/devfs_fs_kernel.h if
+	the kernel was compiled with devfs support. Don't define dump_perdevdata
+	in non-debug mode. Wrap giomap_new_instance, giomap_del_instance,
+	giomap_drvctl and giomap_OS_unbind in #if UNIXWARE.
+	(drv_attach): Got rid of the unused variable de. Fixed flags in call to
+	devfs_register. 
+	(drv_detach): Fixed call to devfs_unregister.
+	(giomap_getQ): Don't hold lock when waiting.
+	
+
+2001-06-18  Burkhard Daniel <burk@stg.com>
+
+	* common/scsi/scsimap.c (scsimap_send_req): Don't send SCSI requests
+	to the SCSI address of the controller itself.
+	* common/scsi/scsimap.h (VALID_RDATA_INDEX): Fixed for the case where a
+	HBA supports multiple buses.
+
+2001-06-04  Robert Lipe <robertl@sco.com>
+
+        * mapper/common/net/netmap.c (nsrmap_start_defer_Tx_chain):
+        We're in tx region.   Therefore rdata is an nsrmap_tx_region_data
+        and not an nsrmap_region_data.
+
+2001-06-02  Steven Bytnar <sbytnar@users.sourceforge.net>
+
+	* darwin-user/.cvsignore: Added.
+	* darwin-user/Makefile: Added.
+	* darwin-user/bridge/.cvsignore: Added.
+	* darwin-user/bridge/Makefile: Added.
+	* darwin-user/gio/.cvsignore: Added.
+	* darwin-user/gio/Makefile: Added.
+	* darwin-user/net/.cvsignore: Added.
+	* darwin-user/net/Makefile: Added.
+
+2001-05-31  Burkhard Daniel  <burk@stg.com>
+
+	* linux/net/netmap_linux.c (all): replace device with net_device for
+          2.4 compatibility. Define net_device to be device for pre-2.3
+          kernels.  	
+	* linux/net/netmap_linux.h: same.
+
+2001-05-31  Burkhard Daniel  <burk@stg.com>
+
+	* linux/bridge/udi_bridge_linux.c (bridgemap_find_device): in 2.3+
+          kernels, search for all pci devices, and don't stop at the first
+          one    	
+
+2001-05-31  Burkhard Daniel  (burk@stg.com)
+	
+	* linux/scsi/scsimap_linux.c: don't set DMA direction for TEST UNIT
+	  READY command
+	  (osdep_scsimap_queue_command): Don't set data buffer for SCSI commands
+	  that don't involve DMA transfer
+
+2001-05-30  Robert Lipe  <robertl@sco.com>
+
+	* common/mapper/net/netmap.c (nsrmap_make_macaddr): Moved from here...
+	* osr5/net/netmap_osr5.c: ... to here...
+	* uw/net/netmap_uw.c: and here.
+	* posix/net/netmap_posix.c (nsrmap_make_addr): Delete proto.
+
+2001-05-01  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* common/bridge/udi_bridge.c: Add default constraints.  Allow
+	  osdep code to override the new/default _osdep_bridge_attr_list.
+	* common/bridge/udi_bridgeP.h: comment the osdep constraints hook.
+	* freebsd/bridge/udi_bridge_freebsd.c: Override the default
+	  _osdep_bridge_attr_list constraints for FreeBSD.
+	  Fix the parameter to bus_release_resource.
+	* freebsd/net/netmap_freebsd.c: Add comments.
+
+2001-04-27  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* uw/net/netmap_uw.c: If nd_key is 0, try to find the
+	  resmgr key for the driver instance.
+
+2001-04-17  Kevin Quick <kquick@users.sourceforge.net>
+
+	* common/gio/giomap.c: Added const to ..._op_flags array to make
+	it read-only.
+	
+2001-04-12  James Hall <james.hall@sun.com>
+
+	* common/net/netmap.h: change union 'u' to 'un' in nsrmap_gio_t
+	* common/net/netmap.c: replace all 'u' with 'un' in nsrmap_gio_t usage
+
+2001-04-04  Burkhard Daniel <burk@stg.com>
+
+	* linux/scsi/scsimap_linux.c 
+		(osdep_scsimap_hba_attach): Update comment
+		(osdep_scsimap_device_attach): Add sanity check & use 
+		UDI_WAITOK only for allocations
+
+2001-04-04  Burkhard Daniel <burk@stg.com>
+
+	* linux/net/netmap_linux.c 
+		(all): remove reference to unused function.
+		(osnsr_bind_done): remember devp in tx rdata
+		(osnsr_start_xmit): mark device as busy if no txcbs
+		(osnsr_tx_rdy): new function, mark device as available.
+	* linux/net/netmap_linux.h
+		(all): define type for nsrmap_osdep_tx_t
+
+2001-03-28  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* freebsd/Makefile: New file.  Build the FreeBSD mappers.
+
+2001-03-27  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* common/net/netmap.c: call osnsr_tx_rdy() from nsrmap_tx_rdy()
+	* common/net/netmap.h: remove TX_TIMER_REMV ifdefs.
+
+	* freebsd/net/netmap_freebsd.c: Set IFF_OACTIVE when out of
+	control blocks; resume xmit in osnsr_tx_rdy() if we had run
+	out of control blocks.
+
+	* uw/net/netmap_uw.c: Remove disabled non-TX_TIMER_REMV code.
+	Rename nsrmap_wr_enable() to osnsr_tx_rdy().
+	* uw/net/netmap_uw.h: Remove non-TX_TIMER_REMV code.
+	* uw/net/udiprops.txt: Remove -DTX_TIMER_REMV compile option
+
+	* posix/net/netmap_posix.c: Add dummy osnsr_tx_rdy() so it compiles.
+
+2001-03-26  Burkhard Daniel <burk@stg.com>
+	* linux/net/netmap_linux.c (osnsr_skb_map):
+		Update call to _osdep_dma_build_scgth with new parameter 
+		(flags).
+
+  	(osnsr_process_rxcb):
+  		Extra debugging.
+
+2001-03-26  Burkhard Daniel <burk@stg.com>
+
+	* linux/scsi/scsimap_linux.c (all):
+		Use kmem_cache for req structure.
+
+  	(osdep_scsimap_hba_attach):
+  		Add comment.
+		Make sure we do not use blocking allocations when called from an
+		interrupt context.
+		Assert if allocations did not succeed.
+
+  	(osdep_scsimap_dma_map):
+  		Update call to _osdep_dma_build_scgth with the new parameter 
+		(flags).
+
+	* linux/scsi/scsimap_linux.h (all):
+		Have the Linux SCSI mapper queue as many SCSI commands as we 
+		have scsi_io_cb's.
+
+2001-03-26  Robert Lipe <robertl@sco.com>
+
+	* freebsd/bridge/Makefile: New file.
+	* freebsd/bridge/udi_bridge_freebsd.c: New file.
+	* freebsd/bridge/udiprops.txt: New file.
+
+2001-03-24  Kevin Van Maren <vanmaren@fast.cs.utah.edu>
+
+	* freebsd/net/Makefile, freebsd/net/udiprops.txt,
+	  freebsd/net/netmap_freebsd.c, freebsd/net/netmap_freebsd.h:
+	Implemented nic mapper for FreeBSD.  Still has some rough
+	edges, but it "works" with several tested drivers.
+
+	* common/net/netmap.c:  Corrected the comment block to contain
+	the prototypes actually used by the interface routines.
+	Added support for an OSDEP gcb list.
+	Made the NSR_TRACE variables conditional conditional like the code.
+	Fixed formatting glitch with NSR_txdata.
+
+	* common/net/netmap.h:  Define STATIC if not defined.
+
+2001-03-22  Burkhard Daniel <burk@stg.com>
+
+	* linux/scsi/scsimap_linux.c (osdep_scsimap_detect): Set the number of 
+	channels supported by the driver correctly.
+   
+  	(osdep_scsimap_queue_command): Remove check for cmd->channel, as this 
+	is wrong & obviously stupid. Put in extra debug information if a target 
+	could not be addressed.
+  
+  	(osdep_scsimap_ctl_ack): Remove double-free of the req structure (the 
+	correct place to free it is in osdep_scsimap_ctl_req).
+
+ 	(osdep_scsimap_device_attach): Compute the hba->*_shift and maxdev 
+	values for the rdata array correctly.
+  
+	(*): Remove reference to _udi_dma_scgth_free, as it is not used from 
+	within the scsi mapper.
+  
+	(osdep_scsimap_dma_unmap): Some Reformatting.
+
+2001-03-21  Burkhard Daniel <burk@stg.com>
+
+	* linux/bridge/udi_bridge_linux.c (_osdep_bus_bridge_bind_req):
+		Implement OSDEP hook into bus_bridge_bind_req to store pci_dev 
+		pointer for an enumerated PCI device into the correct node's 
+		dev_node structure.
+  	(bridgemap_find_device):
+		make the osdep-key parameter a pci_dev*, rather than a void*
+	* linux/bridge/udi_bridge_linux.h:
+		Implement _OSDEP_BUS_BRIDGE_BIND_REQ.
+
+2001-03-20  Burkhard Daniel <burk@stg.com>
+	
+	* common/bridge/udi_bridge.c: (bus_bridge_bind_req): 
+		Provide OSDEP hook for bus_bridge_bind_req.
+	* common/bridge/udi_bridgeP.h: 
+		OSDEP hook for bus_bridge_bind_req is a no-op by default.
+
+2001-03-14  Burkhard Daniel <burk@stg.com>
+
+	* linux/gio/giomap_linux.c (drv_attach): 
+	  Make mapper register the driver through the devfs file system if 
+	  available, warn administrator to mknod the node in the file system 
+	  otherwise.
+	(drv_detach): Unregister driver from the devfs file system 
+	  (if available).
+
+2001-03-14  Burkhard Daniel <burk@stg.com>
+
+	* mapper/linux/gio/Makefile: add "envcommon", "giocommon", and "udi_env" to the "rm" command for the clean goal
+	* mapper/linux/bridge/Makefile: add "envcommon", "bridgecommon", and "udi_env" to the "rm" command for the clean goal
+	* mapper/linux/scsi/Makefile: add "envcommon", "scsicommon", and "udi_env" to the "rm" command for the clean goal
+	* mapper/linux/net/Makefile: add "envcommon", "niccommon", and "udi_env" to the "rm" command for the clean goal
+
+2001-03-06  Kevin Van Maren <vanmaren@fast.cs.utah.edu>
+
+	* freebsd-user/Makefile (INDIR): Remove UW reference.
+	(DIRS): Enabled.
+
+2001-02-23  Steven Bytnar <sbytnar@stg.com>
+
+	* common/bridge/udi_bridge.c (bridge_mapper_final_cleanup_req):
+	Added a call to _OSDEP_BUS_BRIDGE_DEINIT so cleanup can be
+	performed.
+	* common/bridge/udi_bridgeP.h (_OSDEP_BUS_BRIDGE_DEINIT): Added
+	default do-nothing functionality.
+	* linux-user/bridge/Makefile: modified to not copy udiprops.txt
+	anymore.
+	* linux-user/bridge/udiprops.txt: custom build file.
+	* linux-user/bridge/udi_bridge_linux.c: New, Linux userland PCI bridge
+	mapper.
+	* posix/bridge/bridgemap.c: moved code from env/posix/posix.c that
+	really only belongs to the bridge mapper to be part of the "common"
+	posix bridge mapper. Added a CMOS PCI device that looks just like
+	the one simulated by some in-kernel environnments.
+	* posix/bridge/udiprops.txt: whitespace separator for readability.
+	* posix/net/netmap_posix.c (nsrmap_open, nsrmap_close): An apparent
+	debugging statement with a \007 (terminal bell character), is a
+	suspect of hiding some timing window issues in ndtest. The offensive
+	debugging statements are only enabled when -DNET_DEBUG is applied to
+	the build file.
+
+2001-02-17  Kevin Van Maren <vanmaren@cs.utah.edu>
+
+	freebsd-user/Makefile: Rebase FreeBSD Makefiles on current 
+	UnixWare Makefiles.
+	freebsd-user/bridge/Makefile, freebsd-user/gio/Makefile: Likewise.
+	freebsd-user/net/Makefile: Likewise.
+
+2001-02-16  Robert Lipe <robertl@sco.com>
+
+	Add FreeBSD posix mappers.
+	* freebsd-user/Makefile: New file.
+	* freebsd-user/bridge/Makefile: Likewise.
+	* freebsd-user/gio/Makefile: Likewise.
+	* freebsd-user/net/Makefile: Likewise.
+
+2001-02-13  Burkhard Daniel <burk@stg.com>
+
+	* linux/scsi/scsimap_linux.c (osdep_scsimap_queue_command): Add
+	debugging code.
+	(osdep_scsimap_io_ack): Likewise.
+	(osdep_scsimap_dma_unmap): Don't double-free buffers.
+
+2001-02-13  Jack Craig <jackc@sco.com>
+
+	* osr5/gio/giomap_osr5.c: Cast args to copyin, copyout.
+
+2001-02-10  Robert Lipe <robertl@sco.com>
+
+	* common/gio/giomap.c (_giomap_unbind_cbfn, 
+	giomap_gio_cb_alloc_cbfn): Delete dead code.
+	* common/net/netmap.c (nsrmap_tx_channel_event, 
+	nsrmap_rx_channel_event, nsrmap_gio_Tx_prov_channel_event): 
+	Delete #if 0'ed constraint definition.
+	(_nsr_udi_dequeue_tail): Deleted.
+	* common/net/netmap.h (NSR_UDI_DEQUEUE_TAIL): Deleted.
+	(_nsr_udi_dequeue_tail): Likewise.
+	

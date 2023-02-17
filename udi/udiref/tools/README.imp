@@ -1,0 +1,90 @@
+#
+# File: tools/README.imp
+#
+# UDI Tools Implementer's Guide
+#
+
+#
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+#
+
+			UDI Tools Implementer's Guide
+			-----------------------------
+
+A note about message catalog implementation.
+
+	To keep as much of the code in common as possible, the
+	setlocale, catopen, catgets, catclose functions were
+	used.  At the beginning of a UDI command's code, a
+	call to setuploc is called, which does some initialization
+	for the locale, and opens the locale file "udicmds", using
+	catopen.  From that point, on, the printloc command is
+	typically used to print out localized messages.  This
+	requires a message number.  The message numbers should be
+	assigned as follows (where OS is an OS-Specific directory, which
+	does not need to worry about conflicting numbers with other OS's):
+
+		tools/common/*: each file containing messages has a
+			block of 100 available to it, starting with 1000,
+			up to a max of 1900 So, the messages for the
+			first file contain messages 1000-1099, and the
+			10th file would contain messages 1900-1999.
+		tools/OS/*: each file containing messages has a
+			block of 100 available to it, starting with 2000,
+			up to a max of 2900.  So, the messages for the
+			first file contain messages 2000-2099, and the
+			10th file would contain messages 2900-2999.
+
+	By following the above rules, we can have the tools combine all the
+	common and OS-specific message catalogs into a single catalog, and
+	not have to worry about message number conflicts.  If you need to
+	modify a message, make sure to correct it in ALL places used, by
+	searching for the message number across the tools source tree.  It
+	is OK to share the common messages in OS-Specific code, but do not
+	use OS-Specific messages in common code.
+

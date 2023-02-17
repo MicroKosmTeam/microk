@@ -1,0 +1,36 @@
+This directory contains the information defining the ia64 ABI Binding.
+
+ABI Name  : ia64
+Processors: Intel 64-bit Processors
+Endianness: little
+Object fmt: ELF
+udiprops  : text encapsulated in non-loadable .udiprops ELF section
+
+Data Sizes:
+	void*			64 bits
+	udi_size_t		64 bits
+	udi_index_t		8 bits
+	udi_buf_t		64 bits
+	udi_channel_t		64 bits
+	udi_constraints_t	64 bits
+	udi_timestamp_t		64 bits
+	udi_pio_handle_t	64 bits
+	udi_dma_handle_t	64 bits
+
+Maximum Sizes:
+	Driver Call	Stack Usage	16 KBytes
+	Object Module	Code Size	64 KBytes
+	Object Module	Data Size	64 KBytes
+	Object Module	File Size	256 KBytes
+	Driver		Code Size	2 MBytes
+	Driver		Data Size	2 MBytes
+
+Macros:
+	UDI_HANDLE_ID		((void *)(handle))
+	UDI_HANDLE_IS_NULL	((void *)(handle) == NULL)
+	udi_assert		{ if (!(X)) _udi_assert(X, #X, \
+							__FILE__, __LINE__); }
+
+Externs:
+	_udi_assert
+

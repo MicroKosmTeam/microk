@@ -1,0 +1,83 @@
+#
+# File: env/common/Make_udibuild
+#
+# This is used by the build system to allow you to globally specify
+# default parameters for udibuild and udisetup primarily. It also
+# differentiates between mapper and driver/metalanguage build
+# commands.
+#
+
+#
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+#
+
+UDIBUILD_BIN=$(TOPDIR)/tools/bin/udibuild
+UDIMKPKG_BIN=$(TOPDIR)/tools/bin/udimkpkg
+UDISETUP_BIN=$(TOPDIR)/tools/bin/udisetup
+UDI_PUB_INCLUDE=$(TOPDIR)/pub_include
+
+#
+# FIXME: This is a kludge to work around a problem in udisetup
+# on OpenServer when converting binaries with debug.
+# BUILD_FLAG = -O
+BUILD_FLAG = `if [ \`uname -s\` = "SCO_SV" ] ;  then echo ; else echo -O; fi`
+
+udibuild:
+	@UDI_PUB_INCLUDE=$(UDI_PUB_INCLUDE); export UDI_PUB_INCLUDE; \
+	$(UDIBUILD_BIN) -v -u $(BUILD_FLAG) && \
+	$(UDIMKPKG_BIN) -Ut binary
+
+udibuild-mapper:
+	@UDI_PUB_INCLUDE=$(UDI_PUB_INCLUDE); export UDI_PUB_INCLUDE; \
+	$(UDIBUILD_BIN) -m -v -u $(BUILD_FLAG) && $(UDIMKPKG_BIN) -mUt binary
+
+udisetup:
+	$(UDISETUP_BIN)
+
+udisetup-mapper:
+	$(UDISETUP_BIN) -m

@@ -1,0 +1,120 @@
+#
+# File: mapper/posix/net/udiprops.txt
+#
+# Static properties defintions for the Posix Network Mapper.
+#
+
+#
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+#
+
+properties_version 0x101
+
+message 1 Project UDI
+message 2 http://www.project-UDI.org/participants.html
+message 3 Network Metalanguage Mapper
+release 3 1.01
+
+supplier	1
+contact		2
+name		3
+shortname       netmap
+
+requires udi		0x101
+requires udi_nic 	0x101
+requires udi_gio	0x101
+
+module netmap_posix
+
+##
+## NSR region definitions. 0 is the primary region, 1 the Tx region
+##
+
+region 0
+region 1		# Transmit region
+
+##
+## NSR meta definitions. 1 is the NIC meta, 2 the GIO
+##
+meta 1 udi_nic
+meta 2 udi_gio
+
+##
+## Region binding rules
+##
+parent_bind_ops 1 0 1 0		# Primary region NIC meta
+internal_bind_ops 2 1 4 5 0	#NSRMAP_GIO_TX_CLIENT_IDX-NSRMAP_GIO_TX_PROV_IDX
+device 3 1    # Default matches any NIC metalanguage parent
+
+##
+## Build instructions.
+## The region and meta definitions must match those given in the previous
+## region / meta declaration section
+##
+compile_options -DDEBUG \
+	-DNSRMAP_CTRL_IDX=1 \
+	-DNSRMAP_TX_IDX=2 \
+	-DNSRMAP_RX_IDX=3 \
+	-DNSRMAP_GIO_TX_CLIENT_IDX=4 \
+	-DNSRMAP_GIO_TX_PROV_IDX=5 \
+	-DNSRMAP_NIC_META=1 \
+	-DNSRMAP_GIO_META=2 \
+	-DNSRMAP_TX_REG_IDX=1 \
+	-DNSR_DBG_LEVEL=0xff -DNSR_DBG_META=0xff \
+	-DNSR_LINKUP_SECS=0 -DNSR_LINKUP_NSECS=0 \
+	-DTX_TIMER_REMV=1
+	#-DNSR_USE_SERIALISATION
+source_files netmap_posix.c netmap_posix.h
+source_files udi_env/udi_osdep.h envcommon/udi_env.h netcommon/netmap.h
+
+##
+## Internal Tracing/Logging
+##
+
+message_file tracemsgs.txt
+

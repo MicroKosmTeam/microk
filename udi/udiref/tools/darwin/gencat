@@ -1,0 +1,15 @@
+#!/bin/sh
+# Since gencat is missing in Darwin, you need to:
+# cp ./gencat /usr/bin/gencat
+# chmod +x /usr/bin/gencat
+# before building udi.
+echo "gencat ($1) ($2)"
+if [ X"$1" != X"" ]; then
+if [ X"$2" != X"" ]; then
+echo "`cat $2`" >$1
+else
+echo "gencat: param2 was null"
+fi
+else
+echo "gencat: param1 was null"
+fi

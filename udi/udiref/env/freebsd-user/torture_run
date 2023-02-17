@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# Run the target program with aggressive MALLOC_CHECKS options
+# and forced environment failures.
+#
+
+MALLOC_CHECKS="AJ"
+# These options force errors on detectable errors and initalizes memory to
+# garbage.  Do a "man malloc" on FreeBSD for other options.
+
+FILE_TO_RUN=`basename $*`
+case $FILE_TO_RUN in
+	cmostest) if [ $(id -u -n) != "root" ]; then
+			echo "** You are not root.  Skipping cmostest."
+			exit 0;
+		fi ;;
+	*)	;;
+esac
+
+echo "*** Running $* with MALLOC_CHECKS=$MALLOC_CHECKS">&2
+$* > /dev/null || { echo "Error" >&2; exit 1; }
+
+echo -n "*** Running $* with POSIX_CALLBACK_LIMIT=1, " >&2
+POSIX_CALLBACK_LIMIT=1 $* > /dev/null || { echo Error >&2 ; exit 1 ; }
+
+echo -n "POSIX_FAIL_MEM=100, " >&2
+POSIX_FAIL_MEM=100 $* > /dev/null || { echo Error >&2 ; exit 1 ; }
+
+echo "POSIX_FORCE_CB_REALLOC=1" >&2
+POSIX_FORCE_CB_REALLOC=1 $* > /dev/null || { echo Error >&2 ; exit 1; }
+
+echo "POSIX_DEFER_MEI_CALL=1" >&2
+POSIX_DEFER_MEI_CALL=1 $* > /dev/null || { echo Error >&2 ; exit 1; }
+
+echo "*** Running $* with all available forms of torture."
+# Also return NULL on 0-byte allocations (V MALLOC_CHECKS option).
+MALLOC_CHECKS=AJV POSIX_CALLBACK_LIMIT=1 POSIX_FAIL_MEM=100 POSIX_FORCE_CB_REALLOC=1 POSIX_DEFER_MEI_CALL=1 $* > /dev/null || { echo Error >&2 ; exit 1; }
+

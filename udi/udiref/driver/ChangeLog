@@ -1,0 +1,172 @@
+2001-07-30  Andrew Knutsen  <andrewk@caldera.com>
+
+	* shrk.h (shrk_link_parms_t) Made "const", moved out of scratch defs
+	  (SHRK_SPEED_100M,SHRK_DUPLEX_FULL): Added
+
+	* shrkudi.c (shrkdebug) Reduced default debugging level
+	  (shrk_pio_args): Made "static"
+	  (shrk_status_ind_cb, shrk_gpreg_link,shrk_mii_anlpar):
+		Log speed and duplex
+	  (shrk_timer_cb): Use correct CB for PIO trans
+	  (shrk_nic_reset, shrk_mii_anlpar): Correct 10M 21143 support
+
+	* udiprops.txt: Add speed and duplex to link up message
+
+2001-07-16  Robert Lipe  <robertl@sco.com>
+
+	Cleanup of namespace violations.  Only decls and not uses are called
+	out below.
+
+	* pseudond/pseudond.c (_pseudond_attr_get): Rename without underscore.
+	(_pseudo_nd_bind_step1): Likewise.
+	(_pseudo_nd_bind_cbfn): Likewise.
+	(_pseudo_nd_tx_anchored): Likewise.
+	(_pseudo_nd_rxalloc_cbfn): Likewise.
+	(_pseudo_nd_rx_anchored): Likewise.
+	(_pseudo_nd_bind_complete): Likewise.
+	(_pseudo_nd_unbind_step1): Likewise.
+	(_pseudo_nd_enable_step1): Likewise.
+	(_pseudo_nd_ctrl_req1): Likewise.
+	(_pseudo_nd_transmit): Likewise.
+	(_pseudo_nd_rxbuf): Likewise.
+	(_pseudo_nd_receive): Likewise.
+	(_pseudo_nd_status): Likewise.
+	(_pseudo_nd_stat_trans): Likewise.
+	(_pseudo_nd_defer): Likewise.
+	(_pseudo_nd_free_rsrc): Likewise.
+	(_pseudo_nd_pcb_alloc): Likewise.
+	(_pseudo_nd_getnext_rsrc): Likewise.
+	(_pseudo_nd_got_rxmem): Likewise.
+	(_pseudo_nd_got_txmem): Likewise.
+	(_pseudo_nd_got_txcb): Likewise.
+	(_pseudo_nd_gotcb): Likewise.
+	* pseudond/pseudond.h (_pseudo_defer_ops_t): Likewise.
+	(_pseudo_defer_el_t): Likewise.
+	(_pseudo_meta_state_t): Likewise.
+	(_pseudo_attr_state_t): Likewise.
+
+2001-06-28  Andrew Knutsen <andrewk@caldera.com>
+
+	* shrkudi.c (shrk_mdio_read): Recognise cards with broken MII
+	* README: Add card model numbers
+
+2001-06-15  Andrew Knutsen <andrewk@caldera.com>
+
+	* shrkudi/shrkudi.c (shrk_gcb_init_list): Added txenable scratch to 
+	PROBE_CB, using sizeof union.
+	(shrk_mii_read_pio, shrk_mii_write_pio, shrk_mdio_read, shrk_mdio_read1,
+	shrk_mdio_read2, shrk_mdio_write): New.
+	(shrk_nosnooze_pio): Added for 21143 support, to wake chip up.
+	(shrk_nic_reset_pio, shrk_nic_reset): Only program general purpose 
+	register on 21140.
+	(shrk_tx_enable_pio): Pass in csr6 in scratch.
+	(shrk_pio_args): Added nosnooze and read/write pio translists. 
+	Reformatted.
+	(shrk_attr_name): Get pci attributes to see what chip we've got.
+	(shrk_link_parms): Check 100M FD first
+	(shrk_pio_map, shrk_wakeup_done, shrk_read_srom): Wake up 21143.
+	(shrk_timer_cb, shrk_timer): Use mii instead of gpreg for link status 
+	on 21143.
+	(shrk_nic_reset): Always use mii mode on 21143.
+	(shrk_link_detect): Renamed to shrk_gpreg_link (osicom only).
+	(shrk_mii_link, shrk_mii_anlpar): Added mii mgmt (mdio) based link 
+	detect.
+	(shrk_srom_read_pio): Removed spurious load.
+	(shrk_intr_preproc_pio): Return correct value if interrupts are 
+	disabled.
+	(shrk_status_ind_cb): Fixed log messages.
+	(shrkrx_gio_bind_cb, shrkrx_log_cb): Allocate rx log cb.
+	(shrkrx_intr_attach_ack, shrkrx_intr_cb): Wait to free cb till we're 
+	really done.
+	(shrkrx_nd_enable_req): Check state first.
+	(shrk_nd_tx_req): Fixed debugging cb count.
+	(shrkrx_nd_rx_rdy, shrk_send_setup_frame, shrk_txcomplete, shtktxd,
+	shrk_setup_alloc): Fixed debug messages.
+	(shrkrx_check_packet): Log errors (still need to kepp better stats).
+	(shrkrx_rx): Don't assert on media errors (debug only).
+	(shrk_log): Added more flexible logging.
+	(shrkrx_log): Added rx region logging.
+     
+	 * shrkudi/shrk.h: Added 21143 definitions. Added pci attribute 
+        definitions.
+        (shrk_probe_scratch_t): New. Used for sizeof of PROBE_CB scratch.
+	(SHRK_LOOP_MULTI, SHRK_SET_RETRY): Removed.
+
+	* shrkudi/udiprops.txt (message 6, device 6): Added device.
+	(message 400): New. For logging receive errors.
+
+	* shrkudi/README: Mention newly supported hardware.
+
+2001-05-31  Andrew Knutsen <andrewk@caldera.com>  
+	
+	* shrkudi/shrkudi.c (shrk_cb_init_list): Move NIC reset scratch
+	from GIO_BIND cb to GIO_XFER due to movement of PIO mapping.
+
+	*shrkudi/shrkudi.h (shrk_gio_xfer_scratch_t): Added to support
+	movement of PIO mapping from shrk_usage_ind() to
+	shrkrx_bus_bind_ack().
+
+2001-05-24  Robert Lipe  <robertl@sco.com>
+
+	* drivers/example/readpci.c (cmos_region_data_t): Add le_dump_handle,
+	be_dump_handle, dump_be, dump_buffer, size.
+	(dumper_list): New.
+	(got_le_dump_mapping): New.
+	(got_be_dump_mapping): New.
+	(got_dump_buffer): New.
+	(got_le_trans_done): New.
+	(got_be_trans_done): New.
+	(cmos_bus_bind_ack_2): Fix format string to include trailing \n.
+	Call udi_pio_map from here.
+	
+2001-05-23  Andrew Knutsen <andrewk@caldera.com>
+
+	* shrkudi/shrkudi.c (shrk_log_cb): Continue with 
+	instance_attr_get. Move pio mapping from here...
+	(shrk_setup_alloc): ... to here.
+	(shrk_nd_enable_req): Validate factory MAC address.
+	(shrk_reset_complete) If unbound, ack gio xfer, not usage res.
+	(shrk_instance_attr_get): Ack usage indicator instead of
+	doing shrk_nic_reset.
+	(shrk_pio_map): Move function in source file with no changes.
+	(shrk_read_srom): Likewise.
+	(shrk_process_srom): Likewise.
+
+2001-04-27  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* shrkudi/shrkudi.c: Remove "modifiable data" warning;
+	patch provided by Robert Lipe.
+
+2001-04-17  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* posix_bridge/bridgetest_driver.c, udi_dpt/udi_dpt.c,
+	  pseudo/pseudo.c, pseudond/pseudond.c, udi_cmos/udi_cmos.c,
+	  udi_guinea/udi_guinea.c:
+	Make channel op flags "const udi_ubit8_t" arrays.
+	* shrkudi/shrk.h, shrkudi/shrkudi.c: "const"ify several structs.
+	Add "static" to a few more items.
+
+2001-03-29  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+	* examples/hexdump/hexdump.c, examples/hexdump/udiref_hexdump.h,
+	  examples/hexdump/udiprops.txt, examples/hexdump/README:
+	New files.  Added an example UDI library module that uses
+	udi_debug_printf() to pretty-print a memory range.
+
+2001-03-27  Kevin Van Maren <vanmaren@users.sourceforge.net>
+
+        * pseudo/pseudo.c: Remove the PCI bridge parent driver,
+	making it a true pseudo/orphan driver.
+	Replace udi_enumerate_no_children() with pseudo_enumerate_req(),
+	which enumerates a GIO child (presumably the GIO mapper).
+	* pseudo/pseudo.h: Remove the bus control block.
+	* pseudo/udiprops.txt: Remove udi_physio and udi_bridge.
+	Remove the "device" lines since it is now an orphan driver.
+
+	* pseudond/pseudond.c: Enumerate a child.
+
+	* driver/shrkudi/shrk.h: Remove "enum new" cb entry.
+	* driver/shrkudi/shrkudi.c: Fix the enumerated attributes to
+	match the UDI NIC 1.01 specification.
+
+	* udi_cmos/udi_cmos.c: Enumerate the GIO child.

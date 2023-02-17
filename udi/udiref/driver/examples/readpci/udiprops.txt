@@ -1,0 +1,89 @@
+# UDI driver properties for the CMOS RAM sample driver.
+
+properties_version 0x101
+
+##
+## Identify ourselves.
+##
+
+supplier  1
+message 1 Project UDI
+contact   2
+message 2 http://www.project-UDI.org/participants.html
+name      3
+message 3 CMOS RAM Sample UDI Driver
+
+shortname readpci
+release 3 1.01
+
+##
+## Describe supported devices.
+##
+
+
+## POSIX TEST FRAME START
+#device 5 2 \
+#       bus_type                string pci \
+#       pci_vendor_id           ubit32 0x1111 \
+#       pci_device_id           ubit32 0x1111 \
+#       pci_revision_id         ubit32 0x11 \
+#       pci_base_class          ubit32 0x11 \
+#       pci_sub_class           ubit32 0x11 \
+#       pci_subsystem_vendor_id ubit32 0x1111 \
+#       pci_subsystem_id        ubit32 0x1111 \
+#       pci_unit_address        ubit32 0x1111 \
+#       pci_slot                ubit32 0x11 
+## POSIX TEST FRAME END
+
+
+# Since this is a "System"-bus device, which is not self-identifying,
+# we have to specify a default I/O address range with "config_choices".
+# For PCI devices, there'd be no "config_choices" and the "device"
+# declaration would include attributes like "pci_vendor_id".
+
+# This device line is an example of what a real PCI device line
+# would look like.  Currently the CMOS device is being supplied
+# as a fake PCI entry.  See comments above.
+device 10 2 bus_type string pci pci_vendor_id ubit32 0x434d \
+			     pci_device_id ubit32 0x4f44
+#device 10 2 bus_type string system
+
+message 10 Motherboard CMOS RAM
+#config_choices 10 ioaddr1 ubit32 0x70 any iolen1 ubit32 2 only
+
+##
+## Declare the driver's module(s) and region types.
+## This driver has a single region in a single module.
+##
+
+module readpci
+region 0
+
+##
+## Declare interface dependencies.
+##
+
+requires udi        0x101
+requires udi_physio 0x101
+requires udi_bridge 0x101
+# requires udi_gio    0x101
+
+##
+## Describe metalanguage usage.
+##
+
+meta 1 udi_gio		# Generic I/O Metalanguage
+meta 2 udi_bridge	# Bus Bridge Metalanguage
+
+# child_bind_ops 1 0 1	# GIO meta, primary region, ops_index 1
+parent_bind_ops 2 0 2 4	# Bridge meta, primary region, ops_index 2
+
+pio_serialization_limit 1 # We use only a single serialization domain.
+
+##
+## Build instructions (UDI drivers don't have makefiles!).
+##
+
+compile_options -DCMOS_GIO_META=1 -DCMOS_BRIDGE_META=2
+source_files readpci.c
+

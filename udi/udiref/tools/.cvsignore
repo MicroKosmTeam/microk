@@ -1,0 +1,6 @@
+.build
+lex.*
+y.tab.*
+osdep.h
+elf_osdep.h
+bin

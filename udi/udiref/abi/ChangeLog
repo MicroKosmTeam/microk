@@ -1,0 +1,13 @@
+2001-06-02  Steven Bytnar <sbytnar@users.sourceforge.net>
+
+	* ppc-mach-o/README.ppc, ppc-mach-o/udi_abi.h: Added for
+	Darwin port, which is a non-elf abi.
+
+2001-02-17  Kevin Van Maren <vanmaren@cs.utah.edu>
+
+	* alpha/README.alpha, alpha/udi_abi.h: udi_index_t is 8 bits; 
+	udi_size_t is 64 bits on 64-bit hosts.
+	* ia32/README.ia32, ia32/udi_abi.h: Likewise.
+	* ia64/README.ia32, ia64/udi_abi.h: Likewise.
+	* ppc/README.ia32, ppc/udi_abi.h: Likewise.
+	* sparc/README.ia32, sparc/udi_abi.h: Likewise.

@@ -1,0 +1,284 @@
+/*
+ * File: tools/linux/osdep_make.h
+ *
+ * Linux-specific target file generation.
+ */
+
+/*
+ * $Copyright udi_reference:
+ * 
+ * 
+ *    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+ *    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+ *    Software Technologies Group, Inc; and Sun Microsystems, Inc
+ *    (collectively, the "Copyright Holders").  All rights reserved.
+ * 
+ *    Redistribution and use in source and binary forms, with or without
+ *    modification, are permitted provided that the conditions are met:
+ * 
+ *            Redistributions of source code must retain the above
+ *            copyright notice, this list of conditions and the following
+ *            disclaimer.
+ * 
+ *            Redistributions in binary form must reproduce the above
+ *            copyright notice, this list of conditions and the following
+ *            disclaimers in the documentation and/or other materials
+ *            provided with the distribution.
+ * 
+ *            Neither the name of Project UDI nor the names of its
+ *            contributors may be used to endorse or promote products
+ *            derived from this software without specific prior written
+ *            permission.
+ * 
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ *    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ *    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ *    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *    DAMAGE.
+ * 
+ *    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+ *    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+ *    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+ *    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+ *    UDI SPECIFICATION.
+ * 
+ * 
+ * $
+ */
+
+/*
+ * The constants defined here are used by udisetup for generating the
+ * wrapper code that turns a UDI binary into a Linux kernel module.
+ */
+
+const static char *glueincl = "\
+/*
+ * These are standard kernel module defines needed to access
+ * kernel and module headers.
+ */
+#define _KERNEL
+#define __KERNEL__
+#define __KERNEL_SYSCALLS__ /* to pickup kernel_thread */
+#define MODULE
+
+/*
+ * This symbol enables or disables module versioning against
+ * the kernel it was compiled for.
+ *
+ * UDI drivers are independent of the kernel version.
+ * Only the environment itself depends on the kernel version.
+ * So, UDI drivers translated into kernel modules don't
+ * need to be versioned against the kernel headers it was built on.
+ *
+ * Unfortunately, it is not possible to compile a kernel module
+ * such that it is not tied to the current kernel version.
+ */
+#undef __NO_VERSION__
+
+/*
+ * Please note that MOD_INC_USE_COUNT is not used to increment
+ * module usage counts.
+ * This greatly simplifies debugging the enviornment.
+ * If the environment thread dies, the module cleanup routine
+ * wont necessarilly be called. This way, any UDI module thread
+ * can die and then be reloaded without having to reboot. It
+ * thus is possible to corrupt the kernel module tables. But,
+ * for the sake of preventing a reboot or two, not using the
+ * kernel module usage count helps greatly.
+ */ 
+
+#include <linux/autoconf.h>
+
+/*
+ * When Module Symbol Versions are enabled, we need to be one of the
+ * absolutely first header files to load. The modversions.h file
+ * causes a ton of mappings of symbol names to occur by using #defines.
+ * This pollutes the namespace pretty severely.
+ *  eg. #define event event_R7b16c344
+ * So, if you're debugging the environment, expect to see some
+ * munged symbol names inside structs and local variable decls.
+ */
+
+/* 
+ * MODVERSIONS controls whether kernel symbol versioning is
+ * enabled or disabled. Unfortunately, we must build according to
+ * the settings of the kernel. We can't be smart and turn off
+ * symbol versioning all the time. The generated module just wont
+ * load on some kernel configurations.
+ */
+
+#if defined(CONFIG_MODVERSIONS) && !defined(MODVERSIONS)
+#define MODVERSIONS
+#endif
+
+#ifdef MODVERSIONS
+#include <linux/modversions.h>
+#endif
+
+#ifdef CONFIG_SMP
+#define __SMP__ 1
+#endif
+
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/unistd.h> /* for kernel_thread 2.2.16 */
+#include <linux/kmod.h> /* for request_module () */
+";
+
+#if 0
+"
+/* This part is now generated by the glue generator based upon
+ * the sprops of the particular driver.
+ */
+#define UDI_VERSION 0x101
+
+#include <udi.h>
+
+";
+#endif
+
+const static char *gluehead = "\
+#define DEBUGPRINT(x) printk x
+#define ERRPRINT(x) printk x
+
+
+/* All UDI modules take these module parameters */
+
+/* default to request_module for meta/mapper dependencies */
+static int requestdeps = 1;
+MODULE_PARM(requestdeps, \"i\");
+
+
+static int kinit_module(void);
+
+static int kthread_inited = 0;
+
+static int kthread_init_module(void *trash)
+{
+    int result = kinit_module();
+    (void)trash;
+    if (result == 0)
+    {
+        kthread_inited = 1;
+    }
+    return result;
+}
+
+/* Disable kthreaded UDI modules */
+#undef UDISETUP_USES_KTHREADS
+
+static int kthread_pid = 0;
+
+int init_module(void)
+{
+    (void)requestdeps; /* hide warning about this being unused by metas. */
+#ifdef UDISETUP_USES_KTHREADS
+    /*
+     * Fire off a thread to run the tests and return immediately. This way the
+     * kernel sees that we initialized correctly even if the module barfs. We
+     * should still be able to remove a dead module as long as we were
+     * initialized.
+     */
+    kthread_pid = kernel_thread( kthread_init_module, NULL, CLONE_FS);
+    /*
+     * Synchronization problems with the loading of other modules is a problem
+     * though. It is possible for another module to init or deinit before
+     * the current module's kthread has been given a chance to init or deinit.
+     */
+#else
+/*
+ * Linux x86 exports some useful symbols automagically by insmod.
+ * Linux PPC does not, so if a module dies, you can use this to unmark the
+ * usage counts (which is usally the first int value at this location.
+ * Either way, this is a potentially useful symbol to know.
+ */
+    DEBUGPRINT((KERN_ERR UDI_MOD_NAME \".__this_module = %%p\\n\", &__this_module));
+/*
+ * The LinuxPPC scheduler is very aggressive. It's possible that other modules
+ * will concurrently load and not be fully inited before we try using them!
+ * So, we don't spawn a kthread for each module to prevent concurrency of
+ * udi module loading.
+ * This shows up as a udi_env: Resource unavailable error.
+ * But, if a module dies, it will be unloadable... see __this_module above.
+ */
+    kthread_pid = kthread_init_module(NULL);
+    if (kthread_pid == 0)
+    {
+	kthread_inited = 1;
+    }
+#endif
+    
+    if (kthread_pid < 0)
+    {
+            ERRPRINT((KERN_ERR \"Failed to fork the module \"
+                UDI_MOD_NAME \" \\n\"));
+    }
+    return kthread_pid;
+}
+
+/*
+ * These prototypes MUST match the ones defined by the environment in
+ * env/linux/udi_osdep.c.
+ */
+extern void *_udi_module_load(void *initp, char *sprops, int sprops_sizei, 
+			      struct module *mod);
+extern int _udi_module_unload(void *handle);
+
+static void * my_module_handle;
+
+static int kinit_module (void)
+{
+    DEBUGPRINT((\"udi: loading module \" UDI_MOD_NAME \"\\n\"));
+";
+
+const static char *gluefoot = "\
+
+void cleanup_module (void)
+{
+    DEBUGPRINT((\"udi: unloading module \" UDI_MOD_NAME \"\\n\"));
+    /* Code should be added here sometime to make sure the
+     * kthread we spawned before is finished before the
+     * module is unloaded.
+     */
+    if (kthread_inited != 1)
+    {
+#ifdef UDISETUP_USES_KTHREADS
+        kill(kthread_pid, SIGKILL);
+#endif
+        return;
+    }
+
+    _udi_module_unload(my_module_handle);
+";
+
+
+const static char *module_glue_head = "\
+   if (!my_module_handle)
+   {
+        ERRPRINT((\"Failed to load module('%%s')\\n\", UDI_MOD_NAME));
+    }
+#ifdef UDISETUP_USES_KTHREADS
+    kill(kthread_pid, SIGKILL);
+#endif
+    return my_module_handle == NULL;
+    }
+}
+";
+
+const static char *module_glue_foot = "\
+    DEBUGPRINT((\"Calling _udi_module_unload('%%s')\\n\", UDI_MOD_NAME));
+    (void)_udi_module_unload(my_module_handle);
+#ifdef UDISETUP_USES_KTHREADS
+    kill(kthread_pid, SIGKILL);
+#endif
+    DEBUGPRINT((\"udi module '%%s' terminated.\\n\", UDI_MOD_NAME));
+}
+";

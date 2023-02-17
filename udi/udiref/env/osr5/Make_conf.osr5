@@ -1,0 +1,61 @@
+# Make OpenServer configuration for the UDI Prototype Development Effort
+#
+# This is a make configuration file which supplies the UnixWare configuration
+# information for this make operation and then invokes the proper directory's
+# target makefile to do the actual build operation.
+#    INDIR  = (TOPDIR relative) directory to do actual make in when configured
+#    TOPDIR = relation of INDIR to the top of the source tree
+#    OBJDIR = (INDIR relative) directory to build objects in
+#    OS_ENV = OS/architecture unique identifier
+#    OS_NAME = OS short name (matches directory qualifiers)
+# The current directory when performing this operation is assumed to be
+# the INDIR location.
+
+CDEFS=-D_UDI_LITTLE_ENDIAN
+CINCL=-I. -I$(TOPDIR)/pub_include -I$(TOPDIR)/pub_include/meta \
+      -I$(TOPDIR)/pub_include/bus -I$(TOPDIR)/pub_include/class
+CFLAGS=-b elf -Kpentium $(CDEFS) $(LOCALCFLAGS)
+
+# Build metalanguages individually, instead of combined into one module
+COMBO_META=:
+SPLIT_META=
+
+# init_module remapping for drivers (M), meta libraries (MM), and mappers (MMM)
+M=-Dinit_module=init_module_
+MM=-Dinit_module=init_module_U
+MMM=-Dinit_module=init_module_UM
+
+ENVCDEFS=-D_INKERNEL -D_KERNEL -DDEBUG -D_UDI_LITTLE_ENDIAN
+ENVCINCL=$(CINCL) -I$(TOPDIR)/env/common -I$(TOPDIR)/env/osr5 \
+		  -I$(TOPDIR)/meta/mgmt
+#ENVCFLAGS=-b elf $(ENVCDEFS)
+ENVCFLAGS=$(ENVCDEFS)
+
+CC=cc
+
+LDFLAGS=-r -o
+LD=ld
+
+BUILD_DRIVER = TOPDIR=$(TOPDIR) $(SHELL) \
+		$(TOPDIR)/env/osr5/build_driver `basename \`pwd\``
+INSTALL_DRIVER = $(SHELL) $(TOPDIR)/env/osr5/install_driver `basename \`pwd\``
+
+BUILD_MAPPER = TOPDIR=$(TOPDIR) $(SHELL) $(TOPDIR)/env/osr5/build_mapper
+INSTALL_MAPPER = $(SHELL) $(TOPDIR)/env/osr5/install_mapper
+
+BUILD_METALANG = $(SHELL) $(TOPDIR)/env/osr5/build_meta
+INSTALL_METALANG = $(SHELL) $(TOPDIR)/env/osr5/install_meta
+
+BUILD_ENV = $(LD) -r -o
+
+#
+# Used by tools to locate object specific type libraries.
+#
+BUILD_OBJ=elf_32
+LIB_OBJ=-lelf
+
+#
+# Used by tools to locate lexer libraries.
+#
+LIB_YACC = -ly
+LIB_LEX=-ll

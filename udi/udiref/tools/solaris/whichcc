@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# For UltraSparc binary generation we cannot use GCC as it does not support
+# 64bit code-generation correctly (yet...)
+mach=`/usr/bin/isainfo -k`
+
+if [ "x${mach}" = "xsparcv9" ]
+then
+	echo `which cc`
+else
+	type gcc > /dev/null 2>&1
+	if [ $? -eq 0 ]
+	then
+		echo `which gcc`
+	else
+		echo `which cc`
+	fi
+fi
+
+#
+# Create the architecture include file for osdep.h so that we can easily pick
+# up the appropriate architecture definitions for the compiler
+#
+case ${mach} in
+sparcv9)
+	ARCH=v9
+	;;
+*)
+	ARCH=generic
+	;;
+esac
+
+echo \#define ARCH \"${ARCH} \" > solaris/architecture.h

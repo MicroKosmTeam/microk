@@ -1,0 +1,32 @@
+$entrytype 1
+$depend udi
+
+FSPIN_INIT
+FSPIN_LOCK
+FSPIN_UNLOCK
+
+EVENT_INIT
+EVENT_WAIT
+EVENT_SIGNAL
+
+_udi_wrapped_alloc
+_udi_wrapped_free
+_udi_env_log_write
+_udi_MA_local_data
+_udi_buf_extern_init
+_udi_buf_extern_add
+
+# For SCSI mapper
+sdi_rm_dev
+sdi_hot_add
+_udi_sysdump_free
+_udi_sysdump_alloc
+
+# For Bridge mapper
+cm_find_match
+_udi_register_isr
+_udi_unregister_isr
+
+# For NIC mapper
+_Compat_cm_getbrdkey
+_udi_MA_dev_to_instance
