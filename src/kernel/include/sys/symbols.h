@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 typedef struct {
-    const char *addr;
+    const uint64_t addr;
     const char *name;
 } symbol_t;
 
