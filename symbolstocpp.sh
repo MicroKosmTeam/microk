@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Extract the symbol table information
-nm bin/kernel-tmp.elf -n > symbols.txt
+nm bin/kernel.elf -n > symbols.txt
 symbol_count=$(wc -l symbols.txt | awk '{print $1}')
 
 #Create a new file to store the C array

@@ -8,21 +8,18 @@ BINDIR = bin
 KERNDIR = $(SRCDIR)/kernel
 EFIDIR = $(SRCDIR)/gnu-efi
 MODDIR = $(SRCDIR)/module
-DOOMDIR = $(SRCDIR)/microk-kdoom/doomgeneric
 BOOTEFI := $(EFIDIR)/x86_64/bootloader/main.efi
 
 OVMFDIR = OVMFbin
 LDS64 = kernel64.ld
-MODLDS64 = module64.ld
-CC = x86_64-elf-gcc
-CPP = x86_64-elf-g++
+CC = $(ARCH)-elf-gcc
+CPP = $(ARCH)-elf-g++
 ASMC = nasm
-LD = x86_64-elf-gcc
+LD = $(ARCH)-elf-gcc
 
-CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17 -D$(ARCH)
+CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
-MODLDFLAGS = -T $(MODLDS64) -static -Bsymbolic -nostdlib
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
@@ -36,7 +33,7 @@ KOBJS += $(patsubst $(KERNDIR)/%.asm, $(OBJDIR)/kernel/%_asm.o, $(KASMSRC))
 MOBJS = $(patsubst $(MODDIR)/%.cpp, $(OBJDIR)/module/%.o, $(MSRC))
 DIRS = $(wildcard $(SRCDIR)/*)
 
-kernel: setup bootloader $(KOBJS) link symbols link-again $(MOBJS) #link-module
+kernel: setup bootloader $(KOBJS) link $(MOBJS)
 
 $(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(KERNDIR)/cpu/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
@@ -63,31 +60,20 @@ $(OBJDIR)/module/%.o: $(MODDIR)/%.cpp
 	@ mkdir -p $(@D)
 	$(CPP) $(CFLAGS) -c $^ -o $@
 
+config:
+	@ ./src/config/Configure ./src/config/config.in
+
 bootloader:
 	make -C $(EFIDIR)
 	make -C $(EFIDIR) bootloader
 
-doom-clean:
-	make -C $(DOOMDIR) clean
-
-doom:
-	make -C $(DOOMDIR)
-
-link-module: $(MOBJS)
-	@ echo !==== MODULE
-	$(LD) $(MODLDFLAGS) -o $(BINDIR)/module.elf $(MOBJS)
-
 link: $(KOBJS)
 	@ echo !==== LINKING
-	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel-tmp.elf $(KOBJS)
-
-symbols: link
+	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
 	bash ./symbolstocpp.sh
-
-link-again: $(KOBJS)
 	@ echo !==== LINKING
-	 $(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
-	 strip -s $(BINDIR)/kernel.elf
+	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
+	strip -s $(BINDIR)/kernel.elf
 
 setup:
 	@mkdir -p $(BINDIR)
