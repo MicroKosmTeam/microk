@@ -1,8 +1,8 @@
 #
-# MicroK Main
+# MicroK
 #
 
-mainmenu_name "MicroK Main"
+mainmenu_name "MicroK"
 
 #
 # MicroK Kernel

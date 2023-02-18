@@ -1,0 +1,58 @@
+#
+# Automatically generated make config: don't edit
+#
+
+#
+# Kernel & Hardware
+#
+
+#
+# Just accept the defaults unless you know what you are doing
+#
+
+#
+# System Architecture
+#
+CONFIG_ARCH_x86_64=y
+# CONFIG_ARCH_AARCH64 is not set
+
+#
+# Processor
+#
+CONFIG_HW_SSE=y
+# CONFIG_HW_COMP is not set
+
+#
+# Firmware
+#
+CONFIG_FM_UEFI=y
+# CONFIG_FM_BIOS is not set
+CONFIG_HW_GOP=y
+CONFIG_ACPI=y
+# CONFIG_FM_SMBIOS is not set
+
+#
+# Kernel settings
+#
+CONFIG_KERNEL_CNAME="MicroK H"
+
+#
+# Networking
+#
+CONFIG_NET=y
+
+#
+# Drivers
+#
+CONFIG_UDI=y
+CONFIG_UDI_VERSION=101
+CONFIG_VFS=y
+CONFIG_VFS_MAX_DRIVES=128
+CONFIG_VFS_FILE_MAX_NAME_LENGTH=128
+CONFIG_AHCI=y
+CONFIG_AHCI_DMA_SIZE=1024
+
+#
+# Drivers
+#
+CONFIG_HW_SERIAL=y

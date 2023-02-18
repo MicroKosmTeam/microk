@@ -36,7 +36,7 @@
  * Kernel settings
  */
 #define CONFIG_KERNEL_CNAME "MicroK"
-#define CONFIG_KENREL_CVER "0.0.0"
+#define CONFIG_KERNEL_CVER "0.0.0"
 
 /*
  * Networking

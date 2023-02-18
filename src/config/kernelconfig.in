@@ -38,7 +38,7 @@ endmenu
 mainmenu_option next_comment
 	comment 'Kernel settings'
 	string 'Custom kernel name:'                       CONFIG_KERNEL_CNAME 'MicroK'
-	string 'Curstom kernel version:'                   CONFIG_KENREL_CVER '0.0.0'
+	string 'Curstom kernel version:'                   CONFIG_KERNEL_CVER '0.0.0'
 endmenu
 
 # Networking support
