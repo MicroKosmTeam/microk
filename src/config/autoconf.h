@@ -29,13 +29,14 @@
 #define CONFIG_FM_UEFI 1
 #undef  CONFIG_FM_BIOS
 #define CONFIG_HW_GOP 1
-#define CONFIG_ACPI 1
+#define CONFIG_FM_ACPI 1
 #undef  CONFIG_FM_SMBIOS
 
 /*
  * Kernel settings
  */
 #define CONFIG_KERNEL_CNAME "MicroK"
+#define CONFIG_KENREL_CVER "0.0.0"
 
 /*
  * Networking
