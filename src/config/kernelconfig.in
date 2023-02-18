@@ -12,8 +12,8 @@ mainmenu_option next_comment
 	comment 'Processor'
 
 	if [ "$CONFIG_ARCH_x86_64" = "y" ]; then
-		bool 'Enable SSE extensions? '             CONFIG_HW_SSE y
-		bool 'Enable compatibility mode support? ' CONFIG_HW_COMP n
+		bool 'Enable SSE extensions.'              CONFIG_HW_SSE y
+		bool 'Enable compatibility mode support.'  CONFIG_HW_COMP n
 	elif [ "$CONFIG_ARCH_AARCH64" = "y" ]; then
 		comment 'Not available'
 	fi
@@ -24,50 +24,16 @@ mainmenu_option next_comment
 		"UEFI CONFIG_FM_UEFI \
 		BIOS CONFIG_FM_BIOS" UEFI
 
-	if [ "$CONFIG_FM_UEFI" = "y" ]; then
-		bool 'Enable the UEFI GOP?'                CONFIG_HW_GOP y
-	elif [ "$CONFIG_FM_BIOS" = "y" ]; then
-		comment 'Not available'
-	fi
 
-	bool 'Enable support for ACPI?'                    CONFIG_FM_ACPI y
-	bool 'Enable support for SMBIOS?'                  CONFIG_FM_SMBIOS n
+	bool 'Enable support for ACPI.'                    CONFIG_FM_ACPI y
+	bool 'Enable support for SMBIOS.'                  CONFIG_FM_SMBIOS n
 
 endmenu
 
 mainmenu_option next_comment
 	comment 'Kernel settings'
-	string 'Custom kernel name:'                       CONFIG_KERNEL_CNAME 'MicroK'
-	string 'Curstom kernel version:'                   CONFIG_KERNEL_CVER '0.0.0'
-endmenu
-
-# Networking support
-mainmenu_option next_comment
-	comment 'Networking'
-
-	bool 'Enable networking?'                          CONFIG_NET y
-endmenu
-
-# Filesystem support
-mainmenu_option next_comment
-	comment 'Drivers'
-
-	bool 'Enable UDI?'                                 CONFIG_UDI y
-	if [ "$CONFIG_UDI" = "y" ]; then
-		hex 'Insert UDI version: '                 CONFIG_UDI_VERSION 0x101
-	fi
-
-	bool 'Enable virtual file systems?'                CONFIG_VFS y
-	if [ "$CONFIG_VFS" = "y" ]; then
-		int 'Insert maximum number of drives: '    CONFIG_VFS_MAX_DRIVES 128
-		int 'Insert maximum file name length: '    CONFIG_VFS_FILE_MAX_NAME_LENGTH 128
-	fi
-
-	bool 'Enable AHCI?'                                CONFIG_AHCI y
-	if [ "$CONFIG_AHCI" = "y" ]; then
-		int 'Insert AHCI DMA buffer size: '        CONFIG_AHCI_DMA_SIZE  4194304
-	fi
-
+	string 'Custom kernel name.'                       CONFIG_KERNEL_CNAME 'MicroK'
+	string 'Curstom kernel version.'                   CONFIG_KERNEL_CVER '0.0.0'
 endmenu
 
 # Drivers configuration
@@ -75,5 +41,22 @@ endmenu
 mainmenu_option next_comment
 	comment 'Drivers'
 
-	bool 'Enable the serial port?'                     CONFIG_HW_SERIAL y
+	bool 'Enable UDI'                                  CONFIG_UDI y
+
+	if [ "$CONFIG_UDI" = "y" ]; then
+		source src/config/kernelconfig/udiconfig.in
+	fi
+
+	source src/config/kernelconfig/internaldriverconfig.in
+endmenu
+
+# Filesystem support
+mainmenu_option next_comment
+	comment 'VFS'
+
+	bool 'Enable virtual file systems.'                CONFIG_VFS y
+	if [ "$CONFIG_VFS" = "y" ]; then
+		int 'Maximum number of drives.'            CONFIG_VFS_MAX_DRIVES 128
+		int 'Maximum file name length.'            CONFIG_VFS_FILE_MAX_NAME_LENGTH 128
+	fi
 endmenu
