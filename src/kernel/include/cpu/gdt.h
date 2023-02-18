@@ -60,6 +60,4 @@ extern "C" void LoadGDT(GDTDescriptor *gdtDescriptor);
 void init_tss();
 
 extern "C" void interrupt_stack(void *rsp0);
-extern "C" void jump_usermode();
-extern "C" int test_user_function();
 

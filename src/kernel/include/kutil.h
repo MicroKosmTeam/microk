@@ -18,7 +18,9 @@ struct BootInfo {
 };
 
 struct KernelInfo {
-        uint64_t kernel_size;
+        uint64_t kernelSize;
+	void *initrd;
+	uint64_t initrdSize;
 };
 
 extern KernelInfo kInfo;

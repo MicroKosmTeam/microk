@@ -1,8 +1,5 @@
 #pragma once
 #include <cdefs.h>
-
-#ifdef x86_64
-
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -19,4 +16,3 @@ void io_wait(void);
 }
 #endif
 
-#endif

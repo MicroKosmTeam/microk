@@ -4,7 +4,7 @@
 void init_scheduler();
 void run_scheduler();
 void start_scheduler();
-void scheduler_stop();
+void stop_scheduler();
 
-void scheduler_list();
+void list_scheduler();
 

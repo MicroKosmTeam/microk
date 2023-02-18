@@ -50,7 +50,7 @@
 
 struct RAMFSObject {
 	uint8_t magic;            // Magic number
-	char name[VFS_FILE_MAX_NAME_LENGTH];           // The object's name
+	char name[CONFIG_VFS_FILE_MAX_NAME_LENGTH];           // The object's name
 	uint64_t length;          // The total length of the object (0 for directories)
 	bool isFile;              // Is it a file.
 	RAMFSObject *firstObject; // If it's a directory.

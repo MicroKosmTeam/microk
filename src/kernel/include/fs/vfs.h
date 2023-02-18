@@ -31,41 +31,47 @@
 #define VFS_NODE_MINOR_STDERR   0x0002
 #define VFS_NODE_MINOR_STDLOG   0x0003
 
+#ifdef __cplusplus
+
 struct VFilesystem {
 	uint64_t descriptor;
 	FSDriver *driver;
 	FSNode *node;
 	FSNode *mountdir;
+
 };
 
-extern FILE *stdout;
-extern FILE *stdin;
-extern FILE *stderr;
-extern FILE *stdlog;
 extern VFilesystem *rootfs;
 extern VFilesystem *sysfs;
 extern VFilesystem *devtmpfs;
 extern VFilesystem *proc;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name);
-FSNode *VFSReadDir(VFilesystem *fs, FSNode *node, uint64_t index);
-uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid);
-uint64_t VFSMakeFile(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid);
-VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver);
+void VFS_Print(VFilesystem *fs);
 FILE *VFSOpen(VFilesystem *fs, FSNode *node, size_t bufferSize);
 void VFSClose(VFilesystem *fs, FILE *file);
 uint64_t VFSRead(VFilesystem *fs, FILE *file, uint64_t offset, size_t size, uint8_t **buffer);
 uint64_t VFSWrite(VFilesystem *fs, FILE *file, uint64_t offset, size_t size, uint8_t buffer);
 VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver);
 FILE *VFSMakeNode(VFilesystem *fs, FSNode *node, const char *name, uint64_t type, uint64_t nodeMajor, uint64_t nodeMinor);
+FSNode *VFSFindDir(VFilesystem *fs, FSNode *node, const char *name);
+FSNode *VFSReadDir(VFilesystem *fs, FSNode *node, uint64_t index);
+uint64_t VFSMakeDir(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid);
+uint64_t VFSMakeFile(VFilesystem *fs, FSNode *node, const char *name, uint64_t mask, uint64_t uid, uint64_t gid);
+VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver);
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern FILE *stdout;
+extern FILE *stdin;
+extern FILE *stderr;
+extern FILE *stdlog;
+
 void VFS_Init();
 void VFS_LS(char *path);
 void VFS_Mkdir(char *path, char *name);
 void VFS_Touch(char *path, char *name);
-void VFS_Print(VFilesystem *fs);
 int VFS_Write(FILE *file, uint8_t *data, size_t size);
 int VFS_Read(FILE *file, uint8_t **buffer, size_t size);
 

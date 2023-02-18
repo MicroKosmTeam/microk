@@ -3,8 +3,11 @@
 #include <stddef.h>
 #include <cdefs.h>
 
-struct FSNode {
-	char name[VFS_FILE_MAX_NAME_LENGTH];
+#ifdef __cplusplus
+extern "C" {
+#endif
+typedef struct {
+	char name[CONFIG_VFS_FILE_MAX_NAME_LENGTH];
 	uint64_t mask;
 	uint64_t uid;
 	uint64_t gid;
@@ -12,17 +15,22 @@ struct FSNode {
 	uint64_t inode;
 	uint64_t size;
 	uint64_t impl;
-};
+} FSNode;
 
-struct FILE {
+typedef struct {
 	uint64_t descriptor;
 	uint64_t fsDescriptor;
 	FSNode *node;
 	uint8_t *buffer;
 	uint64_t bufferSize;
-	uint64_t bufferPos = 0;
-};
+	uint64_t bufferPos;
+} FILE;
 
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
 class FSDriver {
 public:
 	virtual void            FSInit() = 0;
@@ -39,4 +47,5 @@ public:
 private:
 
 };
+#endif
 
