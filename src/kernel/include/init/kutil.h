@@ -28,6 +28,6 @@ struct BootInfo {
 };
 
 void kinit(BootInfo *bootInfo);
-void smpInit(limine_smp_info info);
+void smpInit(limine_smp_info *info);
 void restInit();
 

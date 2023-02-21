@@ -52,21 +52,10 @@ void PrepareMemory(BootInfo *bootInfo) {
 	printk(PREFIX "Setting up x86_64 CPU Features...\n");
         x86_64::CPUInit();
 #endif
-
 	uint64_t heapAddress = bootInfo->hhdmOffset + 0x000000100000000000;
 	uint64_t heapPages = 0x100;
 	InitializeHeap(heapAddress, heapPages);
 
-	limine_framebuffer *fb = bootInfo->framebuffers[0];
-	printk(PREFIX "%d x %d, %d-bit color. R: %d G: %d B: %d\n", fb->width, fb->height, fb->bpp, fb->red_mask_shift, fb->green_mask_shift, fb->blue_mask_shift);
-	uint32_t *fb_mem = fb->address + bootInfo->hhdmOffset;
-	uint8_t r = 255;
-        uint8_t g = 0;
-        uint8_t b = 0;
-	uint32_t color;
-	color = (b << fb->blue_mask_shift) | (g << fb->green_mask_shift) | (r << fb->red_mask_shift);
-
-	memset(fb_mem, color, fb->height * fb->width);
 	printk(PREFIX "Memory initialized.\n");
 }
 
@@ -80,26 +69,25 @@ void kinit(BootInfo *bootInfo) {
 
         // Memory initialization
         PrepareMemory(bootInfo);
-/*
+
 	// Checking for SMP
 	if(bootInfo->smp) {
 		printk(PREFIX "Available CPUs: %d\n", bootInfo->cpuCount);
 		for (int i = 1; i < bootInfo->cpuCount; i++) {
 			printk(PREFIX "Starting CPU %d...", i);
-			limine_smp_info *cpuInfo = bootInfo->cpus[i];
-			cpuInfo->goto_address = &smpInit;
+			bootInfo->cpus[i]->goto_address = &smpInit;
 			printk("OK.\n");
 		}
 	} else {
 		printk(PREFIX "No SMP capabilities available.\n");
 	}
-*/
+
 	// Saying hello
-	printk(PREFIX "Kenrel initialization complete.\n");
+	printk(PREFIX "Kernel initialization complete.\n");
 
 }
 
-void smpInit(limine_smp_info info) {
+void smpInit(limine_smp_info *info) {
 
 	while(true) {
 		asm volatile ("hlt");
