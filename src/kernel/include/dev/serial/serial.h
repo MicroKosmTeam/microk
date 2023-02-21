@@ -2,6 +2,7 @@
 #include <cdefs.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <dev/dev.h>
 
 enum SerialPorts {
 	COM1 = 0x3f8,
@@ -14,18 +15,22 @@ enum SerialPorts {
 	COM8 = 0x4e8
 };
 
-class SerialPort {
+class UARTDevice : public Device {
 public:
-	SerialPort() { active = false; }
-	SerialPort(SerialPorts serialPort);
+	UARTDevice() { active = false; }
 
-	void PrintStr(const char* str);
-	void PrintChar(const char ch);
+	uint64_t ioctl(uint64_t request, ...); // override;
+
+	uint64_t Init(SerialPorts serialPort);
+	void PutStr(const char* str);
+	void PutChar(const char ch);
+	int GetChar();
 private:
 	int port;
 
 	bool active;
 
 	int isTransmitEmpty();
+	int serialReceived();
 };
 

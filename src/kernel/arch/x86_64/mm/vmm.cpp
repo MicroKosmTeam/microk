@@ -74,13 +74,13 @@ void InitVirtualMemoryManager(limine_memmap_entry **mMap, uint64_t mMapEntries, 
 	uint64_t memorySize = get_memory_size(mMap, mMapEntries);
 	for (uint64_t i = 0; i < mMapEntries; i++) {
 		limine_memmap_entry *entry = mMap[i];
-
+/*
 		for (uint64_t j = entry->base; j < entry->base + entry->length && j < memorySize; j += 0x1000) {
 			//printk("Mapping 0x%x - 0x%x to 0x%x - 0x%x\n", j, j + 0x1000, j + offset, j + 0x1000 + offset);
 			MapPage(pageDir, j, j, PTE_PRESENT | PTE_READ_WRITE | PTE_USER_SUPERVISOR);
 			MapPage(pageDir, j, j + offset, PTE_PRESENT | PTE_READ_WRITE | PTE_USER_SUPERVISOR);
 		}
-
+*/
 	}
 
 	printk(PREFIX "Done mapping.\n");

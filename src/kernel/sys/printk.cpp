@@ -1,18 +1,22 @@
 #include <sys/printk.h>
+#include <dev/device.h>
 #include <dev/serial/serial.h>
-
+#include <mm/string.h>
+#include <stdarg.h>
+#include <mm/heap.h>
 #define PREFIX "[PRINTK] "
+
+UARTDevice rootSerial;
 
 static int earlyPrintkPos = 0;
 static const int earlyPrintkSize = 16 * 1024;
 char earlyPrintkBuffer[earlyPrintkSize] = { 0 }; // 16kb early
 
-SerialPort printkSerial;
 bool serial = false;
 
 static void print_all(const char *string) {
 	if (serial)
-		printkSerial.PrintStr(string);
+		rootSerial.ioctl(2, string);
 	else {
 		char ch;
 		while(ch = *string++) {
@@ -24,7 +28,7 @@ static void print_all(const char *string) {
 
 static void print_all_char(const char ch) {
 	if (serial)
-		printkSerial.PrintChar(ch);
+		rootSerial.ioctl(1, ch);
 	else
 		if (earlyPrintkPos++ > earlyPrintkSize) return;
 		earlyPrintkBuffer[earlyPrintkPos] = ch;
@@ -40,7 +44,8 @@ static void dump_early() {
 }
 
 void printk_init_serial() {
-	printkSerial = SerialPort(SerialPorts::COM1);
+	rootSerial = UARTDevice();
+	rootSerial.ioctl(0, SerialPorts::COM1);
 	serial = true;
 	dump_early();
 }

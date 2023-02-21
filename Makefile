@@ -21,7 +21,7 @@ CFLAGS = -mcmodel=kernel -mabi=sysv -fno-builtin-g -ffreestanding -fshort-wchar 
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -z max-page-size=0x1000 -static -Bsymbolic -nostdlib
 
-QEMUFLAGS = -drive file=$(BINDIR)/$(OSNAME).img -M q35,accel=tcg -m 8G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -no-reboot -no-shutdown
+QEMUFLAGS = -drive file=$(BINDIR)/$(OSNAME).img -M q35,accel=tcg -m 8G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" # -no-reboot -no-shutdown
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 

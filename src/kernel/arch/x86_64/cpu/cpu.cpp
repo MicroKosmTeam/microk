@@ -2,6 +2,7 @@
 #include <sys/printk.h>
 #include <mm/string.h>
 #include <cpuid.h>
+#include <stdint.h>
 #include <cdefs.h>
 
 #define PREFIX "[x86_64 CPU] "

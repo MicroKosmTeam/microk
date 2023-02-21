@@ -61,6 +61,8 @@ static void PrepareMemory(BootInfo *bootInfo) {
 }
 
 static void PrepareDevices(BootInfo *bootInfo) {
+
+
 	// Loading PCI devices
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
         printk(PREFIX "Loading the MCFG table...\n");
@@ -70,12 +72,12 @@ static void PrepareDevices(BootInfo *bootInfo) {
 }
 
 void kinit(BootInfo *bootInfo) {
-	printk(PREFIX "%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
-	printk(PREFIX "Cmdline: %s\n", bootInfo->cmdline);
-
 	// Starting serial printk
         printk_init_serial();
+
 	printk("\n");
+	printk(PREFIX "%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
+	printk(PREFIX "Cmdline: %s\n", bootInfo->cmdline);
 
         // Memory initialization
         PrepareMemory(bootInfo);
@@ -95,11 +97,8 @@ void kinit(BootInfo *bootInfo) {
 		printk(PREFIX "No SMP capabilities available.\n");
 	}
 
-
-
 	// Saying hello
 	printk(PREFIX "Kernel initialization complete.\n");
-
 }
 
 void smpInit(limine_smp_info *info) {
