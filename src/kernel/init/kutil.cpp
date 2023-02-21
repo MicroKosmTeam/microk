@@ -6,6 +6,7 @@
 #include <sys/panik.h>
 #include <sys/printk.h>
 #include <mm/heap.h>
+#include <dev/pci/pci.h>
 
 #define PREFIX "[KINIT] "
 
@@ -16,7 +17,7 @@
 #endif
 
 uintptr_t kernelStack;
-void PrepareMemory(BootInfo *bootInfo) {
+static void PrepareMemory(BootInfo *bootInfo) {
 #ifdef CONFIG_ARCH_x86_64
 	// Loading the GDT
 	printk(PREFIX "Loading the GDT...\n");
@@ -59,6 +60,15 @@ void PrepareMemory(BootInfo *bootInfo) {
 	printk(PREFIX "Memory initialized.\n");
 }
 
+static void PrepareDevices(BootInfo *bootInfo) {
+	// Loading PCI devices
+        ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
+        printk(PREFIX "Loading the MCFG table...\n");
+        ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
+        printk(PREFIX "Enumerating PCI devices...\n");
+        PCI::EnumeratePCI(mcfg);
+}
+
 void kinit(BootInfo *bootInfo) {
 	printk(PREFIX "%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
 	printk(PREFIX "Cmdline: %s\n", bootInfo->cmdline);
@@ -69,6 +79,9 @@ void kinit(BootInfo *bootInfo) {
 
         // Memory initialization
         PrepareMemory(bootInfo);
+
+	// Device initialization
+	PrepareDevices(bootInfo);
 
 	// Checking for SMP
 	if(bootInfo->smp) {
@@ -82,13 +95,15 @@ void kinit(BootInfo *bootInfo) {
 		printk(PREFIX "No SMP capabilities available.\n");
 	}
 
+
+
 	// Saying hello
 	printk(PREFIX "Kernel initialization complete.\n");
 
 }
 
 void smpInit(limine_smp_info *info) {
-
+	asm volatile ("cli");
 	while(true) {
 		asm volatile ("hlt");
 	}

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <limine.h>
 #include <mm/pmm.h>
+#include <dev/acpi/acpi.h>
 
 extern uint64_t kernel_start, kernel_end;
 extern uintptr_t kernelStack;
@@ -17,7 +18,7 @@ struct BootInfo {
 	limine_file **modules;
 	uint64_t moduleCount;
 
-	void *rsdp;
+	ACPI::RSDP2 *rsdp;
 
 	bool smp;
 	limine_smp_info **cpus;
