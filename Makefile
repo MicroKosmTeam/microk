@@ -17,9 +17,11 @@ CPP = $(ARCH)-elf-g++
 ASMC = nasm
 LD = $(ARCH)-elf-gcc
 
-CFLAGS = -mcmodel=large -fno-builtin-g -ffreestanding -fshort-wchar -fstack-protector-all -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fsanitize=undefined -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17
+CFLAGS = -mcmodel=kernel -mabi=sysv -fno-builtin-g -ffreestanding -fshort-wchar  -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17 -fstack-protector-all -fsanitize=undefined
 ASMFLAGS = -f elf64
-LDFLAGS = -T $(LDS64) -static -Bsymbolic -nostdlib
+LDFLAGS = -T $(LDS64) -z max-page-size=0x1000 -static -Bsymbolic -nostdlib
+
+QEMUFLAGS = -drive file=$(BINDIR)/$(OSNAME).img -M q35,accel=tcg -m 8G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -no-reboot -no-shutdown
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
@@ -35,7 +37,7 @@ DIRS = $(wildcard $(SRCDIR)/*)
 
 kernel: setup bootloader $(KOBJS) link $(MOBJS)
 
-$(OBJDIR)/kernel/cpu/interrupts/interrupts.o: $(KERNDIR)/cpu/interrupts/interrupts.cpp
+$(OBJDIR)/kernel/arch/x86_64/interrupts/interrupts.o: $(KERNDIR)/arch/x86_64/interrupts/interrupts.cpp
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
 	$(CPP) -mgeneral-regs-only $(CFLAGS) -c $^ -o $@
@@ -63,6 +65,9 @@ $(OBJDIR)/module/%.o: $(MODDIR)/%.cpp
 config:
 	@ ./src/config/Configure ./src/config/config.in
 
+menuconfig:
+	@ ./src/config/Menuconfig ./src/config/config.in
+
 bootloader:
 	make -C $(EFIDIR)
 	make -C $(EFIDIR) bootloader
@@ -84,17 +89,30 @@ clean:
 	@rm -rf $(OBJDIR)
 
 buildimg: kernel
-	dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=250000
-	mformat -F -v "Microk" -i $(BINDIR)/$(OSNAME).img ::
-	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI
-	mmd -i $(BINDIR)/$(OSNAME).img ::/EFI/BOOT
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/initrd.tar ::
-	mcopy -i $(BINDIR)/$(OSNAME).img startup.nsh ::
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/kernel.elf ::
-	mcopy -i $(BINDIR)/$(OSNAME).img $(BINDIR)/zap-light16.psf ::
+	#dd if=/dev/zero of=$(BINDIR)/$(OSNAME).img bs=512 count=250000
+	parted -s $(BINDIR)/$(OSNAME).img mklabel gpt
+	parted -s $(BINDIR)/$(OSNAME).img mkpart ESP fat32 2048s 100%
+	parted -s $(BINDIR)/$(OSNAME).img set 1 esp on
+	./src/limine/limine-deploy $(BINDIR)/$(OSNAME).img
+	sudo losetup -Pf --show $(BINDIR)/$(OSNAME).img
+	sudo mkfs.fat -F 32 /dev/loop0p1
+	mkdir -p img_mount
+	sudo mount /dev/loop0p1 img_mount
+	sudo mkdir -p img_mount/EFI/BOOT
+	sudo cp -v $(BINDIR)/initrd.tar \
+		   startup.nsh \
+		   $(BINDIR)/kernel.elf \
+		   $(BINDIR)/zap-light16.psf \
+		   limine.cfg \
+		   src/limine/limine.sys \
+		   img_mount/
+	sudo cp -v src/limine/BOOTX64.EFI img_mount/EFI/BOOT/
+	sync
+	sudo umount img_mount
+	sudo losetup -d /dev/loop0
+	rm -rf img_mount
 
-run: buildimg
-	qemu-system-x86_64 -serial file:serial.log -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd"
-run-tty: buildimg
-	qemu-system-x86_64 -drive file=$(BINDIR)/$(OSNAME).img -machine q35 -m 6G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -nographic
+run:
+	qemu-system-x86_64 $(QEMUFLAGS) -serial file:serial.log -device virtio-gpu-pci
+run-tty:
+	qemu-system-x86_64 $(QEMUFLAGS) -nographic

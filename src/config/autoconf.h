@@ -19,6 +19,11 @@
 #undef CONFIG_HW_COMP
 #define CONFIG_FM_UEFI 1
 #undef CONFIG_FM_BIOS
+
+/*
+ * Bootloader settings
+ */
+
 #define CONFIG_FM_ACPI 1
 #undef CONFIG_FM_SMBIOS
 
@@ -69,3 +74,9 @@
 #define CONFIG_VFS 1
 #define CONFIG_VFS_MAX_DRIVES (1024)
 #define CONFIG_VFS_FILE_MAX_NAME_LENGTH (256)
+
+/*
+ * Output images
+ */
+
+#undef CONFIG_IMG_ELF

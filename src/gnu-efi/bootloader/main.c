@@ -194,6 +194,8 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"Welcome to Microk!\n\r");
 
+	uefi_call_wrapper(gBS->SetWatchdogTimer, 4, 0, 0, 0, NULL);
+
 	EFI_FILE* Kernel = LoadFile(NULL, L"kernel.elf", ImageHandle, SystemTable);
 	if (Kernel == NULL){
 		Print(L"Could not load kernel!\n\r");
@@ -325,6 +327,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
         bootInfo.initrdData = initrd->data;
 	bootInfo.initrdSize = initrd->size;
 
+	Print(L"Booting...\n\r");
 	SystemTable->BootServices->ExitBootServices(ImageHandle, MapKey);
 
 	KernelStart(&bootInfo);

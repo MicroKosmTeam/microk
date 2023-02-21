@@ -15,7 +15,6 @@ struct HeapSegHeader{
 };
 
 void InitializeHeap(void *heapAddress, size_t pageCount);
-void VisualizeHeap();
 void ExpandHeap(size_t lenght);
 
 extern "C" {

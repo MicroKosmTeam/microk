@@ -1,5 +1,4 @@
 #include <sys/icxxabi.h>
-#include <stdio.h>
 
 #define PREFIX "Debug "
 
@@ -37,7 +36,6 @@ void *__dso_handle = 0; //Attention! Optimally, you should remove the '= 0' part
 
 int __cxa_atexit(void (*f)(void *), void *objptr, void *dso)
 {
-        dprintf(PREFIX "Called __cxa_atexit.\n");
 	if (__atexit_func_count >= ATEXIT_MAX_FUNCS) {return -1;};
 	__atexit_funcs[__atexit_func_count].destructor_func = f;
 	__atexit_funcs[__atexit_func_count].obj_ptr = objptr;
@@ -48,7 +46,6 @@ int __cxa_atexit(void (*f)(void *), void *objptr, void *dso)
 
 void __cxa_finalize(void *f)
 {
-        dprintf(PREFIX "Called __cxa_finalize.\n");
 	uarch_t i = __atexit_func_count;
 	if (!f)
 	{

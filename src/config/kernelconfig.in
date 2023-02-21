@@ -24,6 +24,14 @@ mainmenu_option next_comment
 		"UEFI CONFIG_FM_UEFI \
 		BIOS CONFIG_FM_BIOS" UEFI
 
+	mainmenu_option next_comment
+		comment 'Bootloader settings'
+		if [ "$CONFIG_FM_UEFI" = "y" ]; then
+			comment 'Bootloader for UEFI'
+		elif [ "$CONFIG_FM_BIOS" = "y" ]; then
+			comment 'Bootloader for BIOS'
+		fi
+	endmenu
 
 	bool 'Enable support for ACPI.'                    CONFIG_FM_ACPI y
 	bool 'Enable support for SMBIOS.'                  CONFIG_FM_SMBIOS n

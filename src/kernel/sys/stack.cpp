@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <sys/panik.h>
 #include <sys/symbols.h>
 #include <sys/printk.h>

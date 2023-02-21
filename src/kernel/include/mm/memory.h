@@ -1,11 +1,10 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <limine.h>
 
+uint64_t get_memory_size(limine_memmap_entry **mMap, uint64_t mMapEntries);
 #ifdef __cplusplus
-#include <mm/efimem.h>
-uint64_t get_memory_size(EFI_MEMORY_DESCRIPTOR *mMap, uint64_t mMapEntries, uint64_t mMapDescSize);
-
 extern "C" {
 #endif
 void memset(void *start, uint8_t value, uint64_t num);
