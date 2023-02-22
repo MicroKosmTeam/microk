@@ -47,7 +47,7 @@ void PrintDevice() {
 	DeviceNode *dev = rootNode;
 
 	while (dev != NULL) {
-		printk(PREFIX "Device ID: %d Major: %d Minor: %d\n", dev->id, dev->device->GetMajor(), dev->device->GetMinor());
+		printk(PREFIX "Node ID: %d Major: %d Minor: %d\n", dev->id, dev->device->GetMajor(), dev->device->GetMinor());
 
 		switch(dev->device->GetMajor()) {
 			case 0:
