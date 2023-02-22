@@ -16,6 +16,9 @@ namespace PCI {
 				if(!newBus->Exists()) {
 					delete newBus;
 				} else {
+					newBus->SetMajor(1);
+					newBus->SetMinor(0);
+
 					AddDevice(newBus);
 				}
                         }
@@ -48,6 +51,9 @@ namespace PCI {
 			if (!devices[device]->Exists()) {
 				delete devices[device];
 				devices[device] = NULL;
+			} else {
+				devices[device]->SetMajor(1);
+				devices[device]->SetMinor(1);
 			}
                 }
 	}

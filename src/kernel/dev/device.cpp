@@ -42,11 +42,32 @@ Device *GetDevice(uint64_t id) {
 }
 
 #include <sys/printk.h>
+#include <dev/pci/pci.h>
 void PrintDevice() {
 	DeviceNode *dev = rootNode;
 
 	while (dev != NULL) {
 		printk(PREFIX "Device ID: %d Major: %d Minor: %d\n", dev->id, dev->device->GetMajor(), dev->device->GetMinor());
+
+		switch(dev->device->GetMajor()) {
+			case 0:
+				printk(PREFIX " - Root Node\n");
+				break;
+			case 1:
+				PCI::PCIBus *bus = dev->device;
+				for (int i = 0; i < 32; i++) {
+					PCI::PCIDevice *device = bus->GetDevice(i);
+					if (device == NULL) continue;
+					printk(PREFIX " - PCI Device %d\n", i);
+					for (int i = 0; i < 8; i++) {
+						PCI::PCIFunction *function = device->GetFunction(i);
+						if (function == NULL) continue;
+						printk(PREFIX " -- PCI Function %d\n", i);
+					}
+				}
+				break;
+		}
+
 		dev = dev->next;
 	}
 }

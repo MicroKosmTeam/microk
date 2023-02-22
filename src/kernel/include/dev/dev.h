@@ -2,11 +2,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/*class BusConnection {
-public:
-private:
-};*/
-
 class Device {
 public:
 	Device() { }
@@ -20,6 +15,7 @@ public:
 	void SetMajor(uint64_t major) { this->major = major; }
 	void SetMinor(uint64_t minor) { this->minor = minor; }
 private:
+	uint64_t type = 0;
 	uint64_t major = 0;
 	uint64_t minor = 0;
 };

@@ -61,6 +61,7 @@ namespace PCI {
 	public:
 		PCIDevice(uint64_t busAddress, uint64_t device);
 
+		PCIFunction *GetFunction(uint64_t id) { if(id > 8) return 0; return functions[id]; }
 		bool Exists() { return exists; }
 	private:
 		PCIFunction *functions[8];
@@ -75,6 +76,8 @@ namespace PCI {
 	class PCIBus : public Device {
 	public:
 		PCIBus(uint64_t baseAddress, uint64_t bus);
+
+		PCIDevice *GetDevice(uint64_t id) { if(id > 32) return 0; return devices[id]; }
 
 		bool Exists() { return exists; }
 	private:
