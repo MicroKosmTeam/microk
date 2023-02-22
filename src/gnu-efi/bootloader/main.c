@@ -51,7 +51,7 @@ Framebuffer* InitializeGOP(){
 	framebuffer.PixelsPerScanLine = gop->Mode->Info->PixelsPerScanLine;
 
 	return &framebuffer;
-	
+
 }
 
 EFI_FILE* LoadFile(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable){
@@ -109,6 +109,60 @@ PSF1_FONT* LoadPSF1Font(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandl
 
 }
 
+UINTN GetFileSize(EFI_FILE_PROTOCOL *File) {
+	EFI_STATUS Status;
+	UINTN BufferSize;
+	EFI_FILE_INFO *FileInfo;
+	UINTN Size;
+
+	BufferSize = 0;
+	Status = File->GetInfo(File, &gEfiFileInfoGuid, &BufferSize, NULL);
+	if (Status != EFI_BUFFER_TOO_SMALL) {
+		return 0;
+	}
+
+	FileInfo = (EFI_FILE_INFO *) AllocatePool(BufferSize);
+	if (FileInfo == NULL) {
+		return 0;
+	}
+
+	Status = File->GetInfo(File, &gEfiFileInfoGuid, &BufferSize, FileInfo);
+	if (EFI_ERROR(Status)) {
+		FreePool(FileInfo);
+		return 0;
+	}
+
+	Size = FileInfo->FileSize;
+	FreePool(FileInfo);
+	return Size;
+
+}
+
+typedef struct {
+	void *data;
+	UINTN size;
+} Initrd;
+
+Initrd *LoadInitrd(EFI_FILE* Directory, CHAR16* Path, EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable)
+{
+	EFI_FILE* initrd = LoadFile(Directory, Path, ImageHandle, SystemTable);
+	if (initrd == NULL) return NULL;
+
+	UINTN initrdSize = GetFileSize(initrd);
+	if (initrdSize == 0) return NULL;
+
+	void *initrdData;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, initrdSize + 1, (void**)&initrdData);
+	initrd->Read(initrd, &initrdSize, initrdData);
+
+	Initrd *initrdInfo;
+	SystemTable->BootServices->AllocatePool(EfiLoaderData, sizeof(Initrd), (void**)&initrdInfo);
+	initrdInfo->data = initrdData;
+	initrdInfo->size = initrdSize;
+
+	return initrdInfo;
+}
+
 int memcmp(const void* aptr, const void* bptr, size_t n){
 	const unsigned char* a = aptr, *b = bptr;
 	for (size_t i = 0; i < n; i++){
@@ -132,11 +186,15 @@ typedef struct {
 	UINTN mMapSize;
 	UINTN mMapDescSize;
         void *rsdp;
+	void *initrdData;
+	UINTN initrdSize;
 } BootInfo;
 
 EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle, SystemTable);
 	Print(L"Welcome to Microk!\n\r");
+
+	uefi_call_wrapper(gBS->SetWatchdogTimer, 4, 0, 0, 0, NULL);
 
 	EFI_FILE* Kernel = LoadFile(NULL, L"kernel.elf", ImageHandle, SystemTable);
 	if (Kernel == NULL){
@@ -204,7 +262,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	}
 
 	Print(L"Kernel Loaded\n\r");
-	
+
 
 	PSF1_FONT* newFont = LoadPSF1Font(NULL, L"zap-light16.psf", ImageHandle, SystemTable);
 	if (newFont == NULL){
@@ -215,13 +273,21 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 		Print(L"Font found. Char size = %d.\n\r", newFont->psf1_Header->charsize);
 	}
 
+	Initrd *initrd = LoadInitrd(NULL, L"initrd.tar", ImageHandle, SystemTable);
+	if (initrd == NULL) {
+		Print(L"Could not load initrd.tar\n\r.");
+		return EFI_SUCCESS;
+	} else {
+		Print(L"Initrd loaded.\n\r");
+	}
+
 	Framebuffer* newBuffer = InitializeGOP();
 
-	Print(L"Base: 0x%x\n\rSize: 0x%x\n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanline: %d.\n\r", 
-	newBuffer->BaseAddress, 
-	newBuffer->BufferSize, 
-	newBuffer->Width, 
-	newBuffer->Height, 
+	Print(L"Base: 0x%x\n\rSize: 0x%x\n\rWidth: %d\n\rHeight: %d\n\rPixelsPerScanline: %d.\n\r",
+	newBuffer->BaseAddress,
+	newBuffer->BufferSize,
+	newBuffer->Width,
+	newBuffer->Height,
 	newBuffer->PixelsPerScanLine);
 
 	EFI_MEMORY_DESCRIPTOR* Map = NULL;
@@ -229,15 +295,15 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	UINTN DescriptorSize;
 	UINT32 DescriptorVersion;
 	{
-		
+
 		SystemTable->BootServices->GetMemoryMap(&MapSize, Map, &MapKey, &DescriptorSize, &DescriptorVersion);
 		SystemTable->BootServices->AllocatePool(EfiLoaderData, MapSize, (void**)&Map);
 		SystemTable->BootServices->GetMemoryMap(&MapSize, Map, &MapKey, &DescriptorSize, &DescriptorVersion);
 
 	}
-	
+
         EFI_CONFIGURATION_TABLE* configTable = SystemTable->ConfigurationTable;
-	void* rsdp = NULL; 
+	void* rsdp = NULL;
 	EFI_GUID Acpi2TableGuid = ACPI_20_TABLE_GUID;
 
 	for (UINTN index = 0; index < SystemTable->NumberOfTableEntries; index++){
@@ -258,10 +324,14 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	bootInfo.mMapSize = MapSize;
 	bootInfo.mMapDescSize = DescriptorSize;
         bootInfo.rsdp = rsdp;
+        bootInfo.initrdData = initrd->data;
+	bootInfo.initrdSize = initrd->size;
 
+	Print(L"Booting...\n\r");
 	SystemTable->BootServices->ExitBootServices(ImageHandle, MapKey);
 
 	KernelStart(&bootInfo);
 
 	return EFI_SUCCESS; // Exit the UEFI application
 }
+

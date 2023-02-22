@@ -1,6 +1,9 @@
 #include <mm/heap.h>
-#include <mm/pagetable.h>
-#include <mm/pageframe.h>
+#include <mm/pmm.h>
+#include <mm/vmm.h>
+#include <sys/printk.h>
+
+#define PREFIX "[KHEAP] "
 
 void *heapStart;
 void *heapEnd;
@@ -31,7 +34,8 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
         if (splitSeglength < 0x10) return NULL;
 
         HeapSegHeader *newSplitHeader = (HeapSegHeader*)((size_t)this + splitlength + sizeof(HeapSegHeader));
-        next->last = newSplitHeader;            // Set the next segment's last segment to our new segment
+	if(next == NULL) next = newSplitHeader;
+	else next->last = newSplitHeader;            // Set the next segment's last segment to our new segment
         newSplitHeader->next = next;            // Set the new segment's next segment to our original next
         next = newSplitHeader;                  // Set our new segment to the next segment
         newSplitHeader->last = this;            // Set our new segment's last segment to us
@@ -45,13 +49,15 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
 
 void InitializeHeap(void *heapAddress, size_t pageCount) {
         void *pos = heapAddress;
+	printk(PREFIX "Initializing the heap at 0x%x with %d pages.\n", heapAddress, pageCount);
 
         for (size_t i = 0; i < pageCount; i++) {
-                GlobalPageTableManager.MapMemory(pos, GlobalAllocator.RequestPage());
+		VMM::MapMemory(pos, PMM::RequestPage());
                 pos = (void*)((size_t)pos + 0x1000); // Advancing
         }
 
         size_t heaplength = pageCount * 0x1000;
+	printk(PREFIX "%d bytes memory allocated.\n", heaplength);
 
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
@@ -110,7 +116,7 @@ void ExpandHeap(size_t length) {
         HeapSegHeader *newSegment = (HeapSegHeader*)heapEnd;
 
         for (size_t i = 0; i < pageCount; i++) {
-                GlobalPageTableManager.MapMemory(heapEnd, GlobalAllocator.RequestPage());
+		VMM::MapMemory(heapEnd, PMM::RequestPage());
                 heapEnd = (void*)((size_t)heapEnd + 0x1000);
         }
 
@@ -121,25 +127,6 @@ void ExpandHeap(size_t length) {
         newSegment->next = NULL;
         newSegment->length = length - sizeof(HeapSegHeader);
         newSegment->CombineBackward();
-}
 
-#include <stdio.h>
-void VisualizeHeap() {
-	uint64_t totalSize = 0;
-        HeapSegHeader *currSeg = (HeapSegHeader*)heapStart;
-        uint16_t segment_number = 0;
-        while(currSeg->next != NULL) {
-                printf(" -> Segment %d: ", segment_number);
-                if (currSeg->free)
-                        printf(" Free ");
-                else
-                        printf(" Used ");
-
-                printf(" Size: %d\n", currSeg->length);
-		totalSize += currSeg->length;
-                currSeg = currSeg->next;
-                segment_number++;
-        }
-
-	printf(" Size total: %dkb\n", totalSize / 1024);
+	printk(PREFIX "%d bytes memory allocated.\n", length);
 }

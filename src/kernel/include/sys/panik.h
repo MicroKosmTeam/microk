@@ -1,5 +1,4 @@
 #pragma once
-#include <stdio.h>
 #include <cdefs.h>
 
 #define PANIK( msg ) panik( msg, __FILE__, __FUNCTION__, __LINE__ )

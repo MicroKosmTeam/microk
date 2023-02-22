@@ -1,28 +1,36 @@
 #pragma once
 #include <cdefs.h>
-#ifdef KCONSOLE_SERIAL
-
 #include <stdint.h>
 #include <stddef.h>
+#include <dev/dev.h>
 
-#define COM1 0x3f8
-#define COM2 0x2f8
-#define COM3 0x3e8
-#define COM4 0x2e8
-#define COM5 0x5f8
-#define COM6 0x4f8
-#define COM7 0x5e8
-#define COM8 0x4e8
-extern int port;
+enum SerialPorts {
+	COM1 = 0x3f8,
+	COM2 = 0x2f8,
+	COM3 = 0x3e8,
+	COM4 = 0x2e8,
+	COM5 = 0x5f8,
+	COM6 = 0x4f8,
+	COM7 = 0x5e8,
+	COM8 = 0x4e8
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-int serial_init(const int set_port);
-void serial_print_str(const char* str);
-void serial_print_char(const char ch);
-#ifdef __cplusplus
-}
-#endif
+class UARTDevice : public Device {
+public:
+	UARTDevice() { active = false; }
 
-#endif
+	uint64_t ioctl(uint64_t request, ...) override;
+
+	uint64_t Init(SerialPorts serialPort);
+	void PutStr(const char* str);
+	void PutChar(const char ch);
+	int GetChar();
+private:
+	int port;
+
+	bool active;
+
+	int isTransmitEmpty();
+	int serialReceived();
+};
+

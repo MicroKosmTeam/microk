@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# Run the target program with aggressive malloc checking options
+# and forced environment failures.
+#
+
+# To see the environment variables that can be used for malloc debugging,
+# setenv MallocHelp 1
+#
+# MallocGuardEdges to add 2 guard pages for each large block
+# MallocDoNotProtectPrelude to disable protection (when previous flag set)
+# MallocDoNotProtectPostlude to disable protection (when previous flag set)
+# MallocStackLogging to record all stacks.  Tools like leaks can then be applied
+# MallocStackLoggingNoCompact to record all stacks.  Needed for malloc_history
+# MallocScribble to detect writing on free blocks: 0x55 is written upon free
+# MallocCheckHeapStart <n> to check the heap from time to time after <n> operations 
+# MallocHelp - this help!
+
+export MallocGuardEdges=1
+export MallocScribbe=1
+export MallocCheckHeapStart=1
+export MallocCheckHeapEach=100
+export DYLD_INSERT_LIBRARIES=/usr/lib/libMallocDebug.A.dylib
+# next two added 20010801-sbytnar
+export MallocStackLogging=1
+export MallocStackLoggingNoCompact=1
+# to debug...
+#   open /Developer/Applications/MallocDebug
+#   gdb app
+#   set env DYLD_INSERT_LIBRARIES /usr/lib/libMallocDebug.A.dylib
+#   set start-with-shell 0
+#   break fprintf  # only for tracking double free's.
+#
+
+FILE_TO_RUN=`basename $*`
+case $FILE_TO_RUN in
+	cmostest) if [ $(id -u -n) != "root" ]; then
+			echo "** You are not root.  Skipping cmostest."
+			exit 0;
+		fi ;;
+	*)	;;
+esac
+
+# TBD: env|grep Malloc
+echo "*** Running $* with ____">&2
+$* > /dev/null || { echo ERROR ERROR ERROR >&2; exit 1; }
+
+echo -n "*** Running $* with POSIX_CALLBACK_LIMIT=1, " >&2
+POSIX_CALLBACK_LIMIT=1 $* > /dev/null || { echo ERROR ERROR ERROR >&2 ; exit 1 ; }
+
+echo -n "POSIX_FAIL_MEM=100, " >&2
+POSIX_FAIL_MEM=100 $* > /dev/null || { echo ERROR ERROR ERROR >&2 ; exit 1 ; }
+
+echo "POSIX_FORCE_CB_REALLOC=1" >&2
+POSIX_FORCE_CB_REALLOC=1 $* > /dev/null || { echo ERROR ERROR ERROR >&2 ; exit 1; }
+
+export ERROR=0
+echo "POSIX_DEFER_MEI_CALL=1" >&2
+POSIX_DEFER_MEI_CALL=1 $* > /dev/null || { echo ERROR ERROR ERROR >&2 ; export ERROR=1; echo exit 1 >/dev/null; }
+
+if [ "X$ERROR" == "X0" ]; then
+echo "*** Running $* with all available forms of torture."
+export MallocCheckHeapStart=0 MallocStackLogging=1 POSIX_CALLBACK_LIMIT=1 POSIX_FAIL_MEM=100 POSIX_FORCE_CB_REALLOC=1 POSIX_DEFER_MEI_CALL=1
+$* > /dev/null || { echo ERROR ERROR ERROR >&2 ; echo exit 1; }
+else
+echo Skipping all forms of torture due to previous error.
+fi
+
+echo

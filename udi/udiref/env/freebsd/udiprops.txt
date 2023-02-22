@@ -1,0 +1,294 @@
+# File: env/FreeBSD/udiprops.txt
+#
+# Build directions for core FreeBSD environment.
+#
+
+#      
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+#      
+
+properties_version 0x101
+
+supplier 1
+contact  2
+name     3
+release  3 1.01
+
+message 1 Project UDI
+message 2 http://www.projectudi.org/udi/participants.html
+message 3 UDI\_\m4\_\H1
+message 4 Environment
+
+shortname udi
+
+module udi
+
+# osdependent code.
+compile_options -g
+
+source_files udi_osdep.c udi_osdep_opaquedefs.h udi_osdep.h
+source_files udi_MA_osdep.c
+source_files udi_sprops.c udi_sprops.h envcommon/udi_std_sprops.h ### udi_std_sprops.c
+#source_files envcommon/udi_std_sprops.c envcommon/udi_std_sprops.h
+source_files udi_osdep_inst_attr.c udi_osdep_dma.c
+source_files mgmtmeta/udi_mgmt.c envcommon/udi_mgmt_MA.h
+source_files osdep_pio.c pio_pops.h osdep_pops.h
+
+# common environment code.
+compile_options -g -DSTATIC=static
+
+source_files envcommon/udi_MA.c \
+	     envcommon/udi_MA_util.c \
+	     envcommon/udi_alloc.c \
+	     envcommon/udi_alloc.h \
+	     envcommon/udi_buf.c \
+	     envcommon/udi_cb.c \
+	     envcommon/udi_constraints.c \
+	     envcommon/udi_ctype.c \
+	     envcommon/udi_debug.c
+source_files envcommon/udi_dma.c \
+	     envcommon/udi_endian.c \
+	     envcommon/udi_env.h \
+	     envcommon/udi_env_buf.h \
+	     envcommon/udi_env_physio.h \
+	     envcommon/udi_env_trlog.h \
+	     envcommon/udi_imc.c \
+	     envcommon/udi_init.c \
+	     envcommon/udi_inst_attr.c 
+source_files envcommon/udi_layout.c \
+	     envcommon/udi_mei.c \
+	     envcommon/udi_mem.c \
+	     envcommon/udi_memchr.c \
+	     envcommon/udi_memcmp.c \
+	     envcommon/udi_memcpy.c \
+	     envcommon/udi_memmove.c \
+	     envcommon/udi_memset.c \
+	     envcommon/udi_mgmt_MA.h \
+	     envcommon/udi_osdep_defaults.h \
+	     envcommon/udi_pio.c
+source_files envcommon/udi_piotrans.c \
+	     envcommon/udi_queue.c \
+	     envcommon/udi_snprintf.c \
+	     envcommon/udi_sprops_ra.h \
+	     envcommon/udi_strcat.c \
+	     envcommon/udi_strchr.c \
+	     envcommon/udi_strcmp.c \
+	     envcommon/udi_strcpy.c \
+	     envcommon/udi_strlen.c
+source_files envcommon/udi_strncat.c \
+	     envcommon/udi_strncmp.c \
+	     envcommon/udi_strncpy.c \
+	     envcommon/udi_strncpy_rtrim.c \
+	     envcommon/udi_strrchr.c \
+	     envcommon/udi_timer.c \
+	     envcommon/udi_trlog.c
+
+requires udi 0x101
+provides udi 0x101
+provides udi_mei 0x101
+symbols udi_mei_call
+
+#
+# Internal debugging and tracing messages
+#
+
+# message_file ma_msgs.txt
+
+
+# File: env/common/ma_msgs.txt
+#
+# udiprops.txt equivalent for management agent.
+#
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+
+# properties_version 0x101
+
+locale C
+
+message 201 MA found a match for node %p with %s
+
+message 900 Inaccessible `%s' message file `%s'\p\_\_\_\_at location: %s
+message 901 Error reading `%s' message file `%s' [%s]
+# 92x is PIO.
+message 920 Invalid UDI_PIO_LOAD_IMM continuation in translist at offset %d. Operand[0x%04x]
+message 921 Multibyte PIO access a mapping with neither PIO_BIG_ENDIAN nor PIO_LITTLE_ENDIAN specified.   Offset %d
+message 923 Illegal PIO shift value specified.   Offset %d.
+message 924 PIO_LABEL cannot have a label of zero.   Offset %d.
+message 925 udi_pio_trans on handle %p called with non-movable mem_ptr %p.
+message 926 udi_buf_write on handle %p called with non-movable src mem_ptr %p.
+message 927 PIO_BRANCH cannot have an operand of zero.   Offset %d.
+# 94x is Environmental information.
+message 940 Reclaiming lost pio_handle %p with udi_pio_unmap.
+message 941 Reclaiming lost mem buffer %p with udi_mem_free.
+message 942 Reclaiming lost constraint %p with udi_dma_constraints_free.
+ 
+
+message 1000 DEBUG1 Info: Error Events
+message 1001 bind_to_parent failed with %d for %s
+message 1002 Unknown type 0x%X for Attribute %s
+message 1003 Error setting Attribute %s (type=0x%X) on enumerated node %p
+message 1004 Error binding orphan driver %s
+message 1005 Cannot find static properties for module %s
+message 1006 Node %s device %d property %s type %s != static properties device attribute type %s
+message 1007 Node %s device %d property %s unknown type %d (sprops type %s)
+
+message 2000 DEBUG2 Info: Major Events
+message 2001 Driver %s Loaded
+message 2002 Alloc Daemon Started
+message 2003 Alloc Daemon Terminated
+message 2011 Metalanguage %s Loaded
+message 2012 Metalanguage %s already present and loaded
+message 2013 Metalanguage %s is not available.
+message 2020 Created Node (%p, parent=%p:%s)
+message 2021 Primary Region Created (%p, mgmt_chan=%p, node=%p:%s)
+message 2022 Bind Channel Created (parent:chan=%p,reg=%p,%s child:chan=%p,reg=%p,%s)
+message 2030 _udi_region_destroy: region %p [%s], empty %s, pending %d, active %s
+message 2031 _udi_region_destroy: region %p [%s] unlocked and tearing down
+message 2032 _udi_MA_wait_region_destroyed: Time since start = %d.%08d
+
+message 3000 DEBUG3 Info: Detail Debug output
+message 3010 Load Driver %s
+message 3011 \_\_\_\_%s has %d parent metas:
+message 3012 \_\_\_\_%s\_\_\_\_parent meta[%d] = [%s]
+message 3013 \_\_\_\_%s has %d child metas:
+message 3014 \_\_\_\_%s\_\_\_\_child  meta[%d] = [%s]
+message 3015 \_\_\_\_%s cb_idx[%d] meta_name[%d] = [%s] cb_group=%d
+message 3016 \_\_\_\_%s has %d ops templates and %d provides: %s
+message 3017 _udi_MA_install_driver(%s)
+message 3020 Binding Completed for %s
+message 3021 Bind Child %s to parent node %p:%s
+message 3022 _udi_MA_match_nodes for driver %s, parent ops count %d 
+message 3030 Unbinding %p:%s from parent
+message 3031 Removing drv name %s rdata %p from MA's driver list
+message 3032 Unbind node=%p:%s
+message 3040 Enumeration Result 0x%X (%s)
+message 3041 %s enumeration: allocated %d bytes of child_data
+message 3050 %s:op %d vec %d override %d with cb_idx %d %d
+message 3051 %s:op %d vec %d replace %d with cb_idx %d %d
+message 3052 Increasing CB scratch size from %d to %d
+message 3053 %s
+
+message 4000 DEBUG4 Info: Unit Debug output (temporary)
+message 4001 Calling _udi_post_init for driver %s
+message 4002 Scanning meta <%s>, idx %d, meta_idx %d
+message 4020 \_\_\_\_%s match_nodes checking on driver %s, child count %d
+message 4021 \_\_\_\_%s parent meta %d:%s against %s child meta %d:%s
+message 4030 \_\_\_\_%s still anchored to MA
+message 4040 Enumerated one node:%p child_ID %d with %d attributes
+message 4041 \_\_\_\_Attr %s: %s
+message 4042 \_\_\_\_Attr %s: 0x%X
+message 4043 \_\_\_\_Attr %s: %<0-31=Boolean:0=FALSE:1=TRUE>
+message 4044 \_\_\_\_Attr %s: Array
+message 4045 \_\_\_\_Attr %s: File
+message 4050 _OSDEP_ENUMERATE_PCI_DEVICE ...
+message 4051 \_\_\_\_enumerate start (rescan)
+message 4052 \_\_\_\_enumerate next
+message 4060 _udi_MA_match_line: Devlinecnt = %d
+message 4061 _udi_MA_match_children, checking driver (%s)
+message 4062 _udi_MA_match_children, (%s), osinfo = %x
+
+# 41xx is UnixWare-specific temporary debugging
+message 4100 DEV_ATTR_VALUE comparing (%s) with (%s)
+message 4101 \_\_\_\_Returning type string
+message 4102 \_\_\_\_Returning type int
+message 4103 \_\_\_\_Returning type array
+
+
+
+locale piglatin
+message 2001 Iverdray %s oadedlay.
+message 2002 Locyay Emonday Tartedsay
+message 2003 Locyay Emonday Erminatedtay
+message 2011 Etalanguagemay %s Oadedlay
+
+

@@ -1,0 +1,225 @@
+#!/bin/sh
+# File: env/common/Make_conf
+#
+# Script to construct 'make' parameters for OS-specific variable settings
+#
+
+#
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+#
+
+#
+# The environment variables set by the invoking makefile are:
+#    INDIR  = (TOPDIR relative) directory to do actual make in when configured
+#    TOPDIR = relation of INDIR to the top of the source tree
+#    OBJDIR = (INDIR relative) directory to build objects in
+# The current directory when performing this operation is assumed to be
+# the INDIR location.
+#
+# This script outputs to stdout 'make' parameter assignments corresponding to
+# the above environment variables, as well as the following variables
+# generated here:
+#    OS_NAME  = short name for operating system
+#    OS_ENV   = more detailed OS name/version string
+#    OS_RULES = rules file to include for OS-specific parameter settings
+#    OS_EXT   = OS_RULES filename extension (normally = OS_NAME)
+#    OS_ARCH  = Architecture name for UDI packaging (e.g. IA32)
+
+OS_ARCH="CPU_type"
+ABI="unspec"
+UDI_DOMAINS="unspec"
+
+if [ `uname -s` = "AIX" ] ; then
+	OS_ENV=`uname -sv | sed -e 's/\..* / /;s/ /_/g'`
+	OS_NAME="aix"
+	OS_ARCH=`lscfg -pl proc0 | grep Name: | awk '{print $2}' | sed -e 's/,.*//'`
+	ABI="rs6000"
+elif [ `uname -s` = "UNIX_SV" ] ; then
+  if [ `uname -r` = "4.0"  ] ; then
+	OS_ENV=`uname -sv | sed -e 's/UNIX_SV/NCR/g;s/ /_/g'`
+	OS_NAME="ncrunix"
+  else
+	OS_ENV=`uname -sv | sed -e 's/\..* / /;s/ /_/g'`
+	OS_NAME="uw"
+	OS_EXT="uw2"
+  fi
+elif [ `uname -s` = "UnixWare" -o `uname -s` = "OpenUNIX" ] ; then
+	OS_ENV=`uname -sv | sed -e 's/\..* / /;s/ /_/g'`
+	OS_NAME="uw"
+	OS_ARCH=`uname -m`
+#	UDI_DOMAINS="uw uw_user"
+elif [ `uname -s` = "SCO_SV" ] ; then
+	OS_ENV=`uname -sv | sed -e 's/\..* / /;s/ /_/g'`
+	OS_NAME="osr5"
+	OS_ARCH=`uname -m`
+elif [ `uname -s` = "SunOS" ] ; then
+  if [ `uname -r` -lt 5 ] ; then
+	OS_ENV=`uname -sr | sed -e 's/\..*//g;s/ /_/g'`
+	OS_NAME="sunos"
+  else
+	OS_ENV=`uname -srp | sed -e 's/\..* / /;s/ /_/g'`
+	OS_NAME="solaris"
+	OS_ARCH=`uname -p`
+	if [ "X$OS_ARCH" = "Xsparc" ] ; then
+	   ABI="sparc"
+	fi
+#	UDI_DOMAINS=""
+  fi
+elif [ `uname -s` = "HP-UX" ] ; then
+	OS_ENV=`uname -sr | sed -e 's/ /_/g'`
+	OS_NAME="hpux"
+	if [ ! "$KERNLIBDIR" ]; then
+	  OS_EXT="nonkern"
+	fi
+	OS_BITS=`getconf KERNEL_BITS 2>/dev/null`
+	OS_ARCH="pa"  # Is OS_ARCH still needed?
+	if [ "X$OS_BITS" = "X32" -o "X$OS_BITS" = "X" ]; then
+	  ABI="parisc"  # Rename to parisc32
+	else
+	  ABI="parisc64"
+	fi
+elif [ `uname -s` = "OSF1" ] ; then
+	OS_ENV=`uname -sr | sed -e 's/ /_/g'`
+	OS_NAME="tru64"
+	OS_ARCH=`uname -m`
+	ABI="alpha_OSF1"
+#	UDI_DOMAINS=""
+elif [ `uname -s` = "Linux" ] ; then
+	OS_ENV=`uname -sr | sed -e 's/\..*//;s/ /_/g'`
+	OS_NAME="linux"
+	OS_ARCH=`uname -m`
+	ABI=`uname -m`
+	UDI_DOMAINS="linux linux-user"
+#	UDI_DOMAINS="linux-user"
+elif [ `uname -s` = "Darwin" ] ; then
+	OS_ENV=`uname -sr | sed -e 's/\..*//;s/ /_/g'`
+	OS_NAME="darwin"
+# Until ELF emulation on Mach-O is done, just do native Mach-O.
+# Mach-O is a PowerOpen ABI, whereas ELF is a SYSV ABI. The difference is in the
+# way va_args are handled. PowerOpen is pointer based access to va_args,
+# whereas SYSV is array based.
+# Darwin is x86 & PowerPC, but I'm only going to support PowerPC
+# for now.
+	THIS_ARCH=`uname -p`
+	if [ "X$THIS_ARCH" = "Xpowerpc" ] ; then
+		OS_ARCH=ppc-mach-o
+		ABI=ppc-mach-o
+	fi
+#	UDI_DOMAINS="darwin darwin-user"
+	UDI_DOMAINS="darwin darwin-user"
+elif [ `uname -s` = "CYGWIN_NT-5.0" ] ; then
+	OS_ENV='mswin_2000_x86'
+	OS_NAME="mswin"
+	OS_ARCH=`uname -m`
+	if [ "X$OS_ARCH" = "Xi386" -o \
+	     "X$OS_ARCH" = "Xi486" -o \
+	     "X$OS_ARCH" = "Xi586" -o \
+	     "X$OS_ARCH" = "Xi686" ] ; then
+	    OS_ARCH="IA32"
+	    ABI="win_ia32"
+        fi
+elif [ `uname -s` = "FreeBSD" ] ; then
+	OS_ENV="freebsd"
+	OS_NAME="freebsd"
+	OS_ARCH=`uname -m`
+else
+	OS_ENV=`uname -sr | sed -e 's/\..*//;s/ /_/g'`
+	OS_NAME="unknown"
+fi
+
+if [ ! "$OS_EXT" ] ; then
+	OS_EXT="$OS_NAME"
+fi
+
+if [ "X$OS_ARCH" = "Xi386" -o \
+     "X$OS_ARCH" = "Xi486" -o \
+     "X$OS_ARCH" = "Xi586" -o \
+     "X$OS_ARCH" = "Xi686" ] ; then
+	if [ "X$ABI" = "X$OS_ARCH" -o "X$ABI" = "Xunspec" ] ; then
+	     OS_ARCH="IA32"
+	     ABI="ia32"
+	fi
+elif [ "X$OS_ARCH" = "Xppc" -o \
+       "X$OS_ARCH" = "Xpowerpc" ] ; then
+	if [ "X$ABI" = "Xunspec" ] ; then
+	     OS_ARCH="PPC"	
+	     ABI="ppc"
+	fi
+fi
+
+if [ "X$UDI_DOMAINS" = "Xunspec" ] ; then
+	UDI_DOMAINS="$OS_NAME ${OS_NAME}-user"
+fi;
+
+if [ "X$OS_NAME" = "Xdarwin" ] ; then
+    OS_ENV="$OS_ENV"_"$OS_ARCH"
+fi
+
+if [ "X$OS_NAME" = "Xlinux" ] ; then
+    OS_ENV="$OS_ENV"_"$OS_ARCH"
+fi
+
+
+# Build absolute $(TOPDIR)
+TOPDIR=`cd ${TOPDIR}; pwd`
+
+if [ $# = 0 ] ; then
+    echo OS_ENV=$OS_ENV OS_NAME=$OS_NAME OS_ARCH=$OS_ARCH \
+         INDIR=$INDIR TOPDIR=$TOPDIR OBJDIR=$OBJDIR ABI=$ABI;
+#	 UDI_DOMAINS=\\\"$UDI_DOMAINS\\\";
+elif [ "X$1" = "X-n" ] ; then
+    echo $OS_NAME
+elif [ "X$1" = "X-A" ] ; then
+    echo $OS_ARCH
+elif [ "X$1" = "X-E" ] ; then
+    echo $OS_ENV
+elif [ "X$1" = "X-a" ] ; then
+    echo $ABI
+elif [ "X$1" = "X-d" ] ; then
+    echo $UDI_DOMAINS
+fi

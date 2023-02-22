@@ -1,0 +1,45 @@
+This is a driver for the Distributed Processing Technology (now the
+DPT division of Adaptec) Fourth Generation SCSI caching HBA and RAID
+controller cards. DPT can be reached at http://www.dpt.com. Product
+Information for the fourth generation products is available at:
+http://www.dpt.com/pdf/smraid4.pdf.
+
+The following DPT controllers are supported by the udi_dpt driver:
+
+		DPT SmartCACHE IV PM2144UW
+		DPT SmartCACHE IV PM2144W
+		DPT SmartCACHE IV PM2044UW
+		DPT SmartCACHE IV PM2044U
+		DPT SmartCACHE IV PM2044W
+		DPT SmartRAID  IV PM3334UW
+
+The following third generation products are supported, but availability 
+of these products may be limited:
+
+		DPT SmartCACHE III PM2124W
+		DPT SmartCACHE III PM2124
+		DPT SmartCACHE III PM2024
+		DPT SmartRAID III PM3224W
+		DPT SmartRAID III PM3224
+
+
+These controllers can be purchased via major distributors or directly 
+from DPT.  Please contact the DPT Inside Sales Team via the following 
+phone numbers:
+
+		Within the US & Canada: 1-800-322-4DPT
+		Elsewhere: USA + 407-830-5522
+
+or via the Inside Sales links at http://www.dpt.com/products/buy.html,
+
+
+If you are a Project UDI participant or a member of the DPT Technical
+Partner Program, DPT is also pleased to make limited quantities of these
+products available at reduced pricing.   Contact the DPT Inside Sales Team 
+directly for additional information.
+
+Having Problem with your DPT controller? The DPT web site shows the
+blinking LED error codes:
+
+	http://www.dpt.com/techsup/trouble/tr-leds.html
+

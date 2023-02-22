@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <cdefs.h>
 
-#define EOF 1;
-
 #define is_aligned(value, alignment) !(value & (alignment - 1))
 
 struct source_location {

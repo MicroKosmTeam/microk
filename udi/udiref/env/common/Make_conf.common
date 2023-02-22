@@ -1,0 +1,133 @@
+#
+# File: env/common/Make_conf.common
+#
+# Make common configuration for the UDI Prototype Development Effort
+#
+
+# $Copyright udi_reference:
+# 
+# 
+#    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+#    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+#    Software Technologies Group, Inc; and Sun Microsystems, Inc
+#    (collectively, the "Copyright Holders").  All rights reserved.
+# 
+#    Redistribution and use in source and binary forms, with or without
+#    modification, are permitted provided that the conditions are met:
+# 
+#            Redistributions of source code must retain the above
+#            copyright notice, this list of conditions and the following
+#            disclaimer.
+# 
+#            Redistributions in binary form must reproduce the above
+#            copyright notice, this list of conditions and the following
+#            disclaimers in the documentation and/or other materials
+#            provided with the distribution.
+# 
+#            Neither the name of Project UDI nor the names of its
+#            contributors may be used to endorse or promote products
+#            derived from this software without specific prior written
+#            permission.
+# 
+#    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+#    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+#    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+#    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+#    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+#    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+#    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+#    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+#    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+#    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+#    DAMAGE.
+# 
+#    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+#    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+#    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+#    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+#    UDI SPECIFICATION.
+# 
+# 
+# $
+
+# This is a make configuration file which supplies the generic configuration
+# information for this make operation and then invokes the proper environment
+# configuration file for the detailed build information.  The caller invokes
+# make on the standard Makefile which sets the appropriate variables and then
+# includes this make configuration file.  The make variables set by the
+# invoking makefile are:
+#    INDIR  = (TOPDIR relative) directory to do actual make in when configured
+#    TOPDIR = relation of INDIR to the top of the source tree
+#    OBJDIR = (INDIR relative) directory to build objects in
+# The current directory when performing this operation is assumed to be
+# the INDIR location.
+
+#GET_OS_NAME= `$(SHELL) $(TOPDIR)/env/common/Make_conf -n`
+#GET_OS_ARCH= `$(SHELL) $(TOPDIR)/env/common/Make_conf -A`
+GET_UDI_DOMAINS= `$(SHELL) $(TOPDIR)/env/common/Make_conf -d`
+
+
+build all install: FRC
+	@([ -d $(OBJDIR) ] || mkdir -p $(OBJDIR))
+	@BTGT="udibuild"; \
+	 if (pwd | grep mapper) > /dev/null 2> /dev/null; then \
+	    BTGT="udibuild-mapper"; \
+	 fi; \
+	 if (pwd | grep env) > /dev/null 2> /dev/null; then \
+	     BTGT="udibuild-mapper"; \
+	 fi; \
+	 if [ "X$@" = "Xinstall" ] ; then \
+	    BTGT="udisetup"; \
+	    if (pwd | grep mapper) > /dev/null 2> /dev/null; then \
+	        BTGT="udisetup-mapper"; \
+	    fi; \
+	    if (pwd | grep env) > /dev/null 2> /dev/null; then \
+	        BTGT="udisetup-mapper"; \
+	    fi; \
+	 fi; \
+	 for i in $(SUBDIRS) common $(GET_UDI_DOMAINS) X ; do		\
+	    if [ "X$$i" != "XX" -a -d $$i ] ; then	\
+		( cd $$i || exit 1;		\
+		  if [ -r Makefile -o -r makefile ] ; then \
+		      echo --- Making $@ in $$i --- ; \
+		      $(MAKE) $@ DEP=$$i || exit 1;	\
+	          fi;				\
+		  if [ -r udiprops.txt ] ; then	\
+		   if (echo $$BTGT `pwd`/$$i | grep udisetup | grep "\-user") \
+					>/dev/null 2>/dev/null; then\
+		      echo --- $$BTGT in $$i not needed --- ; \
+		   else \
+		      echo --- $$BTGT in $$i --- ; \
+	              TOPDIR=$(TOPDIR)/..;		\
+		      $(MAKE) `TOPDIR=$(TOPDIR)/.. INDIR=$(INDIR)/$$i OBJDIR=/tmp $(SHELL) $(TOPDIR)/../env/common/Make_conf` -f $(TOPDIR)/../env/common/Make_udibuild $$BTGT || exit 1; \
+		   fi; \
+		  fi;				\
+		) || exit 1;			\
+	    fi;					\
+	done;
+
+clean:: FRC
+	@d1=`pwd`; d=`basename $$d1`; \
+	if [ $(OBJDIR) != . -a -d $(OBJDIR) ] ; then \
+	    echo "--------Cleaning $(OBJDIR)"; \
+	    rm -rf $(OBJDIR); \
+	fi;
+	@for i in $(SUBDIRS) $(ENV_SUBDIRS) $(GET_UDI_DOMAINS) X ; do \
+	    if [ "X$$i" != "XX" -a -d $$i ] ; then		\
+		( cd $$i || exit 1;		\
+		  if [ -r udiprops.txt ] ; then	\
+			a=`sh $(TOPDIR)/../env/common/Make_conf -a`; \
+			echo "--------Cleaning UDI in $$i for $$a"; \
+			rm -rf udi-pkg* *.o *.udi *-$$a bin/$$a; \
+		  fi;				\
+		  if [ -r Makefile ] ; then     \
+			echo "--------Cleaning in $$i"; \
+			$(MAKE) $@ DEP=$$i ;    \
+		  fi;				\
+		) ;				\
+	    fi;					\
+	done
+
+FRC:
+

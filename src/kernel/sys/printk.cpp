@@ -1,84 +1,51 @@
 #include <sys/printk.h>
+#include <dev/device.h>
+#include <mm/string.h>
+#include <stdarg.h>
+#include <mm/heap.h>
+#define PREFIX "[PRINTK] "
 
-#ifdef PRINTK_SUBSYSTEM
-#include <stdio.h>
+UARTDevice *printkSerial;
 
-#ifdef KCONSOLE_GOP
-GOP GlobalRenderer;
-#endif
+static int earlyPrintkPos = 0;
+static const int earlyPrintkSize = 16 * 1024;
+char earlyPrintkBuffer[earlyPrintkSize] = { 0 }; // 16kb early
 
-#ifdef KCONSOLE_GOP
-#ifdef __cplusplus
-void printk_init_fb(Framebuffer *framebuffer, PSF1_FONT *psf1_font) {
-        GlobalRenderer = GOP(framebuffer, psf1_font);
-}
-void GOP_print_str(const char *str) {
-        GlobalRenderer.print_str(str);
-}
-void GOP_print_char(const char ch) {
-        GlobalRenderer.print_char(ch);
-}
-void GOP_print_pixel(int x, int y, uint32_t color) {
-        GlobalRenderer.put_pixel(x, y, color);
-}
-#endif
-
-#endif
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void print_image(const uint8_t *data) {
-        char *ptr = strtok((char*)data, "\n");
-        //dprintf("%s\n", ptr);
-
-        uint16_t height, width;
-
-        ptr = strtok(NULL, " ");
-        width = atoi(ptr);
-        ptr = strtok(NULL, "\n");
-        height = atoi(ptr);
-
-        //dprintf("Width: %d\nHeight: %d\n", width, height);
-
-        ptr = strtok(NULL, "\n");
-
-        for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                        uint8_t r = atoi(strtok(NULL, "\n"));
-                        uint8_t g = atoi(strtok(NULL, "\n"));
-                        uint8_t b = atoi(strtok(NULL, "\n"));
-                        uint32_t color = (b | (g << 8) | (r << 16) | (0xff << 24));
-                        //dprintf("Color : %d %d %d 0x%x\n", r, g, b, color);
-                        GOP_print_pixel(x, y, color);
-                }
-        }
-}
-
-#ifdef KCONSOLE_SERIAL
-void printk_init_serial() {
-        if(serial_init(COM1) != 0) {
-                return;
-        }
-}
-#endif
+bool serial = false;
 
 static void print_all(const char *string) {
-        #ifdef KCONSOLE_SERIAL
-                serial_print_str(string);
-        #endif
-        #ifdef KCONSOLE_GOP
-                GOP_print_str(string);
-        #endif
+	if (serial)
+		printkSerial->ioctl(2, string);
+	else {
+		char ch;
+		while(ch = *string++) {
+			if (earlyPrintkPos++ > earlyPrintkSize) return;
+			earlyPrintkBuffer[earlyPrintkPos] = ch;
+		}
+	}
 }
 
 static void print_all_char(const char ch) {
-        #ifdef KCONSOLE_SERIAL
-                serial_print_char(ch);
-        #endif
-        #ifdef KCONSOLE_GOP
-                GOP_print_char(ch);
-        #endif
+	if (serial)
+		printkSerial->ioctl(1, ch);
+	else
+		if (earlyPrintkPos++ > earlyPrintkSize) return;
+		earlyPrintkBuffer[earlyPrintkPos] = ch;
+}
+
+static void dump_early() {
+	for (int i = 0; i < earlyPrintkPos; i++) {
+		print_all_char(earlyPrintkBuffer[i]);
+	}
+	printk("\n");
+
+	printk(PREFIX "Remaining available early printk memory: %d\n", earlyPrintkSize - earlyPrintkPos);
+}
+
+void printk_init_serial(UARTDevice *device) {
+	printkSerial = device;
+	serial = true;
+	dump_early();
 }
 
 void printk(char *format, ...) {
@@ -97,18 +64,19 @@ void printk(char *format, ...) {
                                         break;
                                 case 'd':
                                 case 'u':
-                                        itoa(buf, 'd', va_arg(ap, long long int));
+                                        itoa(buf, 'd', va_arg(ap, int64_t));
                                         print_all(buf);
                                         break;
                                 case 'x':
-                                        itoa(buf, 'x', va_arg(ap, long long int));
+                                        itoa(buf, 'x', va_arg(ap, int64_t));
+					for (int i = 0; i < 18 - strlen(buf); i++) print_all_char('0');
                                         print_all(buf);
                                         break;
                                 case '%':
                                         print_all_char('%');
                                         break;
                                 case 'c':
-                                        print_all_char((char)(va_arg(ap, int)));
+                                        print_all_char((va_arg(ap, int32_t)));
                                         break;
 
                         }
@@ -119,9 +87,3 @@ void printk(char *format, ...) {
 
         va_end(ap);
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

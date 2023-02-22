@@ -1,0 +1,26 @@
+udiref_hexdump() is a memory pretty-print routine using udi_debug_printf.
+This functionality is provided through a udi "library", and is made
+available to other UDI drivers once installed by udisetup.
+
+You can use udiref_hexdump by placing this line in your udiprops.txt:
+	requires udiref_hexdump 0x100
+and placing this in your .c file that calls it:
+	#include "udiref_hexdump.h"
+udibuild will be able to find the header file from where the udisetup
+on hexdump installed it.
+
+Or at least, we *should* be able to create a UDI library module and
+use it that way, but the current environment is slightly deficient.
+
+In the interim, you can remove the header file name from the provides
+line in udiprops.txt, copy/symlink udiref_hexdump.h manually, and
+#include the header file.  [You may want to copy/link hexdump.c
+and just add it to your source_files line as well, instead of using
+a "requires" directive.]
+
+Better yet, tweak the environment source code to do "the right thing"
+with "provides" lines and send in a patch!
+
+Enjoy!
+
+-- Kevin Van Maren

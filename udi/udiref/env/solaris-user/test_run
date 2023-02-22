@@ -1,0 +1,28 @@
+#!/bin/ksh
+
+#
+# Run the target program with any available test facilities.
+#
+
+FILE_TO_RUN=`basename $*`
+
+case $FILE_TO_RUN in
+	#cmostest requires root permission to use ioperm on Intel
+	cmostest) 
+		if [ `uname -p` = "i386" ]
+		then
+			if [ `/usr/ucb/whoami` != "root" ]
+			then
+				echo "** You are not root. Skipping cmostest."
+				exit 0
+			fi
+		else
+			echo "** cmostest not supported on Sparc."
+			exit 0
+		fi ;;
+	*)	;;
+esac
+
+export LD_PRELOAD=watchmalloc.so.1
+
+exec  $*

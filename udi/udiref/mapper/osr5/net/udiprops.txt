@@ -1,0 +1,68 @@
+properties_version 0x101
+
+message 1 Project UDI
+message 2 http://www.project-UDI.org/participants.html
+message 3 Network Metalanguage Mapper
+message 4 Network Generic Debug Interface
+release  3 1.01
+
+supplier	1
+contact		2
+name		3
+shortname       udiMnic
+
+requires udi		0x101
+requires udi_nic	0x101
+requires udi_gio	0x101
+
+module udiM_nic
+
+##
+## NSR region definitions. 0 is the primary region, 1 the Tx region
+##
+region 0
+region 1		# Transmit region
+
+##
+## NSR meta definitions. 1 is the NIC meta, 2 the GIO
+##
+meta 1 udi_nic
+meta 2 udi_gio
+
+##
+## Region binding rules
+##
+parent_bind_ops 1 0 1 0		# Primary region NIC meta
+internal_bind_ops 2 1 4 5 0	#NSRMAP_GIO_TX_CLIENT_IDX-NSRMAP_GIO_TX_PROV_IDX
+device 3 1   # Default matches any NIC metalanguage parent
+
+
+##
+## Build instructions.
+## The region and meta definitions must match those given in the previous
+## region / meta declaration section
+##
+compile_options -D_KERNEL -D_INKERNEL \
+	-DNSR_WATCHDOG_NSECS=100000000 \
+	-DNSR_WATCHDOG_SECS=0 \
+	-DNSRMAP_CTRL_IDX=1 \
+	-DNSRMAP_TX_IDX=2 \
+	-DNSRMAP_RX_IDX=3 \
+	-DNSRMAP_GIO_TX_CLIENT_IDX=4 \
+	-DNSRMAP_GIO_TX_PROV_IDX=5 \
+	-DNSRMAP_NIC_META=1 \
+	-DNSRMAP_GIO_META=2 \
+	-DNSRMAP_TX_REG_IDX=1
+
+#	-DDEBUG \
+#	-DNSR_DBG_LEVEL=0xff \
+#	-DNSR_DBG_META=0xff
+
+source_files netmap_osr5.c netmap_osr5.h
+source_files udi_env/udi_osdep.h envcommon/udi_env.h niccommon/netmap.h
+
+##
+## Internal Tracing/Logging
+##
+
+# message_file	tracemsgs.txt

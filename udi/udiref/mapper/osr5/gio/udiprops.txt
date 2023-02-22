@@ -1,0 +1,31 @@
+properties_version 0x101
+
+message 1 Project UDI
+message 2 http://www.project-UDI.org/participants.html
+message 3 GIO Metalanguage Mapper
+message 4 GIO Generic Debug Interface
+release  3 1.01
+
+supplier	1
+contact		2
+name		3
+shortname       udiMgio
+
+requires udi	0x101
+requires udi_gio 0x101
+
+#
+# Build instructions.
+#
+module udiM_gio
+compile_options -D_KERNEL -D_INKERNEL
+source_files giomap_osr5.c giomap_osr5.h
+source_files udi_env/udi_osdep.h envcommon/udi_env.h giocommon/giomap.h
+region 0
+
+# child_meta, parent_meta declarations
+
+device 3 1   # Default matches any GIO parent
+parent_bind_ops 1 0 1 1
+meta 1 udi_gio
+

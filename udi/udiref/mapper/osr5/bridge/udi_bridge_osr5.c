@@ -1,0 +1,247 @@
+/*
+ * ============================================================================
+ * FILE: udi_bridge_uw.c
+ *
+ * ============================================================================
+ */
+
+/*
+ * $Copyright udi_reference:
+ * 
+ * 
+ *    Copyright (c) 1995-2001; Compaq Computer Corporation; Hewlett-Packard
+ *    Company; Interphase Corporation; The Santa Cruz Operation, Inc;
+ *    Software Technologies Group, Inc; and Sun Microsystems, Inc
+ *    (collectively, the "Copyright Holders").  All rights reserved.
+ * 
+ *    Redistribution and use in source and binary forms, with or without
+ *    modification, are permitted provided that the conditions are met:
+ * 
+ *            Redistributions of source code must retain the above
+ *            copyright notice, this list of conditions and the following
+ *            disclaimer.
+ * 
+ *            Redistributions in binary form must reproduce the above
+ *            copyright notice, this list of conditions and the following
+ *            disclaimers in the documentation and/or other materials
+ *            provided with the distribution.
+ * 
+ *            Neither the name of Project UDI nor the names of its
+ *            contributors may be used to endorse or promote products
+ *            derived from this software without specific prior written
+ *            permission.
+ * 
+ *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *    "AS IS," AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *    HOLDERS OR ANY CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ *    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ *    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ *    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ *    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ *    DAMAGE.
+ * 
+ *    THIS SOFTWARE IS BASED ON SOURCE CODE PROVIDED AS A SAMPLE REFERENCE
+ *    IMPLEMENTATION FOR VERSION 1.01 OF THE UDI CORE SPECIFICATION AND/OR
+ *    RELATED UDI SPECIFICATIONS. USE OF THIS SOFTWARE DOES NOT IN AND OF
+ *    ITSELF CONSTITUTE CONFORMANCE WITH THIS OR ANY OTHER VERSION OF ANY
+ *    UDI SPECIFICATION.
+ * 
+ * 
+ * $
+ */                         
+/*
+ * Written for SCO by: Rob Tarte
+ * At: Pacific CodeWorks, Inc.
+ * Contact: http://www.pacificcodeworks.com
+ */
+
+#define	BRIDGE_MAPPER_VENDOR_ID	0x434D
+#define	BRIDGE_MAPPER_CMOS_ID   0x4F44
+
+#include <sys/conf.h>
+#include <sys/cmn_err.h>
+#include <sys/errno.h>
+#include <sys/param.h>
+#include <sys/pci.h>
+#include <sys/ci/ciintr.h>
+
+#include <udi_env.h>		/* Environment specific definitions */
+
+#include "bridgecommon/udi_bridge.c"
+
+/* mostly from io/autoconf/ca/pci/pci.h */
+/* Generic Configuration Space register offsets */
+#define PCI_VENDOR_ID_OFFSET		0x00
+#define PCI_DEVICE_ID_OFFSET		0x02
+#define PCI_COMMAND_OFFSET		0x04
+#define PCI_REVISION_ID_OFFSET		0x08
+#define PCI_PROG_INTF_OFFSET		0x09
+#define PCI_SUB_CLASS_OFFSET		0x0A
+#define PCI_BASE_CLASS_OFFSET		0x0B
+#define PCI_CACHE_LINE_SIZE_OFFSET	0x0C
+#define PCI_LATENCY_TIMER_OFFSET	0x0D
+#define PCI_HEADER_TYPE_OFFSET		0x0E
+#define PCI_BIST_OFFSET			0x0F
+
+/* Ordinary ("Type 0") Device Configuration Space register offsets */
+#define	PCI_BASE_REGISTER_OFFSET    	0x10
+#define PCI_SVEN_ID_OFFSET	    	0x2C
+#define PCI_SDEV_ID_OFFSET	    	0x2E
+#define PCI_E_ROM_BASE_ADDR_OFFSET  	0x30
+#define PCI_INTERPT_LINE_OFFSET     	0x3C
+#define PCI_INTERPT_PIN_OFFSET      	0x3D
+#define PCI_MIN_GNT_OFFSET	    	0x3E
+#define PCI_MAX_LAT_OFFSET	    	0x3F
+
+/* PCI-to-PCI Bridge ("Type 1") Configuration Space register offsets */
+#define	PCI_PPB_SECONDARY_BUS_NUM_OFFSET	0x19
+#define	PCI_PPB_SUBORDINATE_BUS_NUM_OFFSET	0x1A
+
+int	pci_index;
+
+int
+bridgemap_find_device(
+bridge_mapper_child_data_t	*cdata,
+int				index
+)
+{
+	struct pci_devinfo	infptr;
+	int			ret;
+	int			irq;
+	ushort_t		pci_vendor_id;
+	ushort_t		pci_device_id;
+	uchar_t			pci_revision_id;
+	uchar_t			pci_sub_class;
+	uchar_t			pci_base_class;
+	uchar_t			pci_prog_if;
+	ushort_t		pci_subsystem_vendor_id;
+	ushort_t		pci_subsystem_id;
+
+	ret = pci_search(0xffff, 0xffff, 0xffff, 0xffff, index, &infptr);
+
+	if (ret == 0)
+	{
+		return 0;
+	}
+
+	cdata->pci_slot = 0;
+
+	pci_readword(&infptr, PCI_VENDOR_ID_OFFSET, &pci_vendor_id);
+	pci_readword(&infptr, PCI_DEVICE_ID_OFFSET, &pci_device_id);
+	pci_readbyte(&infptr, PCI_REVISION_ID_OFFSET, &pci_revision_id);
+	pci_readbyte(&infptr, PCI_SUB_CLASS_OFFSET, &pci_sub_class);
+	pci_readbyte(&infptr, PCI_BASE_CLASS_OFFSET, &pci_base_class);
+	pci_readbyte(&infptr, PCI_PROG_INTF_OFFSET, &pci_prog_if);
+	pci_readword(&infptr, PCI_SVEN_ID_OFFSET, &pci_subsystem_vendor_id);
+	pci_readword(&infptr, PCI_SDEV_ID_OFFSET, &pci_subsystem_id);
+
+	cdata->pci_unit_address = (infptr.busnum << 8) | 
+		(infptr.slotnum << 3) | (infptr.funcnum);
+
+	cdata->osinfo.devinfo.busnum = infptr.busnum;
+	cdata->osinfo.devinfo.funcnum = infptr.funcnum;
+	cdata->osinfo.devinfo.slotnum = infptr.slotnum;
+
+	irq = IDIST_PCI_IRQ(infptr.slotnum, infptr.funcnum);
+
+	cdata->osinfo.irq = irq;
+
+#ifdef DEBUG_BRIDGEMAP
+	udi_debug_printf("bridgemap_find_device: bus=0x%x func=0x%x "
+		"slot=0x%x\n", 
+		cdata->osinfo.devinfo.busnum, cdata->osinfo.devinfo.funcnum,
+		cdata->osinfo.devinfo.slotnum);
+#endif
+
+	cdata->pci_vendor_id = pci_vendor_id;
+	cdata->pci_device_id = pci_device_id;
+	cdata->pci_revision_id = pci_revision_id;
+	cdata->pci_sub_class = pci_sub_class;
+	cdata->pci_base_class = pci_base_class;
+	cdata->pci_prog_if = pci_prog_if;
+	cdata->pci_subsystem_vendor_id = pci_subsystem_vendor_id;
+	cdata->pci_subsystem_id = pci_subsystem_id;
+
+	return 1;
+}	
+
+/*
+ * Dummy up a PCI entry for the CMOS driver
+ */
+bridge_mapper_fake_cmos_device(
+bridge_mapper_child_data_t *cdata
+)
+{
+	cdata->pci_vendor_id = BRIDGE_MAPPER_VENDOR_ID;
+	cdata->pci_device_id = BRIDGE_MAPPER_CMOS_ID;
+	cdata->pci_revision_id = 0;
+	cdata->pci_base_class = 0;
+	cdata->pci_sub_class = 0;
+	cdata->pci_prog_if = 0;
+	cdata->pci_subsystem_vendor_id = 0;
+	cdata->pci_subsystem_id = 0;
+	cdata->pci_unit_address = 0;
+	cdata->pci_slot = 0;
+
+	cdata->osinfo.devinfo.busnum = 0;
+	cdata->osinfo.devinfo.funcnum = 0;
+	cdata->osinfo.devinfo.slotnum = 0;
+}
+
+
+/****************************************/
+/*	_OSDEP_ENUMERATE_PCI_DEVICE	*/
+/****************************************/
+udi_boolean_t
+bridgemap_enumerate_pci_device(
+bridge_mapper_child_data_t	*cdata,
+udi_enumerate_cb_t		*cb,
+udi_ubit8_t			enumeration_level
+)
+{
+	/* just look for valid input */
+
+	switch (enumeration_level)
+	{
+		case UDI_ENUMERATE_START:
+		case UDI_ENUMERATE_START_RESCAN:
+#ifdef DEBUG_BRIDGEMAP
+			udi_debug_printf("UDI_ENUMERATE_START or "
+				"UDI_ENUMERATE_START_RESCAN\n");
+#endif
+			/*
+			/* start from beginning
+			 */
+			bridge_mapper_fake_cmos_device(cdata);
+
+			return TRUE;
+
+		case UDI_ENUMERATE_NEXT:
+			/*
+			/* get next
+			 */
+			break;
+
+		case UDI_ENUMERATE_DIRECTED:
+		case UDI_ENUMERATE_NEW:
+		default:
+
+			/*
+			 * Unknown option assert for now.
+			 */
+			_OSDEP_ASSERT(0);
+	}
+
+	if (bridgemap_find_device(cdata, pci_index))
+	{
+		pci_index++;
+
+		return TRUE;
+	}
+
+	return FALSE;
+}

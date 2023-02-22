@@ -1,0 +1,178 @@
+#!/bin/sh
+#
+# udiget <out-objfile> <prefix> <input-UDI-module> [UDI-loc] [udibuild-flags]
+
+# Utility used by the environment build to get access to a UDI module.
+# The result should be an object file that can be linked into the
+# current UDI build operation.  This object file may actually contain
+# the module itself or may just contain code designed to cause the
+# module to be loaded at run-time (possibly in another
+# thread/process/domain/whatever).
+
+# <out-objfile> is the name of the object file to be created.
+# The object file must contain a <prefix>_get_info function which
+# takes no arguments and returns the address of the module's
+# udi_init_info structure.
+
+# <prefix> is used for making specific references to
+# <prefix>_get_info, <prefix>_init_info, et.al.
+
+# The <input-UDI-module> must be one of:
+#	* A UDI package filename
+#       * [vendor:]shortname which is searched for in the udisetup
+#         installed cache
+#	* A directory containing the source and/or UDI package
+
+# If UDI-loc is specified, and is not INSTALLED, it specifies the
+# location of a UDI code tree which is to be used for include files
+# and tools rather than any system installed locations.
+
+# If udibuild-flags is non-NULL, it specifies specific flags to be
+# passed to any udibuild operation performed in addition to the normal
+# flags.
+
+#--------------------------------------------------------------------
+# IMPLEMENTATION NOTES:
+
+# For this implementation, we want to find the module source.  This
+# can come from whatever input, but we need it so we can rebuild with
+# a customized define for the udi_init_info/udi_meta_info values.
+
+# In the future we might be able to handle binary distributions as
+# well, but not right now.
+
+# ----------------------------------------------------------------------
+TARGETCC=`sh ../solaris/getarchflags -targetcc`
+TARGETCCOPTS=`sh ../solaris/getarchflags -targetccopts`
+
+objfile=$1
+fullobjfile=`pwd`/$1
+if [ -f $objfile -a ! -f $fullobjfile ] ; then
+    fullobjfile=$1   # must have been absolute
+fi
+msgdir=`pwd`/msg
+prefix=$2
+input=$3
+root_udi_dir=${4:-"INSTALLED"}
+tooldir="INSTALLED"
+udisrc=...
+uditmpdir=`pwd` #${TMPDIR:-"/tmp"}
+uditmp=/${uditmpdir}/.$2 #/${uditmpdir}/udiget_$$
+if [ ! -d $uditmp ] ; then mkdir $uditmp; fi
+if [ ! -d $msgdir ] ; then mkdir $msgdir; fi
+
+do_exit() { #$1 = exitcode
+    #rm -rf $uditmp
+    exit $1
+}
+
+
+. ../solaris-user/udiget_solaris.sh
+
+if [ "X$root_udi_dir" != "XINSTALLED" ] ; then
+    UDI_PUB_INCLUDE=$root_udi_dir/pub_include; export UDI_PUB_INCLUDE
+    tooldir=$root_udi_dir/tools/bin
+fi
+
+# ----------------------------------------------------------------------
+# Special case: if the input is a source directory, we'd like to rebuild
+# if and only if any of those input source files have changed.
+
+while [ -f $objfile -a -d $input ] ; do
+    echo "Checking $1 ($2) from $3..."
+    # Check .c and .h files in the specified input directory
+    new=`find $input -follow -name '*.[ch]' -newer $fullobjfile -print`
+    if [ "X$new" != "X" ] ; then break; fi;
+    # Check the udiprops.txt in the specified input directory
+    new=`find $input -follow -name udiprops.txt -newer $fullobjfile -print`
+    if [ "X$new" != "X" ] ; then break; fi;
+    # Skany way to pick up things that are possibly other source files...
+    #   TBD: check udiprops.txt source_files lines for valid directory specs
+    other_sources=`cat $input/udiprops.txt | sed -e 's/#.*//' | xargs -n 1 | grep '/'`
+    for src in ${other_sources}; do
+        if [ -f $src -a "X`find $src -newer $fullobjfile 2>&1`" != "X" ] ; then
+	    break 2;
+	fi
+    done
+    # Check the UDI include files: either specified or default
+    if [ "X$root_udi_dir" != "XINSTALLED" ] ; then
+	new=`find $root_udi_dir -follow -name '*.h' -newer $fullobjfile -print`
+    else
+	new=`find /usr/include/udi -follow -name '*.h' -newer $fullobjfile -print`
+    fi
+    if [ "X$new" != "X" ] ; then break; fi;
+    # Check the UDI tools
+    new=`find $tooldir -follow -name 'udibuild' -newer $fullobjfile -print`
+    if [ "X$new" != "X" ] ; then break; fi;
+    # Everything is up-to-date: no rebuild action required
+    exit 0
+done
+
+#rm -f $fullobjfile
+
+# ----------------------------------------------------------------------
+# Parse input files to find source for module
+
+if [ ! -d $uditmp/src ] ; then mkdir $uditmp/src; fi
+
+get_udi_source $input $uditmp/src || do_exit 2
+
+
+
+# ----------------------------------------------------------------------
+# Source for module is in $uditmp/src:  Build with needed flags.
+
+
+DO_POSIX=${prefix}
+export DO_POSIX
+build_udi_package $uditmp/src $tooldir "-Dudi_init_info=${prefix}_init_info -Dudi_meta_info=${prefix}_init_info" ${5:-""} || do_exit 6
+
+udipkg=$uditmp/src/*.udi
+
+if [ ! -f $udipkg ] ; then do_exit 3; fi
+
+udiprops=$uditmp/udiprops.txt
+get_udipkg_props $udipkg $udiprops || do_exit 4
+
+for mod in `grep '^module' $udiprops | awk '{print $2}'` ; do
+
+#KWQ: This is here assuming that we rm -f $fullobjfile before entering
+#KWQ: this while loop.  This would indicate that there were multiple
+#KWQ: "module" specifications in the udiprops.txt, which udiget doesn't
+#KWQ: presently handle.  However, multiple modules are probably not
+#KWQ: handled well by the rest of the UDI code right now, so just leave
+#KWQ: this be for the moment.
+#    if [ -f $fullobjfile ] ; then
+#        echo "How to get from multiple modules?!"
+#	continue;
+#    fi
+
+    if [ ! -d $uditmp/out_$mod ] ; then mkdir $uditmp/out_$mod; fi
+    (   cd $uditmp/out_$mod
+
+        # Get the module from the distribution
+        if [ -f $mod ] ; then mv $mod ${mod}__old; fi
+	get_udipkg_mod $udipkg $mod $ABI
+
+	# Create the stub
+	echo "void *${prefix}_get_init_info()  " > stub.c
+	echo "{" >> stub.c
+	echo "  extern ${prefix}_init_info;" >> stub.c
+	echo "  return &${prefix}_init_info;" >> stub.c
+	echo "}" >> stub.c
+	${TARGETCC} -c ${TARGETCCOPTS} -o stub.o stub.c
+
+	ld -r -B eliminate -o $fullobjfile stub.o $mod
+    )
+done
+
+modmsgdir=$msgdir/`grep shortname $udiprops | awk '{print $2}'`
+if [ ! -d $modmsgdir ] ; then mkdir $modmsgdir; fi
+get_udipkg_msgs $udipkg $modmsgdir/ || do_exit 4
+
+
+# --------------------------------------------
+# Done, now cleanup and exit
+
+do_exit 0
+

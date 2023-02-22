@@ -1,6 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <dev/acpi/acpi.h>
+#include <dev/device.h>
+
+#define DEV_PCI_MAJOR
 
 namespace PCI {
         struct PCIDeviceHeader {
@@ -40,6 +43,55 @@ namespace PCI {
                 uint8_t MaxLatency;
         }__attribute__((packed));
 
+	class PCIFunction : public Device {
+	public:
+		PCIFunction(uint64_t deviceAddress, uint64_t function);
+
+		bool Exists() { return exists; }
+	private:
+		bool exists = true;
+
+		uint64_t deviceAddress;
+		uint64_t function;
+
+		uint64_t functionAddress;
+	};
+
+	class PCIDevice : public Device {
+	public:
+		PCIDevice(uint64_t busAddress, uint64_t device);
+
+		PCIFunction *GetFunction(uint64_t id) { if(id > 8) return 0; return functions[id]; }
+		bool Exists() { return exists; }
+	private:
+		PCIFunction *functions[8];
+		bool exists = true;
+
+		uint64_t busAddress;
+		uint64_t device;
+
+		uint64_t deviceAddress;
+	};
+
+	class PCIBus : public Device {
+	public:
+		PCIBus(uint64_t baseAddress, uint64_t bus);
+
+		PCIDevice *GetDevice(uint64_t id) { if(id > 32) return 0; return devices[id]; }
+
+		bool Exists() { return exists; }
+	private:
+		EnumerateDevice(uint64_t busAddress, uint64_t device);
+
+		PCIDevice *devices[32];
+		bool exists = true;
+
+		uint64_t baseAddress;
+		uint64_t bus;
+
+		uint64_t busAddress;
+	};
+
         void EnumeratePCI(ACPI::MCFGHeader *mcfg);
 
         extern const char *DeviceClasses[];
@@ -49,3 +101,4 @@ namespace PCI {
         const char *GetSubclassName(uint8_t classCode, uint8_t subclassCode);
         const char *GetProgIFName(uint8_t classCode, uint8_t subclassCode, uint8_t progIF);
 }
+

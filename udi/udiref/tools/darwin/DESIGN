@@ -1,0 +1,10 @@
+UDI Static Properties Implementation
+
+On non-ELF generating OSes, you need to implement your own
+get_abi_sprops/set_abi_sprops. If your OS at least allows
+you to add extra sections to a object file, you should be
+able to do something like I've done here in order to
+generate an appropriate udiprops section.
+
+--Steven Bytnar <sbytnar@users.sourceforge.net>
+

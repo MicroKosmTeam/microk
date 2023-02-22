@@ -1,0 +1,23 @@
+
+# UDI
+
+mainmenu_option next_comment
+	comment 'UDI'
+	hex 'UDI version.'                         CONFIG_UDI_VERSION 0x101
+
+	comment 'PCI'
+	bool 'Enable PCI and PCIe.' CONFIG_PCI y
+	if [ "$CONFIG_PCI" = "y" ]; then
+		mainmenu_option next_comment
+			comment 'PCI/PCIe device configuration'
+			bool 'Enable AHCI.'                                CONFIG_AHCI y
+			if [ "$CONFIG_AHCI" = "y" ]; then
+				mainmenu_option next_comment
+					comment 'AHCI Settings.'
+					comment 'AHCI DMA.'
+					int 'AHCI DMA buffer size.'        CONFIG_AHCI_DMA_SIZE  4194304
+				endmenu
+			fi
+		endmenu
+	fi
+endmenu
