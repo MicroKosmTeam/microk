@@ -43,14 +43,32 @@ namespace PCI {
                 uint8_t MaxLatency;
         }__attribute__((packed));
 
-	class PCIDevice : public Device {
+	class PCIFunction : public Device {
 	public:
-		PCIDevice(uint64_t deviceAddress, uint64_t function);
+		PCIFunction(uint64_t deviceAddress, uint64_t function);
 	private:
-		PCIDeviceHeader *pciDeviceHeader;
-
 		uint64_t deviceAddress;
 		uint64_t function;
+	};
+
+	class PCIDevice : public Device {
+	public:
+		PCIDevice(uint64_t busAddress, uint64_t device);
+	private:
+		PCIFunction *functions[8];
+
+		uint64_t busAddress;
+		uint64_t device;
+	};
+
+	class PCIBus : public Device {
+	public:
+		PCIBus(uint64_t baseAddress, uint64_t bus);
+	private:
+		PCIDevice *devices[32];
+
+		uint64_t baseAddress;
+		uint64_t bus;
 	};
 
         void EnumeratePCI(ACPI::MCFGHeader *mcfg);

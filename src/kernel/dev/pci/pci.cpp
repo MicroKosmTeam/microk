@@ -6,11 +6,6 @@
 #define PREFIX "[PCI] "
 
 namespace PCI {
-	PCIDevice::PCIDevice(uint64_t deviceAddress, uint64_t function) {
-		this->deviceAddress = deviceAddress;
-		this->function = function;
-	}
-
         void EnumerateFunction(uint64_t device_address, uint64_t function) {
                 uint64_t offset = function<< 12;
 
@@ -32,13 +27,6 @@ namespace PCI {
                        pciDeviceHeader->Subclass,
                        GetProgIFName( pciDeviceHeader->Class, pciDeviceHeader->Subclass, pciDeviceHeader->ProgIF),
                        pciDeviceHeader->ProgIF);
-
-
-		static uint64_t pciMinor = 0;
-		PCIDevice *newDevice = new PCIDevice(69, 69);
-		newDevice->SetMajor(10);
-		newDevice->SetMinor(pciMinor++);;
-		AddDevice(newDevice);
 
                 printk(PREFIX "Done enumerating function.\n");
         }
