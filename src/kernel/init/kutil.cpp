@@ -66,11 +66,12 @@ static void PrepareMemory(BootInfo *bootInfo) {
 
 static void PrepareDevices(BootInfo *bootInfo) {
 	// Starting serial printk
-	rootNode = new UARTDevice();
-	rootNode->ioctl(0,SerialPorts::COM1);
-	rootNode->ioctl(2,"Hello, world.\n");
-        printk_init_serial(rootNode);
+	rootSerial = new UARTDevice();
+	rootSerial->ioctl(0,SerialPorts::COM1);
+	rootSerial->ioctl(2,"Hello, world.\n");
+        printk_init_serial(rootSerial);
 
+	Init();
 
 	// Loading PCI devices
         ACPI::SDTHeader *xsdt = (ACPI::SDTHeader*)(bootInfo->rsdp->XSDTAddress);
@@ -78,6 +79,8 @@ static void PrepareDevices(BootInfo *bootInfo) {
         ACPI::MCFGHeader *mcfg = (ACPI::MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
         printk(PREFIX "Enumerating PCI devices...\n");
         PCI::EnumeratePCI(mcfg);
+
+	PrintDevice();
 }
 
 void kinit(BootInfo *bootInfo) {

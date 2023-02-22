@@ -1,6 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <dev/acpi/acpi.h>
+#include <dev/device.h>
+
+#define DEV_PCI_MAJOR
 
 namespace PCI {
         struct PCIDeviceHeader {
@@ -39,6 +42,16 @@ namespace PCI {
                 uint8_t MinGrant;
                 uint8_t MaxLatency;
         }__attribute__((packed));
+
+	class PCIDevice : public Device {
+	public:
+		PCIDevice(uint64_t deviceAddress, uint64_t function);
+	private:
+		PCIDeviceHeader *pciDeviceHeader;
+
+		uint64_t deviceAddress;
+		uint64_t function;
+	};
 
         void EnumeratePCI(ACPI::MCFGHeader *mcfg);
 
