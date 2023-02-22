@@ -46,29 +46,47 @@ namespace PCI {
 	class PCIFunction : public Device {
 	public:
 		PCIFunction(uint64_t deviceAddress, uint64_t function);
+
+		bool Exists() { return exists; }
 	private:
+		bool exists = true;
+
 		uint64_t deviceAddress;
 		uint64_t function;
+
+		uint64_t functionAddress;
 	};
 
 	class PCIDevice : public Device {
 	public:
 		PCIDevice(uint64_t busAddress, uint64_t device);
+
+		bool Exists() { return exists; }
 	private:
 		PCIFunction *functions[8];
+		bool exists = true;
 
 		uint64_t busAddress;
 		uint64_t device;
+
+		uint64_t deviceAddress;
 	};
 
 	class PCIBus : public Device {
 	public:
 		PCIBus(uint64_t baseAddress, uint64_t bus);
+
+		bool Exists() { return exists; }
 	private:
+		EnumerateDevice(uint64_t busAddress, uint64_t device);
+
 		PCIDevice *devices[32];
+		bool exists = true;
 
 		uint64_t baseAddress;
 		uint64_t bus;
+
+		uint64_t busAddress;
 	};
 
         void EnumeratePCI(ACPI::MCFGHeader *mcfg);

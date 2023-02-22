@@ -19,7 +19,7 @@ class UARTDevice : public Device {
 public:
 	UARTDevice() { active = false; }
 
-	uint64_t ioctl(uint64_t request, ...); // override;
+	uint64_t ioctl(uint64_t request, ...) override;
 
 	uint64_t Init(SerialPorts serialPort);
 	void PutStr(const char* str);
