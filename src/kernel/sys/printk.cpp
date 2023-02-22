@@ -1,12 +1,11 @@
 #include <sys/printk.h>
 #include <dev/device.h>
-#include <dev/serial/serial.h>
 #include <mm/string.h>
 #include <stdarg.h>
 #include <mm/heap.h>
 #define PREFIX "[PRINTK] "
 
-UARTDevice rootSerial;
+UARTDevice *printkSerial;
 
 static int earlyPrintkPos = 0;
 static const int earlyPrintkSize = 16 * 1024;
@@ -16,7 +15,7 @@ bool serial = false;
 
 static void print_all(const char *string) {
 	if (serial)
-		rootSerial.ioctl(2, string);
+		printkSerial->ioctl(2, string);
 	else {
 		char ch;
 		while(ch = *string++) {
@@ -28,7 +27,7 @@ static void print_all(const char *string) {
 
 static void print_all_char(const char ch) {
 	if (serial)
-		rootSerial.ioctl(1, ch);
+		printkSerial->ioctl(1, ch);
 	else
 		if (earlyPrintkPos++ > earlyPrintkSize) return;
 		earlyPrintkBuffer[earlyPrintkPos] = ch;
@@ -43,9 +42,8 @@ static void dump_early() {
 	printk(PREFIX "Remaining available early printk memory: %d\n", earlyPrintkSize - earlyPrintkPos);
 }
 
-void printk_init_serial() {
-	rootSerial = UARTDevice();
-	rootSerial.ioctl(0, SerialPorts::COM1);
+void printk_init_serial(UARTDevice *device) {
+	printkSerial = device;
 	serial = true;
 	dump_early();
 }

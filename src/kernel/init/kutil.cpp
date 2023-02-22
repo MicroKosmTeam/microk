@@ -53,14 +53,23 @@ static void PrepareMemory(BootInfo *bootInfo) {
 	printk(PREFIX "Setting up x86_64 CPU Features...\n");
         x86_64::CPUInit();
 #endif
-	uint64_t heapAddress = bootInfo->hhdmOffset + 0x000000100000000000;
+//	uint64_t heapAddress = bootInfo->hhdmOffset + 0x000000200000000000;
+	uint64_t heapAddress = 0x00007FFFFFFFFFFF - 0xFFFFFFFFFFF;
 	uint64_t heapPages = 0x100;
 	InitializeHeap(heapAddress, heapPages);
 
 	printk(PREFIX "Memory initialized.\n");
 }
 
+#include <dev/device.h>
+#include <dev/serial/serial.h>
+
 static void PrepareDevices(BootInfo *bootInfo) {
+	// Starting serial printk
+	rootNode = new UARTDevice();
+	rootNode->ioctl(0,SerialPorts::COM1);
+	rootNode->ioctl(2,"Hello, world.\n");
+        printk_init_serial(rootNode);
 
 
 	// Loading PCI devices
@@ -72,9 +81,6 @@ static void PrepareDevices(BootInfo *bootInfo) {
 }
 
 void kinit(BootInfo *bootInfo) {
-	// Starting serial printk
-        printk_init_serial();
-
 	printk("\n");
 	printk(PREFIX "%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
 	printk(PREFIX "Cmdline: %s\n", bootInfo->cmdline);

@@ -1,6 +1,7 @@
 #pragma once
 #include <cdefs.h>
+#include <dev/serial/serial.h>
 
 void printk(char *format, ...);
-void printk_init_serial();
+void printk_init_serial(UARTDevice *device);
 
