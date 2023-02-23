@@ -79,6 +79,11 @@ static volatile limine_kernel_file_request kernel_file_request = {
     .revision = 0
 };
 
+static volatile limine_kernel_address_request kernel_address_request = {
+    .id = LIMINE_KERNEL_ADDRESS_REQUEST,
+    .revision = 0
+};
+
 BootInfo bootInfo;
 extern "C" int _start() {
 	if (bootloader_info_request.response == NULL
@@ -88,7 +93,8 @@ extern "C" int _start() {
 		|| hhdm_request.response == NULL
 		|| module_request.response == NULL
 		|| smp_request.response == NULL
-		|| kernel_file_request.response == NULL) {
+		|| kernel_file_request.response == NULL
+		|| kernel_address_request.response == NULL) {
 		return 69;
 	}
 
@@ -114,6 +120,8 @@ extern "C" int _start() {
 	}
 
 	bootInfo.cmdline = kernel_file_request.response->kernel_file->cmdline;
+	bootInfo.physicalKernelOffset = kernel_address_request.response->physical_base;
+	bootInfo.virtualKernelOffset = kernel_address_request.response->virtual_base;
 
         kinit(&bootInfo);
 	restInit();

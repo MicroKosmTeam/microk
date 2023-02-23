@@ -42,8 +42,8 @@ void PrepareInterrupts(BootInfo *bootInfo) {
         asm("sti");
 }
 
-void PreparePaging(limine_memmap_entry **mMap, uint64_t mMapEntries, uint64_t offset) {
-	VMM::InitVirtualMemoryManager(mMap, mMapEntries,offset);
+void PreparePaging(BootInfo *bootInfo) {
+	VMM::InitVirtualMemoryManager(bootInfo);
 	return;
 }
 }

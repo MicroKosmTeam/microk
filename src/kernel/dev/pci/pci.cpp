@@ -32,7 +32,7 @@ namespace PCI {
                 uint64_t offset = bus << 20;
 		busAddress = baseAddress + offset;
 
-                VMM::MapMemory((void*)busAddress, (void*)busAddress);
+                VMM::MapMemory((void*)busAddress + hhdm, (void*)busAddress);
 
                 PCIDeviceHeader *pciDeviceHeader = (PCIDeviceHeader*)busAddress;
 
@@ -65,7 +65,7 @@ namespace PCI {
                 uint64_t offset = device << 15;
 
                 uint64_t deviceAddress = busAddress + offset;
-                VMM::MapMemory((void*)deviceAddress, (void*)deviceAddress);
+                VMM::MapMemory((void*)deviceAddress + hhdm, (void*)deviceAddress);
 
                 PCIDeviceHeader *pciDeviceHeader = (PCIDeviceHeader*)deviceAddress;
 
@@ -95,7 +95,7 @@ namespace PCI {
                 uint64_t offset = function<< 12;
 
                 functionAddress = deviceAddress + offset;
-		VMM::MapMemory((void*)functionAddress, (void*)functionAddress);
+		VMM::MapMemory((void*)functionAddress + hhdm, (void*)functionAddress);
 
                 PCIDeviceHeader *pciDeviceHeader = (PCIDeviceHeader*)functionAddress;
 

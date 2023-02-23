@@ -5,6 +5,12 @@
 #include <dev/acpi/acpi.h>
 
 extern uint64_t kernel_start, kernel_end;
+extern uintptr_t text_start_addr,
+		  rodata_start_addr,
+		  data_start_addr,
+		  text_end_addr,
+		  rodata_end_addr,
+		  data_end_addr;
 extern uintptr_t kernelStack;
 
 struct BootInfo {
@@ -14,6 +20,8 @@ struct BootInfo {
 	limine_memmap_entry **mMap;
 	uint64_t mMapEntries;
 	uint64_t hhdmOffset;
+	uint64_t physicalKernelOffset;
+	uint64_t virtualKernelOffset;
 
 	limine_file **modules;
 	uint64_t moduleCount;

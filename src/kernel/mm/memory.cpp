@@ -1,6 +1,8 @@
 #include <mm/memory.h>
 #include <cdefs.h>
 
+uint64_t hhdm;
+
 uint64_t get_memory_size(limine_memmap_entry **mMap, uint64_t mMapEntries) {
         static uint64_t memory_size_bytes = 0;
 

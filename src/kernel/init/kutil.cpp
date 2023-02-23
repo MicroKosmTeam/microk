@@ -16,8 +16,13 @@
 #include <arch/x86_64/mm/vmm.h>
 #endif
 
+UARTDevice serialPort;
 uintptr_t kernelStack;
+
 static void PrepareMemory(BootInfo *bootInfo) {
+	serialPort.ioctl(0,SerialPorts::COM1);
+	serialPort.ioctl(2,"Hello, world.\n");
+        printk_init_serial(serialPort);
 #ifdef CONFIG_ARCH_x86_64
 	// Loading the GDT
 	printk(PREFIX "Loading the GDT...\n");
@@ -47,7 +52,7 @@ static void PrepareMemory(BootInfo *bootInfo) {
 	x86_64::PrepareInterrupts(bootInfo);
 
 	printk(PREFIX "Preparing paging...\n");
-	x86_64::PreparePaging(bootInfo->mMap, bootInfo->mMapEntries, bootInfo->hhdmOffset);
+	x86_64::PreparePaging(bootInfo);
 
         // Init CPU Features
 	printk(PREFIX "Setting up x86_64 CPU Features...\n");
@@ -65,11 +70,11 @@ static void PrepareMemory(BootInfo *bootInfo) {
 #include <dev/serial/serial.h>
 
 static void PrepareDevices(BootInfo *bootInfo) {
-	// Starting serial printk
+/*	// Starting serial printk
 	rootSerial = new UARTDevice();
 	rootSerial->ioctl(0,SerialPorts::COM1);
 	rootSerial->ioctl(2,"Hello, world.\n");
-        printk_init_serial(rootSerial);
+        printk_init_serial(rootSerial);*/
 
 	Init();
 
