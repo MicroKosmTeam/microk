@@ -105,7 +105,7 @@ extern "C" int _start() {
 	bootInfo.mMapEntries = memmap_request.response->entry_count;
 	bootInfo.hhdmOffset = hhdm_request.response->offset;
 
-	bootInfo.rsdp = rsdp_request.response->address;
+	bootInfo.rsdp = (ACPI::RSDP2*)rsdp_request.response->address;
 
 	bootInfo.modules = module_request.response->modules;
 	bootInfo.moduleCount = module_request.response->module_count;

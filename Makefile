@@ -17,7 +17,27 @@ CPP = $(ARCH)-elf-g++
 ASMC = nasm
 LD = $(ARCH)-elf-gcc
 
-CFLAGS = -mcmodel=kernel -mabi=sysv -fno-builtin-g -ffreestanding -fshort-wchar  -mno-red-zone -fno-omit-frame-pointer -Wall -I src/kernel/include -fno-exceptions -fpermissive -fno-rtti -O3 -std=c++17 -fstack-protector-all -fsanitize=undefined
+CFLAGS = -mcmodel=kernel \
+	 -mabi=sysv      \
+	 -fno-builtin-g  \
+	 -ffreestanding  \
+	 -fshort-wchar   \
+	 -mno-red-zone   \
+	 -fno-omit-frame-pointer \
+	 -Wall           \
+	 -I src/kernel/include \
+	 -fno-exceptions \
+	 -fno-rtti       \
+	 -std=c++17      \
+	 -fstack-protector-all \
+	 -fsanitize=undefined \
+	 -mno-soft-float \
+	 -mno-80387 \
+	 -mno-mmx \
+	 -mno-sse \
+	 -mno-sse2 \
+	 -fpermissive \
+	 -O3
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -z max-page-size=0x1000 -static -Bsymbolic -nostdlib
 

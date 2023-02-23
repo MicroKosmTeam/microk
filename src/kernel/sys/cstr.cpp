@@ -18,7 +18,7 @@ const char* to_string(uint64_t value){
     }
     uint8_t remainder = value % 10;
     uintTo_StringOutput[size - index] = remainder + '0';
-    uintTo_StringOutput[size + 1] = 0; 
+    uintTo_StringOutput[size + 1] = 0;
     return uintTo_StringOutput;
 }
 
@@ -116,12 +116,12 @@ const char* to_string(int64_t value){
     }
     uint8_t remainder = value % 10;
     intTo_StringOutput[isNegative + size - index] = remainder + '0';
-    intTo_StringOutput[isNegative + size + 1] = 0; 
+    intTo_StringOutput[isNegative + size + 1] = 0;
     return intTo_StringOutput;
 }
 
-char doubleTo_StringOutput[128];
-const char* to_string(double value, uint8_t decimalPlaces){
+//char doubleTo_StringOutput[128];
+/*const char* to_string(double value, uint8_t decimalPlaces){
     if (decimalPlaces > 20) decimalPlaces = 20;
 
     char* intPtr = (char*)to_string((int64_t)value);
@@ -140,19 +140,19 @@ const char* to_string(double value, uint8_t decimalPlaces){
     *doublePtr = '.';
     doublePtr++;
 
-    double newValue = value - (int)value;
+    //double newValue = value - (int)value;
 
-    for (uint8_t i = 0; i < decimalPlaces; i++){
-        newValue *= 10;
-        *doublePtr = (int)newValue + '0';
-        newValue -= (int)newValue;
-        doublePtr++;
-    }
+    //for (uint8_t i = 0; i < decimalPlaces; i++){
+    //    newValue *= 10;
+    //    *doublePtr = (int)newValue + '0';
+    //    newValue -= (int)newValue;
+    //    doublePtr++;
+    //}
 
-    *doublePtr = 0;
+    doublePtr = 0;
     return doubleTo_StringOutput;
 }
 
 const char* to_string(double value){
     return to_string(value, 2);
-}
+}*/
