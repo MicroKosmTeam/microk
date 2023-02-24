@@ -90,7 +90,7 @@ static void ReservePages(void *address, uint64_t page_count) {
 
 
 namespace PMM {
-void InitPageFrameAllocator(limine_memmap_entry **mMap, size_t mMapEntries) {
+void InitPageFrameAllocator(limine_memmap_entry **mMap, size_t mMapEntries, uint64_t offset) {
         if (initialized) return;
 
         initialized = true;
@@ -116,7 +116,7 @@ void InitPageFrameAllocator(limine_memmap_entry **mMap, size_t mMapEntries) {
         uint64_t bitmap_size = memory_size / 4096 / 8 + 1;
 
         // Initialize bitmap
-        InitBitmap(bitmap_size, largest_free);
+        InitBitmap(bitmap_size, largest_free + offset);
 
         // Reserve all pages
         ReservePages(0, memory_size / 4096 + 1);

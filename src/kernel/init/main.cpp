@@ -123,7 +123,7 @@ extern "C" int _start() {
 	bootInfo.physicalKernelOffset = kernel_address_request.response->physical_base;
 	bootInfo.virtualKernelOffset = kernel_address_request.response->virtual_base;
 
-        kinit(&bootInfo);
+        startKernel(&bootInfo);
 	restInit();
 
 }

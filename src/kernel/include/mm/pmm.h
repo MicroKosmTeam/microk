@@ -6,7 +6,7 @@
 #include <mm/memory.h>
 
 namespace PMM {
-	void InitPageFrameAllocator(limine_memmap_entry **mMap, size_t mMapEntries);
+	void InitPageFrameAllocator(limine_memmap_entry **mMap, size_t mMapEntries, uint64_t offset);
 
 	void *RequestPage();
 	void *RequestPages(size_t pages);

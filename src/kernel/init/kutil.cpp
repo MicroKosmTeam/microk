@@ -16,13 +16,13 @@
 #include <arch/x86_64/mm/vmm.h>
 #endif
 
-UARTDevice serialPort;
+//UARTDevice serialPort;
 uintptr_t kernelStack;
 
 static void PrepareMemory(BootInfo *bootInfo) {
-	serialPort.ioctl(0,SerialPorts::COM1);
-	serialPort.ioctl(2,"Hello, world.\n");
-        printk_init_serial(serialPort);
+	//serialPort.ioctl(0,SerialPorts::COM1);
+	//serialPort.ioctl(2,"Hello, world.\n");
+        //printk_init_serial(serialPort);
 #ifdef CONFIG_ARCH_x86_64
 	// Loading the GDT
 	printk(PREFIX "Loading the GDT...\n");
@@ -30,7 +30,7 @@ static void PrepareMemory(BootInfo *bootInfo) {
 #endif
 	// Initializing the GlobalAllocator with EFI Memory data
 	printk(PREFIX "Initializing the page frame allocator...\n");
-	PMM::InitPageFrameAllocator(bootInfo->mMap, bootInfo->mMapEntries);
+	PMM::InitPageFrameAllocator(bootInfo->mMap, bootInfo->mMapEntries, bootInfo->hhdmOffset);
 
 	printk(PREFIX "Stack at: 0x%x\n", kernelStack);
 	printk(PREFIX "HHDM at: 0x%x\n", bootInfo->hhdmOffset);
@@ -70,11 +70,11 @@ static void PrepareMemory(BootInfo *bootInfo) {
 #include <dev/serial/serial.h>
 
 static void PrepareDevices(BootInfo *bootInfo) {
-/*	// Starting serial printk
+	// Starting serial printk
 	rootSerial = new UARTDevice();
 	rootSerial->ioctl(0,SerialPorts::COM1);
 	rootSerial->ioctl(2,"Hello, world.\n");
-        printk_init_serial(rootSerial);*/
+        printk_init_serial(rootSerial);
 
 	Init();
 
@@ -88,9 +88,8 @@ static void PrepareDevices(BootInfo *bootInfo) {
 	PrintDevice();
 }
 
-void kinit(BootInfo *bootInfo) {
-	printk("\n");
-	printk(PREFIX "%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
+void startKernel(BootInfo *bootInfo) {
+	printk(PREFIX "\n%s %s %s %s\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER, __DATE__, __TIME__);
 	printk(PREFIX "Cmdline: %s\n", bootInfo->cmdline);
 
         // Memory initialization

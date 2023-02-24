@@ -36,7 +36,7 @@ struct BootInfo {
 	char *cmdline;
 };
 
-void kinit(BootInfo *bootInfo);
+void startKernel(BootInfo *bootInfo);
 void smpInit(limine_smp_info *info);
 void restInit();
 
