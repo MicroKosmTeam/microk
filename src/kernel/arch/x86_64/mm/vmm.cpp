@@ -16,7 +16,7 @@ static uint64_t *LoadPageDir() {
 	// when I have so much to do.
 	// おやすみなさい
 
-	asm volatile("mov %%cr3, %0" : "=r"(addr) :);
+	asm volatile("mov %%cr3, %0" : "=r"(addr) : :"memory");
 
 	//addr = PMM::RequestPage();
 	//memset(addr, 0, 0x1000);
@@ -87,7 +87,7 @@ void InitVirtualMemoryManager(BootInfo *bootInfo) {
 		  dataEnd = data_end_addr;
 
 	for (size_t i = 0; i < 512; i++) {
-		GetNextLevel(pageDir, i, PTE_PRESENT | PTE_READ_WRITE);
+		GetNextLevel(pageDir, i, true);
 	}
 
 	for (uintptr_t textAddr = textStart; textAddr < textEnd; textAddr += PAGE_SIZE) {
@@ -105,30 +105,13 @@ void InitVirtualMemoryManager(BootInfo *bootInfo) {
 		MapPage(pageDir, phys, dataAddr, PTE_PRESENT | PTE_UNAVAILABLE | PTE_READ_WRITE);
 	}
 
-	// This code always crashes in QEMU at a specific address.
-	// Have no idea why.
-	/*
-	for (uintptr_t addr = 0x1000; addr < 0x100000000; addr += PAGE_SIZE) {
-		MapPage(pageDir, addr, addr, PTE_PRESENT | PTE_UNAVAILABLE | PTE_READ_WRITE);
-		MapPage(pageDir, addr, addr + bootInfo->hhdmOffset, PTE_PRESENT | PTE_UNAVAILABLE | PTE_READ_WRITE);
-	}
-	*/
-
 	for (size_t i = 0; i < bootInfo->mMapEntries - 1; i++) {
 		limine_memmap_entry *entry = bootInfo->mMap[i];
 
 		uintptr_t base = entry->base;
 		uintptr_t top = entry->base + entry->length;
 
-		if (top <= 0x100000000) {
-			continue;
-		}
-
 		for (uintptr_t j = base; j < top; j += PAGE_SIZE) {
-			if (j < 0x100000000) {
-				continue;
-			}
-
 			MapPage(pageDir, j, j, PTE_PRESENT | PTE_READ_WRITE);
 			MapPage(pageDir, j + bootInfo->hhdmOffset, j, PTE_PRESENT | PTE_READ_WRITE | PTE_UNAVAILABLE);
 		}
