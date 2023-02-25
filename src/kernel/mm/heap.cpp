@@ -68,6 +68,9 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         startSeg->last = NULL;
         startSeg->free = true;
         lastHeader = startSeg;
+
+	printk(PREFIX "Done initializing heap.\n");
+	return;
 }
 
 void *malloc(size_t size) {

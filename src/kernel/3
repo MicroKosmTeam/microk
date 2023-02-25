@@ -105,7 +105,7 @@ void InitVirtualMemoryManager(BootInfo *bootInfo) {
 		MapPage(pageDir, phys, dataAddr, PTE_PRESENT | PTE_UNAVAILABLE | PTE_READ_WRITE);
 	}
 
-	for (size_t i = 0; i < bootInfo->mMapEntries; i++) {
+	for (size_t i = 0; i < bootInfo->mMapEntries - 1; i++) {
 		limine_memmap_entry *entry = bootInfo->mMap[i];
 
 		uintptr_t base = entry->base;

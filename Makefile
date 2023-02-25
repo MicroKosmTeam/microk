@@ -17,7 +17,8 @@ CPP = $(ARCH)-elf-g++
 ASMC = nasm
 LD = $(ARCH)-elf-gcc
 
-CFLAGS = -mcmodel=kernel \
+CFLAGS = -g \
+	 -mcmodel=kernel \
 	 -mabi=sysv      \
 	 -fno-builtin-g  \
 	 -ffreestanding  \
@@ -31,17 +32,19 @@ CFLAGS = -mcmodel=kernel \
 	 -std=c++17      \
 	 -fstack-protector-all \
 	 -fsanitize=undefined \
+	 -fno-strict-aliasing \
+	 -fms-extensions \
 	 -mno-soft-float \
 	 -mno-80387 \
 	 -mno-mmx \
 	 -mno-sse \
 	 -mno-sse2 \
 	 -fpermissive \
-	 -O3
+	 -Og
 ASMFLAGS = -f elf64
 LDFLAGS = -T $(LDS64) -z max-page-size=0x1000 -static -Bsymbolic -nostdlib
 
-QEMUFLAGS = -drive file=$(BINDIR)/$(OSNAME).img,if=none,id=nvm -device nvme,serial=deadbeef,drive=nvm -m 1G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -device qemu-xhci -no-reboot -no-shutdown -M q35 #,accel=tcg
+QEMUFLAGS = -drive file=$(BINDIR)/$(OSNAME).img,if=none,id=nvm -device nvme,serial=deadbeef,drive=nvm -m 8G -cpu qemu64 -smp sockets=1,cores=4,threads=1 -drive if=pflash,format=raw,unit=0,file="$(OVMFDIR)/OVMF_CODE-pure-efi.fd",readonly=on -drive if=pflash,format=raw,unit=1,file="$(OVMFDIR)/OVMF_VARS-pure-efi.fd" -device qemu-xhci -no-reboot -no-shutdown -M q35# -s -S  #,accel=tcg
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
@@ -98,7 +101,7 @@ link: $(KOBJS)
 	bash ./symbolstocpp.sh
 	@ echo !==== LINKING
 	$(LD) $(LDFLAGS) -o $(BINDIR)/kernel.elf $(KOBJS)
-	strip -s $(BINDIR)/kernel.elf
+	#strip -s $(BINDIR)/kernel.elf
 
 setup:
 	@mkdir -p $(BINDIR)

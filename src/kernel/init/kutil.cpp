@@ -16,13 +16,13 @@
 #include <arch/x86_64/mm/vmm.h>
 #endif
 
-//UARTDevice serialPort;
+UARTDevice serialPort;
 uintptr_t kernelStack;
 
 static void PrepareMemory(BootInfo *bootInfo) {
-	//serialPort.ioctl(0,SerialPorts::COM1);
-	//serialPort.ioctl(2,"Hello, world.\n");
-        //printk_init_serial(serialPort);
+	serialPort.ioctl(0,SerialPorts::COM1);
+	serialPort.ioctl(2,"Hello, world.\n");
+        printk_init_serial(serialPort);
 #ifdef CONFIG_ARCH_x86_64
 	// Loading the GDT
 	printk(PREFIX "Loading the GDT...\n");
@@ -58,8 +58,7 @@ static void PrepareMemory(BootInfo *bootInfo) {
 	printk(PREFIX "Setting up x86_64 CPU Features...\n");
         x86_64::CPUInit();
 #endif
-//	uint64_t heapAddress = bootInfo->hhdmOffset + 0x000000200000000000;
-	uint64_t heapAddress = 0x00007FFFFFFFFFFF - 0xFFFFFFFFFFF;
+	uint64_t heapAddress = 0xffffffffff000000;
 	uint64_t heapPages = 0x100;
 	InitializeHeap(heapAddress, heapPages);
 
@@ -71,11 +70,12 @@ static void PrepareMemory(BootInfo *bootInfo) {
 
 static void PrepareDevices(BootInfo *bootInfo) {
 	// Starting serial printk
+	/*
 	rootSerial = new UARTDevice();
 	rootSerial->ioctl(0,SerialPorts::COM1);
 	rootSerial->ioctl(2,"Hello, world.\n");
         printk_init_serial(rootSerial);
-
+	*/
 	Init();
 
 	// Loading PCI devices

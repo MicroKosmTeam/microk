@@ -5,8 +5,8 @@
 #include <mm/heap.h>
 #define PREFIX "[PRINTK] "
 
-UARTDevice *printkSerial;
-//UARTDevice printkSerial;
+//UARTDevice *printkSerial;
+UARTDevice printkSerial;
 
 static int earlyPrintkPos = 0;
 static const int earlyPrintkSize = 32 * 1024;
@@ -16,8 +16,8 @@ bool serial = false;
 
 static void print_all(const char *string) {
 	if (serial)
-		//printkSerial.ioctl(2, string);
-		printkSerial->ioctl(2, string);
+		printkSerial.ioctl(2, string);
+		//printkSerial->ioctl(2, string);
 	else {
 		char ch;
 		while(ch = *string++) {
@@ -29,8 +29,8 @@ static void print_all(const char *string) {
 
 static void print_all_char(const char ch) {
 	if (serial)
-		//printkSerial.ioctl(1, ch);
-		printkSerial->ioctl(1, ch);
+		printkSerial.ioctl(1, ch);
+		//printkSerial->ioctl(1, ch);
 	else
 		if (earlyPrintkPos++ > earlyPrintkSize) return;
 		earlyPrintkBuffer[earlyPrintkPos] = ch;
@@ -45,17 +45,17 @@ static void dump_early() {
 	printk(PREFIX "Remaining available early printk memory: %d\n", earlyPrintkSize - earlyPrintkPos);
 }
 
-/*void printk_init_serial(UARTDevice device) {
+void printk_init_serial(UARTDevice device) {
 	printkSerial = device;
 	serial = true;
 	//dump_early();
-}*/
+}
 
-void printk_init_serial(UARTDevice *device) {
+/*void printk_init_serial(UARTDevice *device) {
 	printkSerial = device;
 	serial = true;
 	dump_early();
-}
+}*/
 
 void printk(char *format, ...) {
         va_list ap;
