@@ -1,9 +1,0 @@
-mkpop
-osdep_pops.h
-bin
-udi.udi
-mkopaque
-udi_osdep_opaquetypes.h
-opaquetest.out
-opaquedefs
-opaquetypes

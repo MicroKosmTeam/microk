@@ -1,3 +1,0 @@
-[submodule "src/kdoom"]
-	path = src/kdoom
-	url = https://github.com/FilippoMutta/microk-kdoom

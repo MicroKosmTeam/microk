@@ -1,6 +1,0 @@
-build:
-
-install:
-
-clean:
-

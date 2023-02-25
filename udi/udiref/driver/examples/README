@@ -1,6 +1,0 @@
-This directory contains examples of UDI drivers.  These drivers may or
-may not build, may or may not work, may crash your system, and so on.  
-They are intended to show some specific and unique aspect of UDI 
-driver programming and are not meant to be generally useful.
-
-Consult the READMEs in the child directories for more information.
