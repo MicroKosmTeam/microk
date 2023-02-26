@@ -1,0 +1,6 @@
+*.o
+*.elf
+*.img
+*.sys
+*.efi
+limine/
