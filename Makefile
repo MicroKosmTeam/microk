@@ -10,6 +10,8 @@ LD = $(ARCH)-elf-ld
 
 CFLAGS = -ffreestanding       \
 	 -fno-stack-protector \
+	 -fno-omit-frame-pointer \
+	 -fno-builtin-g       \
 	 -fno-stack-check     \
 	 -fno-lto             \
 	 -fno-pie             \
@@ -24,12 +26,16 @@ CFLAGS = -ffreestanding       \
 	 -mno-red-zone        \
 	 -mcmodel=kernel      \
 	 -I kernel/include    \
-	 -Wno-write-strings
+	 -fpermissive         \
+	 -Wno-write-strings   \
+	 -Og                  \
+	 -ggdb
 
 ASMFLAGS = -f elf64
 
 LDFLAGS = -nostdlib               \
 	  -static                 \
+	  -Bsymbolic              \
 	  -m elf_$(ARCH)          \
 	  -z max-page-size=0x1000 \
 	  -T kernel/kernel.ld
@@ -83,4 +89,4 @@ buildimg: kernel
 	rm -rf img_mount
 
 run:
-	qemu-system-x86_64 -m 8G -smp sockets=1,cores=4,threads=1 -drive file="microk.img"
+	qemu-system-x86_64 -m 8G -smp sockets=1,cores=4,threads=1 -drive file="microk.img" -s -S
