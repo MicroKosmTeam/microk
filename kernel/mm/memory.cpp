@@ -2,6 +2,7 @@
 #include <sys/printk.hpp>
 #include <sys/panic.hpp>
 #include <mm/pmm.hpp>
+#include <mm/vmm.hpp>
 
 static volatile limine_memmap_request mMapRequest {
 	.id = LIMINE_MEMMAP_REQUEST,
@@ -36,5 +37,7 @@ void Init(KInfo *info) {
 				info->mMap[i]->base + info->mMap[i]->length,
 				memTypeStrings[info->mMap[i]->type]);
 	}
+
+	VMM::InitVMM(info);
 }
 }

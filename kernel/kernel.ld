@@ -22,6 +22,7 @@ SECTIONS
     /* that is the beginning of the region. */
     . = 0xffffffff80000000;
 
+    kernel_start_addr = .;
     text_start_addr = .;
 
     .text : {
@@ -35,16 +36,8 @@ SECTIONS
 
     rodata_start_addr = .;
 
-    PROVIDE(symbol_table = 1);
-
     .rodata : {
         *(.rodata .rodata.*)
-    } :rodata
-
-    .drivers : {
-        drivers_start = .;
-        KEEP(*(.drivers*))
-        drivers_end = .;
     } :rodata
 
     rodata_end_addr = .;
@@ -64,6 +57,7 @@ SECTIONS
     } :data
 
     data_end_addr = .;
+    kernel_end_addr = .;
 
     /* Discard .note.* and .eh_frame since they may cause issues on some hosts. */
     /DISCARD/ : {

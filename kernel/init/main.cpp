@@ -42,9 +42,11 @@ extern "C" void kernelStart(void) {
 
 	PRINTK::PrintK("MicroK Started.\r\n");
 
-	SCHED::NewKernelThread(&restInit);
+	while (true) {
+		asm volatile("hlt");
+	}
 
-        asm volatile("hlt");
+	SCHED::NewKernelThread(&restInit);
 }
 
 void restInit(uint64_t tmp) {
