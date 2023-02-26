@@ -3,4 +3,5 @@
 *.img
 *.sys
 *.efi
+*.tar
 limine/
