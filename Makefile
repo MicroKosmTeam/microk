@@ -23,7 +23,8 @@ CFLAGS = -ffreestanding       \
 	 -mno-sse2            \
 	 -mno-red-zone        \
 	 -mcmodel=kernel      \
-	 -I kernel/include
+	 -I kernel/include    \
+	 -Wno-write-strings
 
 ASMFLAGS = -f elf64
 
@@ -82,4 +83,4 @@ buildimg: kernel
 	rm -rf img_mount
 
 run:
-	qemu-system-x86_64 -drive file="microk.img"
+	qemu-system-x86_64 -m 8G -smp sockets=1,cores=4,threads=1 -drive file="microk.img"

@@ -1,6 +1,7 @@
 #include <mm/memory.hpp>
 #include <sys/printk.hpp>
 #include <sys/panic.hpp>
+#include <mm/pmm.hpp>
 
 static volatile limine_memmap_request mMapRequest {
 	.id = LIMINE_MEMMAP_REQUEST,
@@ -24,6 +25,8 @@ void Init(KInfo *info) {
 
 	info->mMap = mMapRequest.response->entries;
 	info->mMapEntryCount = mMapRequest.response->entry_count;
+
+	PMM::InitPageFrameAllocator(info);
 
 	PRINTK::PrintK("Memory map:\r\n");
 
