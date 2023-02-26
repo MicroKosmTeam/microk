@@ -1,6 +1,7 @@
 #include <mm/bootmem.hpp>
+#include <cdefs.h>
 
-const uint32_t BOOTMEM_SIZE = 1024 * 1024;
+const uint32_t BOOTMEM_SIZE = CONFIG_BOOTMEM_SIZE;
 uint8_t bootmemMemory[BOOTMEM_SIZE];
 uint32_t lastPosition = 0;
 
@@ -8,7 +9,7 @@ namespace BOOTMEM {
 	void *Malloc(size_t size) {
 		if (lastPosition + size > BOOTMEM_SIZE) return NULL;
 
-		void *seg = &bootmemMemory + lastPosition;
+		void *seg = bootmemMemory + lastPosition;
 		lastPosition += size;
 
 		return seg;

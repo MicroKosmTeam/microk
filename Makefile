@@ -5,7 +5,7 @@ KERNDIR = kernel
 LDS64 = kernel64.ld
 CC = $(ARCH)-elf-gcc
 CPP = $(ARCH)-elf-g++
-ASMC = nasm
+ASM = nasm
 LD = $(ARCH)-elf-ld
 
 CFLAGS = -ffreestanding       \
@@ -35,11 +35,9 @@ LDFLAGS = -nostdlib               \
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
-CSRC = $(call rwildcard,$(KERNDIR),*.c)
 CPPSRC = $(call rwildcard,$(KERNDIR),*.cpp)
 ASMSRC = $(call rwildcard,$(KERNDIR),*.asm)
-KOBJS = $(patsubst $(KERNDIR)/%.c, $(KERNDIR)/%.o, $(CSRC))
-KOBJS += $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
+KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
 
 kernel: $(KOBJS) link
@@ -49,15 +47,11 @@ $(KERNDIR)/%.o: $(KERNDIR)/%.cpp
 	@ mkdir -p $(@D)
 	$(CPP) $(CFLAGS) -c $^ -o $@
 
-$(KERNDIR)/%.o: $(KERNDIR)/%.c
-	@ echo !==== COMPILING $^
-	@ mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(KERNDIR)/%.o: $(KERNDIR)/%.asm
 	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
-	$(ASMC) $(ASMFLAGS) $^ -o $@
+	$(ASM) $(ASMFLAGS) $^ -o $@
 
 link: $(KOBJS)
 	@ echo !==== LINKING
@@ -78,6 +72,7 @@ buildimg: kernel
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v microk.elf \
 		   limine.cfg \
+		   initrd.tar \
 		   limine/limine.sys \
 		   img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
