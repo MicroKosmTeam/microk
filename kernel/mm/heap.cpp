@@ -73,7 +73,6 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         size_t heaplength = pageCount * 0x1000;
 	freeMem += heaplength;
 	totalMem += heaplength;
-	PRINTK::PrintK("%d bytes memory allocated.\r\n", heaplength);
 
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
@@ -151,7 +150,6 @@ void ExpandHeap(size_t length) {
 
 	freeMem += length;
 	totalMem += length;
-	PRINTK::PrintK("%d bytes memory allocated.\r\n", length);
 }
 
 }

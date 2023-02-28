@@ -36,7 +36,6 @@ extern "C" void kernelStart(void) {
 	MEM::Init(info);
 
 	HEAP::InitializeHeap(0x100000000, 0x100);
-
 	BOOTMEM::DeactivateBootmem();
 	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 
@@ -44,6 +43,11 @@ extern "C" void kernelStart(void) {
 
 	SCHED::Init();
 
+	PRINTK::PrintK(" __  __  _                _  __\r\n"
+		       "|  \\/  |(_) __  _ _  ___ | |/ /\r\n"
+		       "| |\\/| || |/ _|| '_|/ _ \\|   < \r\n"
+		       "|_|  |_||_|\\__||_|  \\___/|_|\\_\\\r\n"
+		       "The operating system for the future...at your fingertips.\r\n");
 	PRINTK::PrintK("MicroK Started.\r\n");
 	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
 

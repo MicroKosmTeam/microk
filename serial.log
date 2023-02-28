@@ -17,15 +17,13 @@ Memory map:
 [0x810000 - 0x900000] -> ACPI NVS
 [0x900000 - 0xb9875000] -> Usable
 [0xb9875000 - 0xba075000] -> Bootloader reclaimable
-[0xba075000 - 0xbe12c000] -> Usable
-[0xbe12c000 - 0xbe131000] -> Reserved
-[0xbe131000 - 0xbe141000] -> Usable
-[0xbe141000 - 0xbe170000] -> Bootloader reclaimable
-[0xbe170000 - 0xbe198000] -> Usable
-[0xbe198000 - 0xbe1a0000] -> Reserved
-[0xbe1a0000 - 0xbe411000] -> Usable
-[0xbe411000 - 0xbe414000] -> Reserved
-[0xbe414000 - 0xbf4ed000] -> Usable
+[0xba075000 - 0xbe12f000] -> Usable
+[0xbe12f000 - 0xbe134000] -> Reserved
+[0xbe134000 - 0xbe144000] -> Usable
+[0xbe144000 - 0xbe173000] -> Bootloader reclaimable
+[0xbe173000 - 0xbe198000] -> Usable
+[0xbe198000 - 0xbe1a3000] -> Reserved
+[0xbe1a3000 - 0xbf4ed000] -> Usable
 [0xbf4ed000 - 0xbf5ed000] -> Reserved
 [0xbf5ed000 - 0xbf6ed000] -> Reserved
 [0xbf6ed000 - 0xbf76d000] -> Reserved
@@ -47,7 +45,11 @@ Memory map:
 Done mapping.
 Done.
 Initializing the heap at 0x100000000 with 256 pages.
-1048576 bytes memory allocated.
 Free bootmem memory: 63kb out of 64kb.
+ __  __  _                _  __
+|  \/  |(_) __  _ _  ___ | |/ /
+| |\/| || |/ _|| '_|/ _ \|   < 
+|_|  |_||_|\__||_|  \___/|_|\_\
+The operating system for the future...at your fingertips.
 MicroK Started.
 Free heap memory: 1024kb out of 1024kb.
