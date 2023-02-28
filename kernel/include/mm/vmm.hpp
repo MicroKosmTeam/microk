@@ -1,9 +1,7 @@
 #pragma once
-#include <arch/x64/mm/vmm.hpp>
 #include <init/kinfo.hpp>
 
 namespace VMM {
-	void InitVMM(KInfo *info) {
-		x86_64::InitVMM(info);
-	}
+	void InitVMM(KInfo *info);
+	void MapMemory(void *virtual_memory, void *physical_memory);
 }

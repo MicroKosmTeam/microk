@@ -4,10 +4,22 @@
 const uint32_t BOOTMEM_SIZE = CONFIG_BOOTMEM_SIZE;
 uint8_t bootmemMemory[BOOTMEM_SIZE];
 uint32_t lastPosition = 0;
+bool bootmemStatus = true;
 
 namespace BOOTMEM {
+	bool DeactivateBootmem() {
+		bootmemStatus = false;
+	}
+
+	bool BootmemIsActive() {
+		return bootmemStatus;
+	}
+
 	void *Malloc(size_t size) {
-		if (lastPosition + size > BOOTMEM_SIZE) return NULL;
+		if (lastPosition + size > BOOTMEM_SIZE) {
+			DeactivateBootmem();
+			return NULL;
+		}
 
 		void *seg = bootmemMemory + lastPosition;
 		lastPosition += size;

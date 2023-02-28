@@ -32,7 +32,7 @@ SECTIONS
     text_end_addr = .;
 
     /* Move to the next memory page for .rodata */
-    . += CONSTANT(MAXPAGESIZE);
+    . += 0x1000;
 
     rodata_start_addr = .;
 
@@ -43,7 +43,7 @@ SECTIONS
     rodata_end_addr = .;
 
     /* Move to the next memory page for .data */
-    . += CONSTANT(MAXPAGESIZE);
+    . += 0x1000;
 
     data_start_addr = .;
 

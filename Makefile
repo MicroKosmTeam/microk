@@ -29,13 +29,14 @@ CFLAGS = -ffreestanding       \
 	 -fpermissive         \
 	 -Wno-write-strings   \
 	 -Og                  \
+	 -fno-rtti            \
+	 -fno-exceptions      \
 	 -ggdb
 
 ASMFLAGS = -f elf64
 
 LDFLAGS = -nostdlib               \
 	  -static                 \
-	  -Bsymbolic              \
 	  -m elf_$(ARCH)          \
 	  -z max-page-size=0x1000 \
 	  -T kernel/kernel.ld

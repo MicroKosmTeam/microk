@@ -1,0 +1,149 @@
+[2J[01;01H[=3h[2J[01;01H[0m[35m[40m[0m[37m[40mBdsDxe: loading Boot0002 "EFI Internal Shell" from Fv(7CB8BDC9-F8EB-4F34-AAEA-3EE4AF6516A1)/FvFile(7C04A583-9E3E-4F1C-AD65-E05268D0B4D1)
+BdsDxe: starting Boot0002 "EFI Internal Shell" from Fv(7CB8BDC9-F8EB-4F34-AAEA-3EE4AF6516A1)/FvFile(7C04A583-9E3E-4F1C-AD65-E05268D0B4D1)
+[2J[01;01H[01;01HUEFI Interactive Shell v2.2
+EDK II
+UEFI v2.70 (EDK II, 0x00010000)
+[1m[33m[40mMapping table[0m[37m[40m
+[1m[33m[40m      FS0:[0m[37m[40m [1m[37m[40mAlias(s):[0m[37m[40mF0a65535a:;BLK0:
+          PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x0,0xFFFF,0x0)
+[1m[33m[40m     BLK1:[0m[37m[40m [1m[37m[40mAlias(s):[0m[37m[40m
+          PciRoot(0x0)/Pci(0x1F,0x2)/Sata(0x2,0xFFFF,0x0)
+[09;01HPress [1m[37m[40mESC[0m[37m[40m in 5 seconds to skip [1m[33m[40mstartup.nsh[0m[37m[40m or any other key to continue.[09;01HPress [1m[37m[40mESC[0m[37m[40m in 4 seconds to skip [1m[33m[40mstartup.nsh[0m[37m[40m or any other key to continue.
+[2J[01;01H[2J[01;01H[2J[01;01HFound bootloader on fs0:
+Welcome to Microk!
+Kernel Loaded Successfully.
+Kernel header successfully verified.
+Kernel Loaded
+Font found. Char size = 16.
+Initrd loaded.
+GOP located
+Base: 0xC0000000
+Size: 0x7E9000
+Width: 1920
+Height: 1080
+PixelsPerScanline: 1920.
+[KINIT] MicroK Loading...
+[KINIT] Initializing the heap...
+File found.
+Opening.
+Done opening.
+Write.
+Read.
+
+A: B
+[KMOD] Loading symtable...
+[KMOD] Symtable at: 0x196d80
+[KMOD] Function at: 0x13e760
+[KMOD] In symtable at: 0x13e760
+[KMOD] Symtable initialized!
+[KMOD] Assigning function...
+[KMOD] Function address: 0x13e760
+[KMOD] Running function...
+[TESTMOD] Hello World!
+[TESTMOD] Done!
+[KMOD] Done.
+[FS] Initializing the file system manager.
+[TTY] Initializing TTY...
+[CPU] CPU vendor is: AuthenticAMD
+[CPU] SSE status: Active
+[CPU] APIC status: Present
+[KINIT] PIT Frequency: 1000
+[USTAR]  001.ppm 1843215
+[USTAR]  002.ppm 1843215
+[USTAR]  003.ppm 1843215
+[USTAR]  004.ppm 2184420
+[USTAR]  005.ppm 2893095
+[USTAR]  006.ppm 3115203
+[USTAR]  007.ppm 3215850
+[USTAR]  008.ppm 3215961
+[USTAR]  009.ppm 3081867
+[USTAR]  010.ppm 3129369
+[USTAR]  011.ppm 3016875
+[USTAR]  012.ppm 2925687
+[USTAR]  013.ppm 2971518
+[USTAR]  014.ppm 2957250
+[USTAR]  015.ppm 3568656
+[USTAR]  016.ppm 3530601
+[USTAR]  017.ppm 2347620
+[USTAR]  018.ppm 3188367
+[USTAR]  019.ppm 2798061
+[USTAR]  020.ppm 2191557
+[USTAR]  021.ppm 1936395
+[USTAR]  022.ppm 1940625
+[USTAR]  023.ppm 1938171
+[USTAR]  024.ppm 2017932
+[USTAR]  025.ppm 2123598
+[USTAR]  026.ppm 2129199
+[USTAR]  027.ppm 2130708
+[USTAR]  028.ppm 2132709
+[USTAR]  029.ppm 2135577
+[USTAR]  030.ppm 2137941
+[USTAR] Files:
+[USTAR]  001.ppm 1843215
+[USTAR]  002.ppm 1843215
+[USTAR]  003.ppm 1843215
+[USTAR]  004.ppm 2184420
+[USTAR]  005.ppm 2893095
+[USTAR]  006.ppm 3115203
+[USTAR]  007.ppm 3215850
+[USTAR]  008.ppm 3215961
+[USTAR]  009.ppm 3081867
+[USTAR]  010.ppm 3129369
+[USTAR]  011.ppm 3016875
+[USTAR]  012.ppm 2925687
+[USTAR]  013.ppm 2971518
+[USTAR]  014.ppm 2957250
+[USTAR]  015.ppm 3568656
+[USTAR]  016.ppm 3530601
+[USTAR]  017.ppm 2347620
+[USTAR]  018.ppm 3188367
+[USTAR]  019.ppm 2798061
+[USTAR]  020.ppm 2191557
+[USTAR]  021.ppm 1936395
+[USTAR]  022.ppm 1940625
+[USTAR]  023.ppm 1938171
+[USTAR]  024.ppm 2017932
+[USTAR]  025.ppm 2123598
+[USTAR]  026.ppm 2129199
+[USTAR]  027.ppm 2130708
+[USTAR]  028.ppm 2132709
+[USTAR]  029.ppm 2135577
+[USTAR]  030.ppm 2137941
+[KINIT] Available ACPI tables: 6
+[KINIT] Loading the FADT table...
+[KINIT] Loading the MADT table...
+[KINIT] Loading the MCFG table...
+[KINIT] Loading the HPET table...
+[KINIT] Enumerating PCI devices...
+[PCI] PCI Bridge Device: Intel Corp (0x8086) - Express DRAM Controller (0x29c0) - Host Bridge (0x0) - 00 (0x0)
+[PCI] Starting eventual driver...
+[PCI] Done enumerating function.
+[PCI] PCI Display Controller: QEMU (0x1234) - QEMU Virt VGA Controller (0x1111) - VGA Compatible Controller (0x0) - VGA Controller (0x0)
+[PCI] Starting eventual driver...
+[PCI] Done enumerating function.
+[PCI] PCI Network Controller: Intel Corp (0x8086) - 82574L Gigabit Network [E1000] (0x10d3) - Ethernet Controller (0x0) - 00 (0x0)
+[PCI] Starting eventual driver...
+[PCI] TODO: Implement EthernetDriver.
+[PCI] Done enumerating function.
+[PCI] PCI Bridge Device: Intel Corp (0x8086) - LPC Interface Controller (0x2918) - ISA Bridge (0x1) - 00 (0x0)
+[PCI] Starting eventual driver...
+[PCI] Done enumerating function.
+[PCI] PCI Mass Storage Controller: Intel Corp (0x8086) - 6 port SATA Controller [AHCI mode] (0x2922) - Serial ATA (0x6) - AHCI 1.0 (0x1)
+[PCI] Starting eventual driver...
+AHCI instance initialized.
+[AHCI] Sending it to the FS manager...
+[AHCI] AHCI command sent for sector 0.
+[FS] Found a legacy MBR.
+[FS] Initializing FAT Driver:
+[FAT] We have a FAT 32 drive on our hands.
+[FAT] Volume label: Microk     
+[FAT] Root dir is in the 2 cluster.
+[AHCI] Sending it to the FS manager...
+[AHCI] AHCI command sent for sector 1.
+[FS] Empty drive
+[PCI] Done enumerating function.
+[PCI] PCI Serial Bus Controller: Intel Corp (0x8086) - SMBus Controller (0x2930) - SMBus (0x5) - 00 (0x0)
+[PCI] Starting eventual driver...
+[PCI] Done enumerating function.
+[TTY] Activating TTY...
+

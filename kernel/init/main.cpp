@@ -11,6 +11,7 @@
 #include <arch/x64/main.hpp>
 #include <dev/acpi/acpi.hpp>
 #include <proc/scheduler.hpp>
+#include <mm/heap.hpp>
 
 static volatile limine_stack_size_request stackRequest {
 	.id = LIMINE_STACK_SIZE_REQUEST,
@@ -32,15 +33,19 @@ extern "C" void kernelStart(void) {
 
 	MODULE::Init(info);
 
-	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
-
 	MEM::Init(info);
+
+	HEAP::InitializeHeap(0x100000000, 0x100);
+
+	BOOTMEM::DeactivateBootmem();
+	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 
 	ACPI::Init();
 
 	SCHED::Init();
 
 	PRINTK::PrintK("MicroK Started.\r\n");
+	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
 
 	while (true) {
 		asm volatile("hlt");

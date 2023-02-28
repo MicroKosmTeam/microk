@@ -3,6 +3,8 @@
 #include <sys/panic.hpp>
 #include <mm/pmm.hpp>
 #include <mm/vmm.hpp>
+#include <mm/bootmem.hpp>
+#include <mm/heap.hpp>
 
 static volatile limine_memmap_request mMapRequest {
 	.id = LIMINE_MEMMAP_REQUEST,
@@ -19,6 +21,26 @@ static char *memTypeStrings[] = {
 	"Kernel and modules",
 	"Framebuffer"
 };
+
+void *operator new(size_t size) {
+	if(HEAP::IsHeapActive()) return HEAP::Malloc(size);
+	if(BOOTMEM::BootmemIsActive()) return BOOTMEM::Malloc(size);
+	else return NULL;
+}
+
+void *operator new[](size_t size) {
+	if(HEAP::IsHeapActive()) return HEAP::Malloc(size);
+	if(BOOTMEM::BootmemIsActive()) return BOOTMEM::Malloc(size);
+	else return NULL;
+}
+
+void operator delete(void* p) {
+	// Now, here comes the problem in deciding who allocated this block
+	// We should assume that someone that allocs on BOOTMEM
+	// will not call free
+
+	HEAP::Free(p);
+}
 
 namespace MEM {
 void Init(KInfo *info) {
@@ -39,5 +61,7 @@ void Init(KInfo *info) {
 	}
 
 	VMM::InitVMM(info);
+
+	PRINTK::PrintK("Done.\r\n");
 }
 }
