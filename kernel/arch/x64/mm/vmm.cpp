@@ -41,7 +41,6 @@ void InitVMM(KInfo *info) {
 	asm volatile("mov %%cr3, %0" : "=r"(PML4) : :"memory");
 	GlobalPageTableManager = new PageTableManager(PML4);
 
-
 	/*
 	PT_Flag flags[128];
 	bool flagStatus[128];
