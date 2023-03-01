@@ -65,6 +65,7 @@ public:
 	}
 
 	void            FSInit() override;
+	void		FSDelete() override;
 	uint64_t        FSReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) override;
 	uint64_t        FSWriteFile(FILE *file, uint64_t offset, size_t size, uint8_t *buffer) override;
 	FILE           *FSOpenFile(FSNode *node, uint64_t descriptor) override;

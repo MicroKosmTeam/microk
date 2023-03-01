@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <limine.h>
+#include <dev/uart/uart.hpp>
 
 struct KInfo {
 	limine_memmap_entry **mMap;
@@ -14,4 +15,6 @@ struct KInfo {
 	uintptr_t kernelStack;
 	uint64_t kernelPhysicalBase;
 	uint64_t kernelVirtualBase;
+
+	UARTDevice *kernelPort;
 };

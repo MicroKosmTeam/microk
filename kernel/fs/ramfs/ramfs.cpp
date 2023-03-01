@@ -30,6 +30,10 @@ void RAMFSDriver::FSInit() {
 	inodeTable[currentInode] = NULL;
 }
 
+void RAMFSDriver::FSDelete() {
+
+}
+
 uint64_t RAMFSDriver::FSReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
 	if(file->node == NULL) return 0;
 	if(file->node->inode > maxInodes) return 0;

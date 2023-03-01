@@ -50,8 +50,8 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
         HeapSegHeader *newSplitHeader = (HeapSegHeader*)((size_t)this + splitlength + sizeof(HeapSegHeader));
 	if(next == NULL) next = newSplitHeader;
 	else next->last = newSplitHeader;            // Set the next segment's last segment to our new segment
-        newSplitHeader->next = next;            // Set the new segment's next segment to our original next
         next = newSplitHeader;                  // Set our new segment to the next segment
+        newSplitHeader->next = next;            // Set the new segment's next segment to our original next
         newSplitHeader->last = this;            // Set our new segment's last segment to us
         newSplitHeader->length = splitSeglength;// Set the new header's length
         newSplitHeader->free = free;            // Make sure both free are the same
@@ -77,7 +77,7 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
 
-        HeapSegHeader *startSeg = (HeapSegHeader*)heapAddress;
+        HeapSegHeader *startSeg = (HeapSegHeader*)heapStart;
         startSeg->length = heaplength - sizeof(HeapSegHeader);
         startSeg->next = NULL;
         startSeg->last = NULL;

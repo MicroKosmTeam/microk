@@ -6,7 +6,7 @@ void Init() {
 }
 
 uint64_t NewKernelThread(void (*process)(uint64_t tmp)) {
-
+	(*process)(0);
 }
 
 }

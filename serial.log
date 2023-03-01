@@ -4,8 +4,6 @@ BdsDxe: starting Boot0002 "UEFI QEMU HARDDISK QM00001 " from PciRoot(0x0)/Pci(0x
 [2J[01;01H[01;01H[2J[01;01H[01;01HSerial PrintK started.
 Loading the x86_64 GDT
 GDT Loaded.
-Available modules:
-[ /initrd.tar 0 ] INITRD
 Bitmap allocator started: 8190Mb free out of 8192Mb
 Memory map:
 [0x1000 - 0xa0000] -> Usable
@@ -17,24 +15,24 @@ Memory map:
 [0x810000 - 0x900000] -> ACPI NVS
 [0x900000 - 0xb9875000] -> Usable
 [0xb9875000 - 0xba075000] -> Bootloader reclaimable
-[0xba075000 - 0xbe12f000] -> Usable
-[0xbe12f000 - 0xbe134000] -> Reserved
-[0xbe134000 - 0xbe144000] -> Usable
-[0xbe144000 - 0xbe173000] -> Bootloader reclaimable
-[0xbe173000 - 0xbe198000] -> Usable
-[0xbe198000 - 0xbe1a3000] -> Reserved
-[0xbe1a3000 - 0xbf4ed000] -> Usable
+[0xba075000 - 0xbe12e000] -> Usable
+[0xbe12e000 - 0xbe133000] -> Reserved
+[0xbe133000 - 0xbe143000] -> Usable
+[0xbe143000 - 0xbe172000] -> Bootloader reclaimable
+[0xbe172000 - 0xbe197000] -> Usable
+[0xbe197000 - 0xbe1a2000] -> Reserved
+[0xbe1a2000 - 0xbf4ed000] -> Usable
 [0xbf4ed000 - 0xbf5ed000] -> Reserved
 [0xbf5ed000 - 0xbf6ed000] -> Reserved
 [0xbf6ed000 - 0xbf76d000] -> Reserved
 [0xbf76d000 - 0xbf77f000] -> ACPI Reclaimable
 [0xbf77f000 - 0xbf7ff000] -> ACPI NVS
-[0xbf7ff000 - 0xbfe0d000] -> Usable
-[0xbfe0d000 - 0xbfe0e000] -> Bootloader reclaimable
-[0xbfe0e000 - 0xbfe10000] -> Usable
-[0xbfe10000 - 0xbfe1a000] -> Bootloader reclaimable
-[0xbfe1a000 - 0xbfe31000] -> Kernel and modules
-[0xbfe31000 - 0xbfe47000] -> Bootloader reclaimable
+[0xbf7ff000 - 0xbfe03000] -> Usable
+[0xbfe03000 - 0xbfe04000] -> Bootloader reclaimable
+[0xbfe04000 - 0xbfe06000] -> Usable
+[0xbfe06000 - 0xbfe10000] -> Bootloader reclaimable
+[0xbfe10000 - 0xbfe29000] -> Kernel and modules
+[0xbfe29000 - 0xbfe47000] -> Bootloader reclaimable
 [0xbfe47000 - 0xbfe87000] -> Usable
 [0xbfe87000 - 0xbfedb000] -> Bootloader reclaimable
 [0xbfedb000 - 0xbff58000] -> Usable
@@ -46,10 +44,5 @@ Done mapping.
 Done.
 Initializing the heap at 0x100000000 with 256 pages.
 Free bootmem memory: 63kb out of 64kb.
- __  __  _                _  __
-|  \/  |(_) __  _ _  ___ | |/ /
-| |\/| || |/ _|| '_|/ _ \|   < 
-|_|  |_||_|\__||_|  \___/|_|\_\
-The operating system for the future...at your fingertips.
-MicroK Started.
-Free heap memory: 1024kb out of 1024kb.
+Starting the VFS.
+Hello...
