@@ -2,8 +2,7 @@
 #include <mm/memory.hpp>
 #include <mm/string.hpp>
 
-#include <sys/printk.hpp>
-void RAMFSDriver::FSInit() {
+void RAMFSDriver::FSInit(FSNode *mountpoint) {
 	inodeTable = (RAMFSObject**)Malloc(sizeof(uint64_t) * maxInodes);
 	currentInode = 0;
 
@@ -13,13 +12,15 @@ void RAMFSDriver::FSInit() {
 
 	rootFile = (RAMFSObject*)Malloc(sizeof(RAMFSObject));
 	rootFile->magic = 0;
-	strcpy(rootFile->name, "ramfs");
+	if (mountpoint == NULL) strcpy(rootFile->name, "ramfs");
+	else strcpy(rootFile->name, mountpoint->name);
 	rootFile->length = 0;
 	rootFile->isFile = false;
 	rootFile->firstObject = NULL;
 	rootNode = (FSNode*)Malloc(sizeof(FSNode));
 	rootFile->node = rootNode;
-	strcpy(rootFile->node->name, "ramfs");
+	if (mountpoint == NULL) strcpy(rootFile->node->name, "ramfs");
+	else strcpy(rootFile->node->name, mountpoint->name);
 	rootFile->node->mask = rootFile->node->uid = rootFile->node->gid = rootFile->node->size = rootFile->node->impl = 0;
 	rootFile->node->flags = VFS_NODE_DIRECTORY;
 	rootFile->node->inode = currentInode;

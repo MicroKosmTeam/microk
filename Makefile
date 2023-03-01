@@ -28,10 +28,10 @@ CFLAGS = -ffreestanding       \
 	 -I kernel/include    \
 	 -fpermissive         \
 	 -Wno-write-strings   \
-	 -Og                  \
+	 -O4                  \
 	 -fno-rtti            \
-	 -fno-exceptions      \
-	 -ggdb
+	 -fno-exceptions
+	 #-ggdb
 
 ASMFLAGS = -f elf64
 

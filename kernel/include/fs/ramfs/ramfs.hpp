@@ -60,11 +60,11 @@ struct RAMFSObject {
 
 class RAMFSDriver : public FSDriver {
 public:
-	RAMFSDriver(const uint64_t argMaxInodes) : maxInodes(argMaxInodes) {
-		FSInit();
+	RAMFSDriver(FSNode *mountpoint, const uint64_t argMaxInodes) : maxInodes(argMaxInodes) {
+		FSInit(mountpoint);
 	}
 
-	void            FSInit() override;
+	void            FSInit(FSNode *mountpoint) override;
 	void		FSDelete() override;
 	uint64_t        FSReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) override;
 	uint64_t        FSWriteFile(FILE *file, uint64_t offset, size_t size, uint8_t *buffer) override;

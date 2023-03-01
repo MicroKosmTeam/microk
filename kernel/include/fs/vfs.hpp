@@ -32,7 +32,7 @@ struct FILE {
  */
 class FSDriver {
 public:
-	virtual void            FSInit() = 0;
+	virtual void            FSInit(FSNode *mountpoint) = 0;
 
 	virtual void            FSDelete() = 0;
 
@@ -82,8 +82,6 @@ struct FSNode {
 struct VFilesystem {
 	FSNode *node;
 	FSNode *mountdir;
-
-	VFilesystem *next;
 };
 
 namespace VFS {
