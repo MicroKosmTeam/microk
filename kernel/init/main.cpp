@@ -23,6 +23,9 @@ static volatile limine_stack_size_request stackRequest {
 void restInit(uint64_t tmp);
 KInfo *info;
 
+extern "C" void isrCommon(void) {
+}
+
 extern "C" void kernelStart(void) {
 	info = (KInfo*)BOOTMEM::Malloc(sizeof(KInfo) + 1);
 
@@ -35,7 +38,7 @@ extern "C" void kernelStart(void) {
 
 	MEM::Init(info);
 
-	HEAP::InitializeHeap(0x100000000, 0x100);
+	HEAP::InitializeHeap(info->kernelVirtualBase + 0x1FF00000, 0x1000);
 	BOOTMEM::DeactivateBootmem();
 	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 

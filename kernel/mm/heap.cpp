@@ -3,24 +3,22 @@
 #include <mm/vmm.hpp>
 #include <sys/printk.hpp>
 
-bool isActive = false;
-void *heapStart;
-void *heapEnd;
-uint64_t freeMem;
-uint64_t totalMem;
-HeapSegHeader *lastHeader;
+static void *heapStart;
+static void *heapEnd;
+static HeapSegHeader *lastHeader;
+static bool isHeapActive = false;
 
 namespace HEAP {
+bool IsHeapActive() {
+	return isHeapActive;
+}
+
 uint64_t GetFree() {
-	return freeMem;
+	return 0;
 }
 
 uint64_t GetTotal() {
-	return totalMem;
-}
-
-bool IsHeapActive() {
-	return isActive;
+	return 0;
 }
 
 void HeapSegHeader::CombineForward() {
@@ -50,8 +48,8 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
         HeapSegHeader *newSplitHeader = (HeapSegHeader*)((size_t)this + splitlength + sizeof(HeapSegHeader));
 	if(next == NULL) next = newSplitHeader;
 	else next->last = newSplitHeader;            // Set the next segment's last segment to our new segment
-        next = newSplitHeader;                  // Set our new segment to the next segment
         newSplitHeader->next = next;            // Set the new segment's next segment to our original next
+        next = newSplitHeader;                  // Set our new segment to the next segment
         newSplitHeader->last = this;            // Set our new segment's last segment to us
         newSplitHeader->length = splitSeglength;// Set the new header's length
         newSplitHeader->free = free;            // Make sure both free are the same
@@ -63,7 +61,7 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
 
 void InitializeHeap(void *heapAddress, size_t pageCount) {
         void *pos = heapAddress;
-	PRINTK::PrintK("Initializing the heap at 0x%x with %d pages.\r\n", heapAddress, pageCount);
+	PRINTK::PrintK("Initializing the heap at 0x%x with %d pages.\n", heapAddress, pageCount);
 
         for (size_t i = 0; i < pageCount; i++) {
 		VMM::MapMemory(pos, PMM::RequestPage());
@@ -71,20 +69,19 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         }
 
         size_t heaplength = pageCount * 0x1000;
-	freeMem += heaplength;
-	totalMem += heaplength;
+	PRINTK::PrintK("%d bytes memory allocated.\n", heaplength);
 
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
 
-        HeapSegHeader *startSeg = (HeapSegHeader*)heapStart;
+        HeapSegHeader *startSeg = (HeapSegHeader*)heapAddress;
         startSeg->length = heaplength - sizeof(HeapSegHeader);
         startSeg->next = NULL;
         startSeg->last = NULL;
         startSeg->free = true;
         lastHeader = startSeg;
 
-	isActive = true;
+	isHeapActive = true;
 }
 
 void *Malloc(size_t size) {
@@ -101,11 +98,9 @@ void *Malloc(size_t size) {
                         if (currSeg->length > size) {
                                 currSeg->Split(size);
                                 currSeg->free = false;
-				freeMem -= currSeg->length;
                                 return (void*)((uint64_t)currSeg + sizeof(HeapSegHeader));
                         } else if (currSeg->length == size) {
                                 currSeg->free = false;
-				freeMem -= currSeg->length;
                                 return (void*)((uint64_t)currSeg + sizeof(HeapSegHeader));
                         }
                 }
@@ -115,12 +110,11 @@ void *Malloc(size_t size) {
         }
 
         ExpandHeap(size);
-        return Malloc(size);
+        return HEAP::Malloc(size);
 }
 
 void Free(void *address) {
         HeapSegHeader *segment = (HeapSegHeader*)address - 1;
-	freeMem += segment->length;
         segment->free = true;
         segment->CombineForward();
         segment->CombineBackward();
@@ -148,8 +142,6 @@ void ExpandHeap(size_t length) {
         newSegment->length = length - sizeof(HeapSegHeader);
         newSegment->CombineBackward();
 
-	freeMem += length;
-	totalMem += length;
+	PRINTK::PrintK("%d bytes memory allocated.\n", length);
 }
-
 }

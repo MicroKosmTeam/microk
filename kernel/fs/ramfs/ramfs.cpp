@@ -2,8 +2,9 @@
 #include <mm/memory.hpp>
 #include <mm/string.hpp>
 
+#include <sys/printk.hpp>
 void RAMFSDriver::FSInit() {
-	inodeTable = (RAMFSObject**)Malloc(sizeof(RAMFSObject) * maxInodes);
+	inodeTable = (RAMFSObject**)Malloc(sizeof(uint64_t) * maxInodes);
 	currentInode = 0;
 
 	for(int i = 0; i < maxInodes; i++) {
@@ -28,6 +29,7 @@ void RAMFSDriver::FSInit() {
 	inodeTable[currentInode++] = rootFile;
 
 	inodeTable[currentInode] = NULL;
+
 }
 
 void RAMFSDriver::FSDelete() {
