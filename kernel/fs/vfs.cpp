@@ -7,7 +7,7 @@ VFilesystem *rootfs;
 
 namespace VFS {
 VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver) {
-	PRINTK::PrintK("Mounting fs in %s.\r\n", mountroot->name);
+	if (mountroot != NULL) PRINTK::PrintK("Mounting fs in %s.\r\n", mountroot->name);
 	VFilesystem *fs = new VFilesystem;
 	fs->node = fsdriver->rootNode;
 	fs->node->driver = fsdriver;
