@@ -22,6 +22,16 @@ static char *memTypeStrings[] = {
 	"Framebuffer"
 };
 
+void *Malloc(size_t size) {
+	if(HEAP::IsHeapActive()) return HEAP::Malloc(size);
+	if(BOOTMEM::BootmemIsActive()) return BOOTMEM::Malloc(size);
+	else return NULL;
+}
+
+void Free(void *p) {
+	HEAP::Free(p);
+}
+
 void *operator new(size_t size) {
 	if(HEAP::IsHeapActive()) return HEAP::Malloc(size);
 	if(BOOTMEM::BootmemIsActive()) return BOOTMEM::Malloc(size);
@@ -35,6 +45,30 @@ void *operator new[](size_t size) {
 }
 
 void operator delete(void* p) {
+	// Now, here comes the problem in deciding who allocated this block
+	// We should assume that someone that allocs on BOOTMEM
+	// will not call free
+
+	HEAP::Free(p);
+}
+
+void operator delete(void* p, size_t size) {
+	// Now, here comes the problem in deciding who allocated this block
+	// We should assume that someone that allocs on BOOTMEM
+	// will not call free
+
+	HEAP::Free(p);
+}
+
+void operator delete[](void* p) {
+	// Now, here comes the problem in deciding who allocated this block
+	// We should assume that someone that allocs on BOOTMEM
+	// will not call free
+
+	HEAP::Free(p);
+}
+
+void operator delete[](void* p, size_t size) {
 	// Now, here comes the problem in deciding who allocated this block
 	// We should assume that someone that allocs on BOOTMEM
 	// will not call free

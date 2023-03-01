@@ -1,7 +1,5 @@
 #include <mm/memory.hpp>
 
-bool sseEnabled = false;
-
 void memset(void *start, uint8_t value, uint64_t num) {
 	if(sseEnabled) {
 		int d0, d1;
