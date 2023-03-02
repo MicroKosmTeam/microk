@@ -44,6 +44,7 @@ Memory map:
 [0xbff78000 - 0xc0000000] -> ACPI NVS
 [0xc0000000 - 0xc03e8000] -> Framebuffer
 [0x100000000 - 0x240000000] -> Usable
+Kernel page table initialized.
 Done mapping.
 Done.
 Initializing the heap at 0xffffffff90000000 with 16384 pages.

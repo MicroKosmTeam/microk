@@ -35,11 +35,18 @@ void InitVMM(KInfo *info) {
 	info->kernelPhysicalBase = kAddrRequest.response->physical_base;
 	info->kernelVirtualBase = kAddrRequest.response->virtual_base;
 
-	PageTable *PML4;/* = (PageTable*)PMM::RequestPage();
-	memset(PML4, 0, PAGE_SIZE);*/
+	PageTable *PML4 = (PageTable*)PMM::RequestPage();
+	memset(PML4, 0, PAGE_SIZE);
 
-	asm volatile("mov %%cr3, %0" : "=r"(PML4) : :"memory");
+	// Copy the bootloader page table into ours, so we know it's right
+	PageTable *OldPML4;
+	asm volatile("mov %%cr3, %0" : "=r"(OldPML4) : :"memory");
+	for (int i = 0; i < PAGE_SIZE; i++) {
+		PML4[i] = OldPML4[i];
+	}
+
 	GlobalPageTableManager = new PageTableManager(PML4);
+	PRINTK::PrintK("Kernel page table initialized.\r\n");
 
 	/*
 	PT_Flag flags[128];
