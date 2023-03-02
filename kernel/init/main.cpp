@@ -23,9 +23,6 @@ static volatile limine_stack_size_request stackRequest {
 void restInit(uint64_t tmp);
 KInfo *info;
 
-extern "C" void isrCommon(void) {
-}
-
 extern "C" void kernelStart(void) {
 	info = (KInfo*)BOOTMEM::Malloc(sizeof(KInfo) + 1);
 
@@ -34,7 +31,6 @@ extern "C" void kernelStart(void) {
 	if (stackRequest.response == NULL) PANIC("Stack size request not answered by Limine");
 
 	x86_64::Init(info);
-
 
 	MEM::Init(info);
 
