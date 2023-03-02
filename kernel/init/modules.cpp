@@ -7,8 +7,9 @@
 #include <mm/vmm.hpp>
 #include <sys/ustar/ustar.hpp>
 #include <mm/string.hpp>
+#include <sys/elf.hpp>
 
-#define SYMBOL_NUMBER 2
+#define SYMBOL_NUMBER 3
 
 static volatile limine_module_request moduleRequest {
 	.id = LIMINE_MODULE_REQUEST,
@@ -49,8 +50,17 @@ void Init(KInfo *info) {
 	for (int i = 0; i < info->moduleCount; i++) {
 
 		if (strcmp(info->modules[i]->cmdline, "INITRD") == 0) {
-			PRINTK::PrintK("Initrd found!\r\n");
+			PRINTK::PrintK("Initrd: [ %s %d ] %s\r\n",
+					info->modules[i]->path,
+					info->modules[i]->size,
+					info->modules[i]->cmdline);
 			USTAR::LoadArchive(info->modules[i]->address);
+		} else if (strcmp(info->modules[i]->cmdline, "TEST") == 0) {
+			PRINTK::PrintK("ELF: [ %s %d ] %s\r\n",
+					info->modules[i]->path,
+					info->modules[i]->size,
+					info->modules[i]->cmdline);
+			//LoadELF(info->modules[i]->address);
 		} else {
 			PRINTK::PrintK("Unknown module: [ %s %d ] %s\r\n",
 					info->modules[i]->path,
@@ -59,7 +69,5 @@ void Init(KInfo *info) {
 		}
 
 	}
-
-
 }
 }

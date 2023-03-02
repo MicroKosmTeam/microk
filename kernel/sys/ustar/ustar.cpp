@@ -4,6 +4,7 @@
 #include <mm/memory.hpp>
 #include <mm/heap.hpp>
 #include <mm/string.hpp>
+#include <sys/elf.hpp>
 
 #define PREFIX "[USTAR] "
 
@@ -27,6 +28,7 @@ namespace USTAR {
 		TarFile *file = firstFile;
 
                 while (!memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
+			PRINTK::PrintK("First file: 0x%x\r\n", firstFile);
                         int filesize = oct2bin(ptr + 0x7c, 11);
 
 			file = new TarFile;

@@ -3,7 +3,7 @@ OUTPUT_FORMAT(elf64-x86-64)
 OUTPUT_ARCH(i386:x86-64)
 
 /* We want the symbol _start to be our entry point */
-ENTRY(kernelStart)
+ENTRY(_start)
 
 /* Define the program headers we want so the bootloader gives us the right */
 /* MMU permissions */
@@ -20,7 +20,7 @@ SECTIONS
     /* and because that is what the Limine spec mandates. */
     /* Any address in this region will do, but often 0xffffffff80000000 is chosen as */
     /* that is the beginning of the region. */
-    . = 0xffffffff80000000;
+    . = 0x100000;
 
     kernel_start_addr = .;
     text_start_addr = .;

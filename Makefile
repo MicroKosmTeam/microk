@@ -28,10 +28,10 @@ CFLAGS = -ffreestanding       \
 	 -I kernel/include    \
 	 -fpermissive         \
 	 -Wno-write-strings   \
-	 -O4                  \
+	 -Og                  \
 	 -fno-rtti            \
-	 -fno-exceptions
-	 #-ggdb
+	 -fno-exceptions      \
+	 -ggdb
 
 ASMFLAGS = -f elf64
 
@@ -51,14 +51,14 @@ KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
 kernel: $(KOBJS) link
 
 $(KERNDIR)/%.o: $(KERNDIR)/%.cpp
-	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
+	@ echo !==== COMPILING $^ && \
 	$(CPP) $(CFLAGS) -c $^ -o $@
 
 
 $(KERNDIR)/%.o: $(KERNDIR)/%.asm
-	@ echo !==== COMPILING $^
 	@ mkdir -p $(@D)
+	@ echo !==== COMPILING $^  && \
 	$(ASM) $(ASMFLAGS) $^ -o $@
 
 link: $(KOBJS)
@@ -79,8 +79,10 @@ buildimg: kernel
 	sudo mount /dev/loop0p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v microk.elf \
+		   test.elf \
 		   limine.cfg \
 		   initrd.tar \
+		   back.bmp \
 		   limine/limine.sys \
 		   img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/

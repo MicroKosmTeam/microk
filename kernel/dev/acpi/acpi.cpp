@@ -1,7 +1,8 @@
 #include <dev/acpi/acpi.hpp>
 
 namespace ACPI {
-void Init() {
+void Init(KInfo *info) {
 
+	return 0;
 }
 }

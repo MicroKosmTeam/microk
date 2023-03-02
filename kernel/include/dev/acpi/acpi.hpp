@@ -1,5 +1,6 @@
 #pragma once
+#include <init/kinfo.hpp>
 
 namespace ACPI {
-	void Init();
+	void Init(KInfo *info);
 }

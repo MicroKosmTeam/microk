@@ -20,7 +20,7 @@ static volatile limine_stack_size_request stackRequest {
 	.stack_size = CONFIG_STACK_SIZE
 };
 
-void restInit(uint64_t tmp);
+void restInit(KInfo *info);
 KInfo *info;
 
 extern "C" void kernelStart(void) {
@@ -34,11 +34,15 @@ extern "C" void kernelStart(void) {
 
 	MEM::Init(info);
 
-	HEAP::InitializeHeap(info->kernelVirtualBase + 0x1FF00000, 0x1000);
+	HEAP::InitializeHeap(info->kernelVirtualBase + 0x1FF00000, 0x10000);
 	BOOTMEM::DeactivateBootmem();
 	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 
 	VFS::Init(info);
+
+	ACPI::Init(info);
+
+	MODULE::Init(info);
 
 	PRINTK::PrintK(" __  __  _                _  __\r\n"
 		       "|  \\/  |(_) __  _ _  ___ | |/ /\r\n"
@@ -48,16 +52,11 @@ extern "C" void kernelStart(void) {
 	PRINTK::PrintK("MicroK Started.\r\n");
 	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
 
-	ACPI::Init();
-
-	SCHED::Init();
-
-	MODULE::Init(info);
-
-	SCHED::NewKernelThread(&restInit);
+	restInit(info);
 }
 
-void restInit(uint64_t tmp) {
+void restInit(KInfo *info) {
+	PRINTK::PrintK("Kernel is now resting...\r\n");
 
 	while (true) {
 		asm volatile ("hlt");
