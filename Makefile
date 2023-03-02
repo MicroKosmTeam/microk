@@ -27,6 +27,7 @@ CFLAGS = -ffreestanding       \
 	 -mcmodel=kernel      \
 	 -I kernel/include    \
 	 -fpermissive         \
+	 -Wall                \
 	 -Wno-write-strings   \
 	 -Og                  \
 	 -fno-rtti            \
@@ -79,7 +80,6 @@ buildimg: kernel
 	sudo mount /dev/loop0p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v microk.elf \
-		   test.elf \
 		   limine.cfg \
 		   initrd.tar \
 		   back.bmp \

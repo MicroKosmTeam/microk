@@ -1,10 +1,8 @@
 #include <sys/ustar/ustar.hpp>
-#include <fs/vfs.hpp>
 #include <sys/printk.hpp>
 #include <mm/memory.hpp>
 #include <mm/heap.hpp>
 #include <mm/string.hpp>
-#include <sys/elf.hpp>
 
 #define PREFIX "[USTAR] "
 
@@ -20,72 +18,33 @@ static int oct2bin(unsigned char *str, int size) {
 }
 
 namespace USTAR {
-        static uint8_t total_files = 0;
-        TarFile *firstFile;
+        void LoadArchive(uint8_t *archive, FSNode *node) {
+		if(node == NULL) return;
 
-        void LoadArchive(uint8_t *archive) {
                 unsigned char *ptr = archive;
-		TarFile *file = firstFile;
 
+		TarFile *file = new TarFile;
                 while (!memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
-			PRINTK::PrintK("First file: 0x%x\r\n", firstFile);
                         int filesize = oct2bin(ptr + 0x7c, 11);
 
-			file = new TarFile;
-
-                        memcpy(file->filename, ptr, 100);
+			// Should also add check for directories
+			// Also, must add mode, gid, uid, ecc
+			// Converting them from octal
+			memcpy(file->filename, ptr, 100);
                         file->size = filesize;
-                        file->data = (uint8_t*)Malloc(file->size);
+                        file->data = new uint8_t[file->size];
                         memcpy(file->data, ptr + 512, filesize);
 
-			PRINTK::PrintK(" %s %d\n", file->filename, file->size);
+			node->driver->FSMakeFile(node, file->filename, 0, 0, 0);
+			// Load file into fs and then close it
+			// TODO: add vfs functions
+			//FILE *file =
 
-			file = file->next;
+			delete[] file->data;
 
                         ptr += (((filesize + 511) / 512) + 1) * 512;
                 }
-        }
 
-        void ReadArchive() {
-                PRINTK::PrintK("Files:\n");
-		TarFile *file = firstFile;
-		while(file) {
-			PRINTK::PrintK(" %s %d\n", file->filename, file->size);
-			file = file->next;
-                }
-        }
-
-        bool GetFileSize(char *filename, size_t *size) {
-		TarFile *file = firstFile;
-		while(file) {
-                        if(strcmp(filename, file->filename) != 0) {
-				file = file->next;
-				continue;
-			}
-
-                        *size = file->size;
-                        return true;
-                }
-
-                return false;
-        }
-
-        bool ReadFile(char *filename, uint8_t **buffer, size_t size) {
-		TarFile *file = firstFile;
-		while(file) {
-                        if(strcmp(filename, file->filename) != 0) {
-				file = file->next;
-				continue;
-			}
-
-                        PRINTK::PrintK("File found: %s %d\n", file->filename, file->size);
-
-                        memcpy(*buffer, file->data, size > file->size ? file->size : size);
-
-                        return true;
-                }
-
-                PRINTK::PrintK("No file named %s found.\n", filename);
-                return false;
+		delete file;
         }
 }

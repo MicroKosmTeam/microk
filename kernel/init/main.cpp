@@ -13,6 +13,7 @@
 #include <proc/scheduler.hpp>
 #include <mm/heap.hpp>
 #include <fs/vfs.hpp>
+#include <sys/ustar/ustar.hpp>
 
 static volatile limine_stack_size_request stackRequest {
 	.id = LIMINE_STACK_SIZE_REQUEST,
@@ -34,15 +35,16 @@ extern "C" void kernelStart(void) {
 
 	MEM::Init(info);
 
-	HEAP::InitializeHeap(info->kernelVirtualBase + 0x1FF00000, 0x10000);
+	HEAP::InitializeHeap(CONFIG_HEAP_BASE, CONFIG_HEAP_SIZE / 0x1000);
 	BOOTMEM::DeactivateBootmem();
 	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 
 	VFS::Init(info);
 
-	ACPI::Init(info);
-
+	// TODO: Fix initrd loading
 	MODULE::Init(info);
+
+	ACPI::Init(info);
 
 	PRINTK::PrintK(" __  __  _                _  __\r\n"
 		       "|  \\/  |(_) __  _ _  ___ | |/ /\r\n"
@@ -51,6 +53,7 @@ extern "C" void kernelStart(void) {
 		       "The operating system for the future...at your fingertips.\r\n");
 	PRINTK::PrintK("MicroK Started.\r\n");
 	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
+	PRINTK::PrintK("Initrd:\r\n");
 
 	restInit(info);
 }

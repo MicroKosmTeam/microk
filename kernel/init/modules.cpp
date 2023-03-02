@@ -8,8 +8,7 @@
 #include <sys/ustar/ustar.hpp>
 #include <mm/string.hpp>
 #include <sys/elf.hpp>
-
-#define SYMBOL_NUMBER 3
+#include <cdefs.h>
 
 static volatile limine_module_request moduleRequest {
 	.id = LIMINE_MODULE_REQUEST,
@@ -21,14 +20,16 @@ uint64_t *KRNLSYMTABLE;
 namespace MODULE {
 void Init(KInfo *info) {
 	// Kernel symbol table
-	KRNLSYMTABLE = PMM::RequestPage();
+	for (int i = 0; i < CONFIG_SYMBOL_TABLE_PAGES * 0x1000; i+=0x1000) {
+		VMM::MapMemory(CONFIG_SYMBOL_TABLE_BASE + i, PMM::RequestPage());
+	}
+
+	KRNLSYMTABLE = CONFIG_SYMBOL_TABLE_BASE;
 	memset(KRNLSYMTABLE, 0, 0x1000);
 
 	KRNLSYMTABLE[0] = &PRINTK::PrintK;
 	KRNLSYMTABLE[1] = &Malloc;
 	KRNLSYMTABLE[2] = &Free;
-
-	VMM::MapMemory(0xffffffffffff0000, KRNLSYMTABLE);
 
 	void (*testPrintk)(char *format, ...) = KRNLSYMTABLE[0];
 	void* (*testMalloc)(size_t size) = KRNLSYMTABLE[1];
@@ -54,13 +55,6 @@ void Init(KInfo *info) {
 					info->modules[i]->path,
 					info->modules[i]->size,
 					info->modules[i]->cmdline);
-			USTAR::LoadArchive(info->modules[i]->address);
-		} else if (strcmp(info->modules[i]->cmdline, "TEST") == 0) {
-			PRINTK::PrintK("ELF: [ %s %d ] %s\r\n",
-					info->modules[i]->path,
-					info->modules[i]->size,
-					info->modules[i]->cmdline);
-			//LoadELF(info->modules[i]->address);
 		} else {
 			PRINTK::PrintK("Unknown module: [ %s %d ] %s\r\n",
 					info->modules[i]->path,

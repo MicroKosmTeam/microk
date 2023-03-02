@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <fs/vfs.hpp>
 
 namespace USTAR {
         struct tar_header {
@@ -16,14 +17,13 @@ namespace USTAR {
 
         struct TarFile {
                 char filename[100];
-                uint32_t size;
+		uint64_t size;
+		uint64_t mode;
+		uint64_t uid;
+		uint64_t gid;
+		uint8_t type;
                 uint8_t *data;
-
-		TarFile *next;
         };
 
-        void LoadArchive(uint8_t *archive);
-        void ReadArchive();
-        bool GetFileSize(char *filename, size_t *size);
-        bool ReadFile(char *filename, uint8_t **buffer, size_t size);
+        void LoadArchive(uint8_t *archive, FSNode *node);
 }

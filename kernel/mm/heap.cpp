@@ -72,7 +72,6 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         }
 
         size_t heaplength = pageCount * 0x1000;
-	PRINTK::PrintK("%d bytes memory allocated.\n", heaplength);
 
         heapStart = heapAddress;
         heapEnd = (void*)((size_t)heapStart + heaplength);
@@ -85,6 +84,7 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         lastHeader = startSeg;
 
 	totalMem = freeMem = heaplength;
+	PRINTK::PrintK("%d free of %d bytes memory allocated.\n", freeMem, totalMem);
 
 	isHeapActive = true;
 }
@@ -122,6 +122,7 @@ void *Malloc(size_t size) {
 
 void Free(void *address) {
         HeapSegHeader *segment = (HeapSegHeader*)address - 1;
+	if(segment->free) return;
         segment->free = true;
         segment->CombineForward();
         segment->CombineBackward();

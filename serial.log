@@ -16,28 +16,25 @@ Memory map:
 [0x80b000 - 0x80c000] -> ACPI NVS
 [0x80c000 - 0x810000] -> Usable
 [0x810000 - 0x900000] -> ACPI NVS
-[0x900000 - 0xb9748000] -> Usable
-[0xb9748000 - 0xba075000] -> Bootloader reclaimable
-[0xba075000 - 0xbe12c000] -> Usable
-[0xbe12c000 - 0xbe131000] -> Reserved
-[0xbe131000 - 0xbe141000] -> Usable
-[0xbe141000 - 0xbe170000] -> Bootloader reclaimable
-[0xbe170000 - 0xbe190000] -> Usable
-[0xbe190000 - 0xbe198000] -> Kernel and modules
-[0xbe198000 - 0xbe1a0000] -> Reserved
-[0xbe1a0000 - 0xbe411000] -> Usable
-[0xbe411000 - 0xbe414000] -> Reserved
-[0xbe414000 - 0xbf4ed000] -> Usable
+[0x900000 - 0xb9b48000] -> Usable
+[0xb9b48000 - 0xba075000] -> Bootloader reclaimable
+[0xba075000 - 0xbe12f000] -> Usable
+[0xbe12f000 - 0xbe134000] -> Reserved
+[0xbe134000 - 0xbe145000] -> Usable
+[0xbe145000 - 0xbe174000] -> Bootloader reclaimable
+[0xbe174000 - 0xbe199000] -> Usable
+[0xbe199000 - 0xbe1a4000] -> Reserved
+[0xbe1a4000 - 0xbf4ed000] -> Usable
 [0xbf4ed000 - 0xbf5ed000] -> Reserved
 [0xbf5ed000 - 0xbf6ed000] -> Reserved
 [0xbf6ed000 - 0xbf76d000] -> Reserved
 [0xbf76d000 - 0xbf77f000] -> ACPI Reclaimable
 [0xbf77f000 - 0xbf7ff000] -> ACPI NVS
 [0xbf7ff000 - 0xbfe01000] -> Usable
-[0xbfe01000 - 0xbfe03000] -> Kernel and modules
-[0xbfe03000 - 0xbfe04000] -> Bootloader reclaimable
-[0xbfe04000 - 0xbfe07000] -> Usable
-[0xbfe07000 - 0xbfe17000] -> Bootloader reclaimable
+[0xbfe01000 - 0xbfe09000] -> Kernel and modules
+[0xbfe09000 - 0xbfe0a000] -> Bootloader reclaimable
+[0xbfe0a000 - 0xbfe0d000] -> Usable
+[0xbfe0d000 - 0xbfe17000] -> Bootloader reclaimable
 [0xbfe17000 - 0xbfe33000] -> Kernel and modules
 [0xbfe33000 - 0xbfe58000] -> Bootloader reclaimable
 [0xbfe58000 - 0xbfe82000] -> Usable
@@ -49,8 +46,8 @@ Memory map:
 [0x100000000 - 0x240000000] -> Usable
 Done mapping.
 Done.
-Initializing the heap at 0xffffffff9ff00000 with 65536 pages.
-268435456 bytes memory allocated.
+Initializing the heap at 0xffffffff90000000 with 16384 pages.
+67108864 free of 67108864 bytes memory allocated.
 Free bootmem memory: 63kb out of 64kb.
 Starting the VFS.
 Mounting fs in dev.
@@ -64,18 +61,12 @@ The VFS has been initialized.
 Test: 0x69
 Available modules:
 Initrd: [ /initrd.tar 30720 ] INITRD
-First file: 0x0
- LICENSE 18093
-First file: 0x0
- README.md 390
-First file: 0x0
- test.elf 4936
-ELF: [ /test.elf 4936 ] TEST
  __  __  _                _  __
 |  \/  |(_) __  _ _  ___ | |/ /
 | |\/| || |/ _|| '_|/ _ \|   < 
 |_|  |_||_|\__||_|  \___/|_|\_\
 The operating system for the future...at your fingertips.
 MicroK Started.
-Free heap memory: 523788kb out of 262144kb.
+Free heap memory: 130595kb out of 65536kb.
+Initrd:
 Kernel is now resting...
