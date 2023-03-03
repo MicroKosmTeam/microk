@@ -18,6 +18,7 @@ struct IDTR {
 
 
 extern "C" void exceptionHandler();
+extern "C" void pageFaultHandler();
 
 namespace x86_64 {
 	void IDTInit();

@@ -17,4 +17,6 @@ struct KInfo {
 	uint64_t kernelVirtualBase;
 
 	UARTDevice *kernelPort;
+
+	void *rsdp;
 };

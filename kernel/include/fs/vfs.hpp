@@ -82,8 +82,25 @@ struct FSNode {
 struct VFilesystem {
 	FSNode *node;
 	FSNode *mountdir;
+
+	uint64_t flags;
 };
 
 namespace VFS {
-void Init(KInfo *info);
+	void Init(KInfo *info);
+
+	VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags);
+	uint64_t RemountFS(VFilesystem *fs, uint64_t flags);
+	uint64_t UmountFS(VFilesystem *fs);
+	FSNode *MakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask);
+	FILE *OpenFile(FSNode *node);
+	uint64_t ReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer);
+	uint64_t WriteFile(FILE *file, uint64_t offset, size_t size, uint8_t *buffer);
+	void CloseFile(FILE *file);
+	uint64_t DeleteFile(FSNode *node);
+	FSNode *MakeDir(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask);
+	FSNode *ReadDir(FSNode *node, uint64_t index);
+	FSNode *FindDir(FSNode *node, const char *name);
+	uint64_t GetDirElements(FSNode *node);
+	uint64_t DeleteDir(FSNode *node);
 }
