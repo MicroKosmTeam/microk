@@ -53,7 +53,6 @@ extern "C" void kernelStart(void) {
 		       "The operating system for the future...at your fingertips.\r\n");
 	PRINTK::PrintK("MicroK Started.\r\n");
 	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
-	PRINTK::PrintK("Initrd:\r\n");
 
 	restInit(info);
 }

@@ -1,7 +1,7 @@
 #include <arch/x64/main.hpp>
 #include <arch/x64/cpu/gdt.hpp>
-#include <arch/x64/interrupts/interrupts.hpp>
 #include <sys/printk.hpp>
+#include <arch/x64/interrupts/idt.hpp>
 
 namespace x86_64 {
 void Init(KInfo *info) {
@@ -12,7 +12,8 @@ void Init(KInfo *info) {
 	PRINTK::PrintK("GDT Loaded.\r\n");
 
 	PRINTK::PrintK("Loading x86_64 IDT\r\n");
-	x86_64::InterruptInit();
+	x86_64::IDTInit();
+	asm volatile ("int $0xe");
 	PRINTK::PrintK("IDT Loaded.\r\n");
 }
 }

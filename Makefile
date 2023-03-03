@@ -92,8 +92,12 @@ buildimg: kernel
 	rm -rf img_mount
 
 run:
-	qemu-system-x86_64 -bios /usr/share/OVMF/x64/OVMF.fd \
+	qemu-system-x86_64 \
+		-bios /usr/share/OVMF/x64/OVMF.fd \
 		-m 8G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
-		-smp sockets=1,cores=4,threads=1 -drive file="microk.img" -s -S
+		-smp sockets=1,cores=4,threads=1 \
+		-drive file="microk.img" \
+		-s \
+		-S

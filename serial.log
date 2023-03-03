@@ -5,69 +5,11 @@ BdsDxe: starting Boot0002 "UEFI QEMU HARDDISK QM00001 " from PciRoot(0x0)/Pci(0x
 Loading the x86_64 GDT
 GDT Loaded.
 Loading x86_64 IDT
-IDT initialized.
-IDT Loaded.
-Bitmap allocator started: 8190Mb free out of 8192Mb
-Memory map:
-[0x1000 - 0xa0000] -> Usable
-[0x100000 - 0x800000] -> Usable
-[0x800000 - 0x808000] -> ACPI NVS
-[0x808000 - 0x80b000] -> Usable
-[0x80b000 - 0x80c000] -> ACPI NVS
-[0x80c000 - 0x810000] -> Usable
-[0x810000 - 0x900000] -> ACPI NVS
-[0x900000 - 0xb9b48000] -> Usable
-[0xb9b48000 - 0xba075000] -> Bootloader reclaimable
-[0xba075000 - 0xbe12f000] -> Usable
-[0xbe12f000 - 0xbe134000] -> Reserved
-[0xbe134000 - 0xbe145000] -> Usable
-[0xbe145000 - 0xbe174000] -> Bootloader reclaimable
-[0xbe174000 - 0xbe199000] -> Usable
-[0xbe199000 - 0xbe1a4000] -> Reserved
-[0xbe1a4000 - 0xbf4ed000] -> Usable
-[0xbf4ed000 - 0xbf5ed000] -> Reserved
-[0xbf5ed000 - 0xbf6ed000] -> Reserved
-[0xbf6ed000 - 0xbf76d000] -> Reserved
-[0xbf76d000 - 0xbf77f000] -> ACPI Reclaimable
-[0xbf77f000 - 0xbf7ff000] -> ACPI NVS
-[0xbf7ff000 - 0xbfe01000] -> Usable
-[0xbfe01000 - 0xbfe09000] -> Kernel and modules
-[0xbfe09000 - 0xbfe0a000] -> Bootloader reclaimable
-[0xbfe0a000 - 0xbfe0d000] -> Usable
-[0xbfe0d000 - 0xbfe17000] -> Bootloader reclaimable
-[0xbfe17000 - 0xbfe33000] -> Kernel and modules
-[0xbfe33000 - 0xbfe58000] -> Bootloader reclaimable
-[0xbfe58000 - 0xbfe82000] -> Usable
-[0xbfe82000 - 0xbfedb000] -> Bootloader reclaimable
-[0xbfedb000 - 0xbff58000] -> Usable
-[0xbff58000 - 0xbff78000] -> Reserved
-[0xbff78000 - 0xc0000000] -> ACPI NVS
-[0xc0000000 - 0xc03e8000] -> Framebuffer
-[0x100000000 - 0x240000000] -> Usable
-Kernel page table initialized.
-Done mapping.
-Done.
-Initializing the heap at 0xffffffff90000000 with 16384 pages.
-67108864 free of 67108864 bytes memory allocated.
-Free bootmem memory: 63kb out of 64kb.
-Starting the VFS.
-Mounting fs in dev.
-Mounting fs in proc.
-Listing ramfs...
- - proc
- - dev
-Listing dev...
- - tty
-The VFS has been initialized.
-Test: 0x69
-Available modules:
-Initrd: [ /initrd.tar 30720 ] INITRD
- __  __  _                _  __
-|  \/  |(_) __  _ _  ___ | |/ /
-| |\/| || |/ _|| '_|/ _ \|   < 
-|_|  |_||_|\__||_|  \___/|_|\_\
-The operating system for the future...at your fingertips.
-MicroK Started.
-Free heap memory: 130595kb out of 65536kb.
-Initrd:
-Kernel is now resting...
+
+
+!! PANIK!! 
+Irrecoverable error in the kernel.
+
+kernel/arch/x64/interrupts/idt.cpp in function exceptionHandler at line 42
+Cause: Interrupt
+[Hanging now...]
