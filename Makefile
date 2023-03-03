@@ -29,7 +29,7 @@ CFLAGS = -ffreestanding       \
 	 -fpermissive         \
 	 -Wall                \
 	 -Wno-write-strings   \
-	 -O3                  \
+	 -Og                  \
 	 -fno-rtti            \
 	 -fno-exceptions      \
 	 -ggdb
@@ -100,5 +100,6 @@ run:
 		-smp sockets=1,cores=4,threads=1 \
 		-drive file="microk.img" \
 		-s \
-		-M q35 \
-		-S
+		-machine type=q35 \
+		-S \
+		-device qemu-xhci

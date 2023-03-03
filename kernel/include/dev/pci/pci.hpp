@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <dev/acpi/acpi.hpp>
-#include <dev/device.hpp>
+#include <dev/dev.hpp>
 
 namespace PCI {
         struct PCIDeviceHeader {

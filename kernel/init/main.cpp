@@ -12,6 +12,7 @@
 #include <dev/acpi/acpi.hpp>
 #include <proc/scheduler.hpp>
 #include <mm/heap.hpp>
+#include <mm/pmm.hpp>
 #include <fs/vfs.hpp>
 #include <sys/ustar/ustar.hpp>
 
@@ -52,7 +53,10 @@ extern "C" void kernelStart(void) {
 		       "|_|  |_||_|\\__||_|  \\___/|_|\\_\\\r\n"
 		       "The operating system for the future...at your fingertips.\r\n");
 	PRINTK::PrintK("MicroK Started.\r\n");
-	PRINTK::PrintK("Free heap memory: %dkb out of %dkb.\r\n", HEAP::GetFree() / 1024, HEAP::GetTotal() / 1024);
+	PRINTK::PrintK("Free memory: %dkb out of %dkb (%d%% free).\r\n",
+			PMM::GetFreeMem() / 1024,
+			(PMM::GetFreeMem() + PMM::GetUsedMem()) / 1024,
+			(PMM::GetFreeMem() + PMM::GetUsedMem()) / PMM::GetFreeMem() * 100);
 
 	restInit(info);
 }

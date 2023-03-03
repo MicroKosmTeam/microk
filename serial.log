@@ -6,7 +6,7 @@ BdsDxe: starting Boot0002 "UEFI QEMU HARDDISK QM00001 " from PciRoot(0x0)/Pci(0x
 GDT Loaded.
 Loading x86_64 IDT
 IDT Loaded.
-Bitmap allocator started: 6132Mb free out of 8192Mb
+Bitmap allocator started: 8180Mb free out of 8192Mb
 Memory map:
 [0x1000 - 0xa0000] -> Usable
 [0x100000 - 0x800000] -> Usable
@@ -17,27 +17,28 @@ Memory map:
 [0x810000 - 0x900000] -> ACPI NVS
 [0x900000 - 0x79a48000] -> Usable
 [0x79a48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e028000] -> Usable
-[0x7e028000 - 0x7e02d000] -> Reserved
-[0x7e02d000 - 0x7e03e000] -> Usable
-[0x7e03e000 - 0x7e06d000] -> Bootloader reclaimable
-[0x7e06d000 - 0x7e08d000] -> Usable
-[0x7e08d000 - 0x7e095000] -> Kernel and modules
-[0x7e095000 - 0x7e09d000] -> Reserved
-[0x7e09d000 - 0x7e305000] -> Usable
-[0x7e305000 - 0x7e308000] -> Reserved
-[0x7e308000 - 0x7f4ed000] -> Usable
+[0x79f75000 - 0x7e03b000] -> Usable
+[0x7e03b000 - 0x7e040000] -> Reserved
+[0x7e040000 - 0x7e04e000] -> Usable
+[0x7e04e000 - 0x7e07d000] -> Bootloader reclaimable
+[0x7e07d000 - 0x7e08e000] -> Usable
+[0x7e08e000 - 0x7e096000] -> Kernel and modules
+[0x7e096000 - 0x7e0a5000] -> Usable
+[0x7e0a5000 - 0x7e0ad000] -> Reserved
+[0x7e0ad000 - 0x7e2d9000] -> Usable
+[0x7e2d9000 - 0x7e2dc000] -> Reserved
+[0x7e2dc000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
 [0x7f5ed000 - 0x7f6ed000] -> Reserved
 [0x7f6ed000 - 0x7f76d000] -> Reserved
 [0x7f76d000 - 0x7f77f000] -> ACPI Reclaimable
 [0x7f77f000 - 0x7f7ff000] -> ACPI NVS
-[0x7f7ff000 - 0x7fe01000] -> Usable
-[0x7fe01000 - 0x7fe02000] -> Bootloader reclaimable
-[0x7fe02000 - 0x7fe05000] -> Usable
-[0x7fe05000 - 0x7fe10000] -> Bootloader reclaimable
-[0x7fe10000 - 0x7fe2c000] -> Kernel and modules
-[0x7fe2c000 - 0x7fe58000] -> Bootloader reclaimable
+[0x7f7ff000 - 0x7fe07000] -> Usable
+[0x7fe07000 - 0x7fe08000] -> Bootloader reclaimable
+[0x7fe08000 - 0x7fe0b000] -> Usable
+[0x7fe0b000 - 0x7fe16000] -> Bootloader reclaimable
+[0x7fe16000 - 0x7fe31000] -> Kernel and modules
+[0x7fe31000 - 0x7fe58000] -> Bootloader reclaimable
 [0x7fe58000 - 0x7fe80000] -> Usable
 [0x7fe80000 - 0x7fedb000] -> Bootloader reclaimable
 [0x7fedb000 - 0x7ff58000] -> Usable
@@ -73,14 +74,16 @@ Enumerating the PCI bus...
 PCI device: 0x8086 - 0x29c0 - 0x0 - 0x0
 PCI device: 0x1234 - 0x1111 - 0x0 - 0x0
 PCI device: 0x8086 - 0x10d3 - 0x0 - 0x0
+PCI device: 0x1b36 - 0xd - 0x3 - 0x30
 PCI device: 0x8086 - 0x2918 - 0x1 - 0x0
 PCI device: 0x8086 - 0x2922 - 0x6 - 0x1
 PCI device: 0x8086 - 0x2930 - 0x5 - 0x0
-
-
-!! PANIK!! 
-Irrecoverable error in the kernel.
-
-kernel/arch/x64/interrupts/idt.cpp in function pageFaultHandler at line 43
-Cause: Page fault!
-[Hanging now...]
+ACPI initialization done.
+ __  __  _                _  __
+|  \/  |(_) __  _ _  ___ | |/ /
+| |\/| || |/ _|| '_|/ _ \|   < 
+|_|  |_||_|\__||_|  \___/|_|\_\
+The operating system for the future...at your fingertips.
+MicroK Started.
+Free memory: 8311428kb out of 8377112kb (100% free).
+Kernel is now resting...

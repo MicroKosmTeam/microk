@@ -13,8 +13,14 @@ void EnumeratePCI(ACPI::MCFGHeader *mcfg) {
 	for (int i = 0; i < entries; i++) {
 		ACPI::DeviceConfig *newDeviceConfig = (ACPI::DeviceConfig*)((uint64_t)mcfg + sizeof(ACPI::MCFGHeader) + (sizeof(ACPI::DeviceConfig) * i));
 
-		for (uint64_t bus = newDeviceConfig->StartBus; bus < newDeviceConfig->EndBus; bus++) {
-			PCIBus *newBus = new PCIBus(newDeviceConfig->BaseAddress, bus);
+
+		/* For now, we will just support one bus.
+
+		for (uint64_t bus = newDeviceConfig->StartBus;
+		     bus < newDeviceConfig->EndBus;
+		     bus++) {
+		*/
+			PCIBus *newBus = new PCIBus(newDeviceConfig->BaseAddress, 0);
 
 			if(!newBus->Exists()) {
 				delete newBus;
@@ -22,9 +28,9 @@ void EnumeratePCI(ACPI::MCFGHeader *mcfg) {
 				newBus->SetMajor(1);
 				newBus->SetMinor(0);
 
-				AddDevice(newBus);
+				//AddDevice(newBus);
 			}
-		}
+		//}
 	}
 }
 
