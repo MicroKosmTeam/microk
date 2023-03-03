@@ -4,20 +4,10 @@
 #include <fs/ramfs/ramfs.hpp>
 
 VFilesystem *rootfs;
-VFilesystem *devtmpfs;
-VFilesystem *proc;
+VFilesystem *sysfs;
+VFilesystem *procfs;
 
-namespace VFS {
-VFilesystem *VFSMountFS(FSNode *mountroot, FSDriver *fsdriver) {
-	if (mountroot != NULL) PRINTK::PrintK("Mounting fs in %s.\r\n", mountroot->name);
-	VFilesystem *fs = new VFilesystem;
-	fs->node = fsdriver->rootNode;
-	fs->node->driver = fsdriver;
-	fs->mountdir = mountroot;
-	return fs;
-}
-
-void ListDir(FSNode *dir) {
+static void ListDir(FSNode *dir) {
 	if (dir == NULL) return;
 	uint64_t dirElements = dir->driver->FSGetDirElements(dir);
 	if (dirElements == 0) return;
@@ -29,23 +19,157 @@ void ListDir(FSNode *dir) {
 	}
 }
 
+namespace VFS {
 void Init(KInfo *info) {
+	rootfs = sysfs = procfs = NULL;
 	PRINTK::PrintK("Starting the VFS.\r\n");
 
 	FSDriver *rootfsDriver = new RAMFSDriver(NULL, 10000);
-	rootfs = VFSMountFS(NULL, rootfsDriver);
-	FSNode *devdir = rootfs->node->driver->FSMakeDir(rootfs->node, "dev", 0, 0, 0);
-	FSNode *procdir = rootfs->node->driver->FSMakeDir(rootfs->node, "proc", 0, 0, 0);
-	FSDriver *devtmpfsDriver = new RAMFSDriver(devdir, 10000);
-	FSDriver *procDriver = new RAMFSDriver(procdir, 10000);
-	devtmpfs = VFSMountFS(devdir, devtmpfsDriver);
-	devtmpfs->node->driver->FSMakeDir(devtmpfs->node, "tty", 0, 0, 0);
-	proc = VFSMountFS(procdir, procDriver);
-	proc->node->driver->FSMakeDir(proc->node, "1", 0, 0, 0);
+	rootfs = MountFS(NULL, rootfsDriver, 0);
+
+	FSNode *sysDir = MakeDir(rootfs->node, "sys", 0, 0, 0);
+	FSDriver *sysfsDriver = new RAMFSDriver(sysDir, 10000);
+	sysfs = MountFS(sysDir, sysfsDriver, 0);
+
+	FSNode *procDir = MakeDir(rootfs->node, "proc", 0, 0, 0);
+	FSDriver *procDriver = new RAMFSDriver(procDir, 10000);
+	procfs = MountFS(procDir, procDriver, 0);
 
 	ListDir(rootfs->node);
-	ListDir(devtmpfs->node);
 
 	PRINTK::PrintK("The VFS has been initialized.\r\n");
+}
+
+VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags) {
+	// Remember, mountroot can be null
+	if (mountroot == NULL) {
+		// Only if the rootfs is free
+		if (rootfs != NULL) return NULL;
+	}
+
+	if (fsdriver == NULL) return NULL;
+
+	// TODO: Check if already mounted
+
+	VFilesystem *fs = new VFilesystem;
+	fs->node = fsdriver->rootNode;
+	fs->node->driver = fsdriver;
+	fs->mountdir = mountroot;
+	fs->flags = flags;
+
+	return fs;
+}
+
+uint64_t RemountFS(VFilesystem *fs, uint64_t flags) {
+	if (fs == NULL) return 1;
+
+	// TODO: Check for open files and such
+
+	fs->flags = flags;
+
+	// TODO: Refresh the VFS buffers?
+	return 0;
+}
+
+uint64_t UmountFS(VFilesystem *fs) {
+	if (fs == NULL) return 1;
+
+	// TODO: Check for open files and such
+	fs->node->driver->FSDelete();
+
+	// The driver automatically destroys the node
+	delete fs->node->driver;
+	delete fs;
+}
+
+FSNode *MakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSMakeFile(node, name, uid, gid, mask);
+}
+
+FILE *OpenFile(FSNode *node) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	uint64_t descriptor = 0; // TODO: Get file descriptors
+	FILE *file = node->driver->FSOpenFile(node, descriptor);
+
+	// TODO: Do some stuff with the file
+
+	return file;
+}
+
+uint64_t ReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
+	if (file == NULL) return NULL;
+	if (file->node == NULL) return NULL;
+	if (file->node->driver == NULL) return NULL;
+
+	// TODO: Do some caching or leave it to the FS?
+
+	return file->node->driver->FSReadFile(file, offset, size, buffer);
+}
+
+uint64_t WriteFile(FILE *file, uint64_t offset, size_t size, uint8_t *buffer) {
+	if (file == NULL) return NULL;
+	if (file->node == NULL) return NULL;
+	if (file->node->driver == NULL) return NULL;
+
+	// TODO: Do some caching or leave it to the FS?
+
+	return file->node->driver->FSWriteFile(file, offset, size, buffer);
+}
+
+void CloseFile(FILE *file) {
+	if (file == NULL) return NULL;
+	if (file->node == NULL) return NULL;
+	if (file->node->driver == NULL) return NULL;
+
+	// TODO: Dismantle eventual remainders in the VFS
+
+	return file->node->driver->FSCloseFile(file);
+}
+
+uint64_t DeleteFile(FSNode *node) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSDeleteFile(node);
+}
+
+FSNode *MakeDir(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSMakeDir(node, name, uid, gid, mask);
+}
+
+FSNode *ReadDir(FSNode *node, uint64_t index) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSReadDir(node, index);
+}
+
+FSNode *FindDir(FSNode *node, const char *name) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSFindDir(node, name);
+}
+
+uint64_t GetDirElements(FSNode *node) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSGetDirElements(node);
+}
+
+uint64_t DeleteDir(FSNode *node) {
+	if (node == NULL) return NULL;
+	if (node->driver == NULL) return NULL;
+
+	return node->driver->FSDeleteDir(node);
 }
 }

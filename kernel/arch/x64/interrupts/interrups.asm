@@ -5,14 +5,21 @@ isr_stub_%+%1:
     call exceptionHandler
     iretq
 %endmacro
-; if writing for 64-bit, use iretq
+
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
     call exceptionHandler
     iretq
 %endmacro
 
+%macro isr_err_page_fault 1
+isr_stub_%+%1:
+    call pageFaultHandler
+    iretq
+%endmacro
+
 extern exceptionHandler
+extern pageFaultHandler
 isr_no_err_stub 0
 isr_no_err_stub 1
 isr_no_err_stub 2
@@ -27,7 +34,7 @@ isr_err_stub    10
 isr_err_stub    11
 isr_err_stub    12
 isr_err_stub    13
-isr_err_stub    14
+isr_err_page_fault 14
 isr_no_err_stub 15
 isr_no_err_stub 16
 isr_err_stub    17
@@ -50,6 +57,6 @@ global isr_stub_table
 isr_stub_table:
 %assign i 0
 %rep    32
-    dq isr_stub_%+i ; use DQ instead if targeting 64-bit
+    dq isr_stub_%+i
 %assign i i+1
 %endrep

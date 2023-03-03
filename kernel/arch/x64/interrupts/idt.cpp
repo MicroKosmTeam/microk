@@ -37,6 +37,15 @@ void IDTInit() {
 }
 
 #include <sys/panic.hpp>
+
+__attribute__((noreturn))
+extern "C" void pageFaultHandler() {
+	PANIC("Page fault!");
+
+	while (true) {
+		asm volatile ("cli; hlt"); // Completely hangs the computer
+	}
+}
 __attribute__((noreturn))
 extern "C" void exceptionHandler() {
 	PANIC("Interrupt");

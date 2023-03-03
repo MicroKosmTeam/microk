@@ -13,7 +13,6 @@ void Init(KInfo *info) {
 
 	PRINTK::PrintK("Loading x86_64 IDT\r\n");
 	x86_64::IDTInit();
-	asm volatile ("int $0xe");
 	PRINTK::PrintK("IDT Loaded.\r\n");
 }
 }

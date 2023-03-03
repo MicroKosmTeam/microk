@@ -29,7 +29,7 @@ CFLAGS = -ffreestanding       \
 	 -fpermissive         \
 	 -Wall                \
 	 -Wno-write-strings   \
-	 -Og                  \
+	 -O3                  \
 	 -fno-rtti            \
 	 -fno-exceptions      \
 	 -ggdb
@@ -100,4 +100,5 @@ run:
 		-smp sockets=1,cores=4,threads=1 \
 		-drive file="microk.img" \
 		-s \
+		-M q35 \
 		-S

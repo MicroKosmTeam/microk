@@ -11,12 +11,7 @@
 
 bool initialized = false;
 
-static volatile struct limine_hhdm_request hhdmRequest {
-	.id = LIMINE_HHDM_REQUEST,
-	.revision = 0
-};
-
-static volatile struct limine_kernel_address_request kAddrRequest {
+static volatile limine_kernel_address_request kAddrRequest {
 	.id = LIMINE_KERNEL_ADDRESS_REQUEST,
 	.revision = 0
 };
@@ -76,7 +71,6 @@ void InitVMM(KInfo *info) {
 		GlobalPageTableManager->MapMemory((void*)t , (void*)phys, flagNumber, flags, flagStatus);
 	}
 
-	*/
 
 	PT_Flag flags[128];
 	bool flagStatus[128];
@@ -98,6 +92,7 @@ void InitVMM(KInfo *info) {
 	}
 
 	PRINTK::PrintK("Done mapping.\r\n");
+	*/
 
 	asm volatile ("mov %0, %%cr3" : : "r" (PML4));
 }

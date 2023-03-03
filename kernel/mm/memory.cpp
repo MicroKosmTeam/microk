@@ -6,6 +6,11 @@
 #include <mm/bootmem.hpp>
 #include <mm/heap.hpp>
 
+volatile limine_hhdm_request hhdmRequest {
+	.id = LIMINE_HHDM_REQUEST,
+	.revision = 0
+};
+
 static volatile limine_memmap_request mMapRequest {
 	.id = LIMINE_MEMMAP_REQUEST,
 	.revision = 0
