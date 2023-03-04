@@ -20,7 +20,8 @@ SECTIONS
     /* and because that is what the Limine spec mandates. */
     /* Any address in this region will do, but often 0xffffffff80000000 is chosen as */
     /* that is the beginning of the region. */
-    . = 0x100000;
+/*    . = 0x100000;*/
+	. =0x100000000;
 
     kernel_start_addr = .;
     text_start_addr = .;

@@ -33,6 +33,18 @@ void *Malloc(size_t size) {
 	else return NULL;
 }
 
+void *VMalloc(void *address, size_t size) {
+	if(size % 0x1000) {
+		size = (size / 0x1000 + 1) * 0x1000;
+	}
+
+	for (int i = 0; i < size; i+= 0x1000) {
+		VMM::MapMemory(address + size, PMM::RequestPage());
+	}
+
+	return address;
+}
+
 void Free(void *p) {
 	HEAP::Free(p);
 }

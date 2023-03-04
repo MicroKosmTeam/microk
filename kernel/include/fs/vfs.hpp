@@ -102,6 +102,7 @@ namespace VFS {
 	uint64_t UmountFS(VFilesystem *fs);
 	FSNode *MakeFile(FSNode *node, const char *name, uint64_t uid, uint64_t gid, uint64_t mask);
 	FILE *OpenFile(FSNode *node);
+	uint64_t GetFileSize(FILE *file);
 	uint64_t ReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer);
 	uint64_t WriteFile(FILE *file, uint64_t offset, size_t size, uint8_t *buffer);
 	void CloseFile(FILE *file);

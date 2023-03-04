@@ -36,7 +36,7 @@ extern "C" void kernelStart(void) {
 
 	MEM::Init(info);
 
-	HEAP::InitializeHeap(CONFIG_HEAP_BASE, CONFIG_HEAP_SIZE / 0x1000);
+	HEAP::InitializeHeap(CONFIG_HEAP_BASE, CONFIG_HEAP_SIZE / 0x1000 + 1);
 	BOOTMEM::DeactivateBootmem();
 	PRINTK::PrintK("Free bootmem memory: %dkb out of %dkb.\r\n", BOOTMEM::GetFree() / 1024, BOOTMEM::GetTotal() / 1024);
 

@@ -130,6 +130,12 @@ FILE *OpenFile(FSNode *node) {
 	return file;
 }
 
+uint64_t GetFileSize(FILE *file) {
+	if (file == NULL) return NULL;
+	if (file->node == NULL) return NULL;
+	return file->node->size;
+}
+
 uint64_t ReadFile(FILE *file, uint64_t offset, size_t size, uint8_t **buffer) {
 	if (file == NULL) return NULL;
 	if (file->node == NULL) return NULL;

@@ -16,6 +16,8 @@ static int oct2bin(unsigned char *str, int size) {
         return n;
 }
 
+#include <sys/elf.hpp>
+
 namespace USTAR {
         void LoadArchive(uint8_t *archive, FSNode *node) {
 		if(node == NULL) return;
@@ -33,6 +35,10 @@ namespace USTAR {
                         tarFile->size = filesize;
                         tarFile->data = new uint8_t[tarFile->size];
                         memcpy(tarFile->data, ptr + 512, filesize);
+
+			if (strcmp(tarFile->filename, "test.elf") == 0) {
+				LoadELF(tarFile->data);
+			}
 
 			FSNode *fileNode = VFS::MakeFile(node, tarFile->filename, 0, 0, 0);
 			if (fileNode == NULL) PANIC("Could not create file from initrd");

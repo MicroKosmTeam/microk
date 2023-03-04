@@ -69,13 +69,17 @@ uint64_t RAMFSDriver::FSWriteFile(FILE *file, uint64_t offset, size_t size, uint
 			memset(inodeTable[file->node->inode]->fileData, 0, offset+size);
 
 			memcpy(inodeTable[file->node->inode]->fileData, tempBuffer, inodeTable[file->node->inode]->length);
-			inodeTable[file->node->inode]->length = offset + size;
+			//inodeTable[file->node->inode]->length = offset + size;
 
 			delete[] tempBuffer;
 		}
 	}
 
-	inodeTable[file->node->inode]->length += offset + size;
+	uint64_t length = (offset - inodeTable[file->node->inode]->length) > 0 ?
+		(offset - inodeTable[file->node->inode]->length) :
+		0;
+	length += size;
+	file->node->size = inodeTable[file->node->inode]->length = length;
 	memcpy(inodeTable[file->node->inode]->fileData + offset, buffer, size);
 
 	file->bufferPos = offset + size;
@@ -256,7 +260,7 @@ FSNode *RAMFSDriver::FSFindDir(FSNode *node, const char *name) {
 		directoryEntry = directoryEntry->nextObject;
 	}
 
-	Free(entry);
+	delete entry;
 
 	return 0;
 }
