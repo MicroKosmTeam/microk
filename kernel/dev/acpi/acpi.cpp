@@ -14,7 +14,12 @@ void PrintTables(SDTHeader *sdtHeader) {
         int entries = (sdtHeader->Length - sizeof(ACPI::SDTHeader) ) / 8;
         for (int i = 0; i < entries; i++) {
                 ACPI::SDTHeader *newSDTHeader = (ACPI::SDTHeader*)*(uint64_t*)((uint64_t)sdtHeader + sizeof(ACPI::SDTHeader) + (i*8));
-		PRINTK::PrintK("Found table: %s\r\n", newSDTHeader->Signature);
+		PRINTK::PrintK("Found table: %c%c%c%c\r\n",
+				newSDTHeader->Signature[0],
+				newSDTHeader->Signature[1],
+				newSDTHeader->Signature[2],
+				newSDTHeader->Signature[3]
+				);
         }
 
         return 0;
@@ -41,7 +46,6 @@ void Init(KInfo *info) {
 	PRINTK::PrintK("Loading the XSDT table...\r\n");
 	SDTHeader *xsdt = (SDTHeader*)(rsdp->XSDTAddress);
 
-	PRINTK::PrintK("Available Tables\r\n");
 	PrintTables(xsdt);
 
 	PRINTK::PrintK("Loading the MCFG table...\r\n");

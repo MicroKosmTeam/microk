@@ -1,9 +1,8 @@
 #include <mm/memory.hpp>
-
-bool sseEnabled = false;
+#include <arch/x64/cpu/cpu.hpp>
 
 void memcpy(void *dest, void *src, size_t n) {
-	if (sseEnabled) {
+	if (x86_64::IsSSE()) {
 		int i;
 	        for(i=0; i<n/16; i++) {
 			__asm__ __volatile__ (
