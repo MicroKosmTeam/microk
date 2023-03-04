@@ -7,7 +7,7 @@ public:
 	Device() { }
 	~Device() { }
 
-	virtual uint64_t ioctl(uint64_t request, ...) { return request; }
+	virtual uint64_t Ioctl(uint64_t request, ...) { return request; }
 
 	uint64_t GetMajor() { return major; }
 	uint64_t GetMinor() { return minor; }

@@ -1,6 +1,9 @@
 #pragma once
+#include <cdefs.h>
+#ifdef CONFIG_HW_SERIAL
 #include <stdint.h>
 #include <stddef.h>
+#include <dev/dev.hpp>
 
 enum SerialPorts {
 	COM1 = 0x3f8,
@@ -13,9 +16,11 @@ enum SerialPorts {
 	COM8 = 0x4e8
 };
 
-class UARTDevice {
+class UARTDevice : public Device {
 public:
 	UARTDevice() { active = false; }
+
+	uint64_t Ioctl(uint64_t request, ...);
 
 	uint64_t Init(SerialPorts serialPort);
 	void PutStr(const char* str);
@@ -29,3 +34,5 @@ private:
 	int isTransmitEmpty();
 	int serialReceived();
 };
+
+#endif

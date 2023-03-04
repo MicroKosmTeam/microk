@@ -1,0 +1,13 @@
+
+# Internal drivers
+
+mainmenu_option next_comment
+	comment 'Internal Kernel Drivers'
+
+	bool 'Enable PRINTK subsystem' CONFIG_PRINTK y
+	if [ "$CONFIG_PRINTK" = "y" ]; then
+		comment 'Printk devices.'
+
+		bool 'Enable the serial port'                     CONFIG_HW_SERIAL y
+	fi
+endmenu

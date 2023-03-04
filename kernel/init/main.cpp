@@ -2,18 +2,18 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limine.h>
+#include <mm/pmm.hpp>
+#include <fs/vfs.hpp>
+#include <mm/heap.hpp>
 #include <sys/panic.hpp>
-#include <init/kinfo.hpp>
-#include <sys/printk.hpp>
 #include <mm/memory.hpp>
 #include <mm/bootmem.hpp>
+#include <init/kinfo.hpp>
+#include <sys/printk.hpp>
 #include <init/modules.hpp>
 #include <arch/x64/main.hpp>
 #include <dev/acpi/acpi.hpp>
 #include <proc/scheduler.hpp>
-#include <mm/heap.hpp>
-#include <mm/pmm.hpp>
-#include <fs/vfs.hpp>
 #include <sys/ustar/ustar.hpp>
 
 static volatile limine_stack_size_request stackRequest {
@@ -42,7 +42,6 @@ extern "C" void kernelStart(void) {
 
 	VFS::Init(info);
 
-	// TODO: Fix initrd loading
 	MODULE::Init(info);
 
 	ACPI::Init(info);
@@ -52,11 +51,11 @@ extern "C" void kernelStart(void) {
 		       "| |\\/| || |/ _|| '_|/ _ \\|   < \r\n"
 		       "|_|  |_||_|\\__||_|  \\___/|_|\\_\\\r\n"
 		       "The operating system for the future...at your fingertips.\r\n");
-	PRINTK::PrintK("MicroK Started.\r\n");
+	PRINTK::PrintK("%s %s Started.\r\n", CONFIG_KERNEL_CNAME, CONFIG_KERNEL_CVER);
 	PRINTK::PrintK("Free memory: %dkb out of %dkb (%d%% free).\r\n",
 			PMM::GetFreeMem() / 1024,
 			(PMM::GetFreeMem() + PMM::GetUsedMem()) / 1024,
-			(PMM::GetFreeMem() + PMM::GetUsedMem()) / PMM::GetFreeMem() * 100);
+			(PMM::GetFreeMem() + PMM::GetUsedMem()) / PMM::GetFreeMem() * 100 - 1);
 
 	restInit(info);
 }

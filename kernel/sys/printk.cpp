@@ -1,10 +1,12 @@
+#include <sys/printk.hpp>
+#ifdef CONFIG_PRINTK
 #include <stdarg.h>
 #include <stdint.h>
-#include <sys/printk.hpp>
 #include <mm/bootmem.hpp>
 #include <mm/string.hpp>
 
 UARTDevice *kernelPort;
+
 namespace PRINTK {
 void PrintK(char *format, ...) {
         va_list ap;
@@ -45,10 +47,14 @@ void PrintK(char *format, ...) {
         va_end(ap);
 }
 
+#ifdef CONFIG_HW_SERIAL
 void EarlyInit(KInfo *info) {
 	info->kernelPort = (UARTDevice*)BOOTMEM::Malloc(sizeof(UARTDevice) + 1);
 	info->kernelPort->Init(COM1);
 	info->kernelPort->PutStr("Serial PrintK started.\n");
 	kernelPort = info->kernelPort;
 }
+#endif
 }
+
+#endif

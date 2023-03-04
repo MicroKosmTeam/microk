@@ -51,6 +51,12 @@ KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
 
 kernel: $(KOBJS) link
 
+nconfig:
+	@ ./config/Configure ./config/config.in
+
+menuconfig:
+	@ ./config/Menuconfig ./config/config.in
+
 $(KERNDIR)/%.o: $(KERNDIR)/%.cpp
 	@ mkdir -p $(@D)
 	@ echo !==== COMPILING $^ && \
