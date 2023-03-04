@@ -19,8 +19,6 @@ uint64_t *LoadELF(uint8_t *data) {
 	Elf64_Ehdr *elfHeader = (Elf64_Ehdr*)Malloc(elfHeaderSize);
 	memcpy(elfHeader, data, elfHeaderSize);
 
-	PRINTK::PrintK("The entry point is at: 0x%x\r\n", elfHeader->e_entry);
-
 	uint64_t programHeaderSize = elfHeader->e_phentsize;
 	uint64_t programHeaderOffset = elfHeader->e_phoff;
 	uint64_t programHeaderNumber = elfHeader->e_phnum;
@@ -47,7 +45,7 @@ uint64_t *LoadELF(uint8_t *data) {
 			       programHeader->p_memsz);
 	}
 
-	uint64_t sectionHeaderSize = elfHeader->e_shentsize;
+	/*uint64_t sectionHeaderSize = elfHeader->e_shentsize;
 	uint64_t sectionHeaderOffset = elfHeader->e_shoff;
 	uint64_t sectionHeaderNumber = elfHeader->e_shnum;
 
@@ -65,7 +63,10 @@ uint64_t *LoadELF(uint8_t *data) {
 			       sectionHeader->sh_type,
 			       sectionHeader->sh_offset,
 			       sectionHeader->sh_size);
-	}
+
+	}*/
+
+	PRINTK::PrintK("Loading Complete. Jumping to entry point at 0x%x\r\n", elfHeader->e_entry);
 
 	asm volatile("jmp *%0" : : "r"(elfHeader->e_entry));
 

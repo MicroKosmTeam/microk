@@ -21,13 +21,13 @@ Memory map:
 [0x79912000 - 0x79d12000] -> Bootloader reclaimable
 [0x79d12000 - 0x79e48000] -> Kernel and modules
 [0x79e48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e004000] -> Usable
-[0x7e004000 - 0x7e009000] -> Reserved
-[0x7e009000 - 0x7e027000] -> Usable
-[0x7e027000 - 0x7e056000] -> Bootloader reclaimable
-[0x7e056000 - 0x7e07b000] -> Usable
-[0x7e07b000 - 0x7e086000] -> Reserved
-[0x7e086000 - 0x7f4ed000] -> Usable
+[0x79f75000 - 0x7e02c000] -> Usable
+[0x7e02c000 - 0x7e031000] -> Reserved
+[0x7e031000 - 0x7e050000] -> Usable
+[0x7e050000 - 0x7e07f000] -> Bootloader reclaimable
+[0x7e07f000 - 0x7e0a4000] -> Usable
+[0x7e0a4000 - 0x7e0af000] -> Reserved
+[0x7e0af000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
 [0x7f5ed000 - 0x7f6ed000] -> Reserved
 [0x7f6ed000 - 0x7f76d000] -> Reserved
@@ -85,7 +85,6 @@ Available modules:
 Initrd: [ /initrd.tar 1269760 ] INITRD
 Unpacking initrd in /initrd.
 ELF file is valid
-The entry point is at: 0x10000001f
 Program Header 0
 - Offset: 4096
 - Virtual address: 0x100000000
@@ -101,34 +100,5 @@ Program Header 2
 - Virtual address: 0x0
 - File Size: 0x0
 - Memory Size: 0x0
-Section Header 0
-- Name: 0
-- Type: 0
-- Offset: 0
-- Size: 0
-Section Header 1
-- Name: 27
-- Type: 1
-- Offset: 4096
-- Size: 211
-Section Header 2
-- Name: 33
-- Type: 1
-- Offset: 4307
-- Size: 27
-Section Header 3
-- Name: 1
-- Type: 2
-- Offset: 4336
-- Size: 288
-Section Header 4
-- Name: 9
-- Type: 3
-- Offset: 4624
-- Size: 123
-Section Header 5
-- Name: 17
-- Type: 3
-- Offset: 4747
-- Size: 42
+Loading Complete. Jumping to entry point at 0x10000001f
 Hello ELF!
