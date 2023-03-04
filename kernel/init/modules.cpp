@@ -57,9 +57,11 @@ void Init(KInfo *info) {
 					info->modules[i]->size,
 					info->modules[i]->cmdline);
 
-			USTAR::LoadArchive(info->modules[i]->address, VFS::GetRootNode());
+			PRINTK::PrintK("Unpacking initrd in /initrd.\r\n");
+			USTAR::LoadArchive(info->modules[i]->address, VFS::GetInitrdFS()->node);
 
-			VFS::ListDir(VFS::GetRootNode());
+			VFS::ListDir(VFS::GetInitrdFS()->node);
+			VFS::ListDir(VFS::GetRootFS()->node);
 		} else {
 			PRINTK::PrintK("Unknown module: [ %s %d ] %s\r\n",
 					info->modules[i]->path,

@@ -92,7 +92,10 @@ namespace VFS {
 
 	void Init(KInfo *info);
 
-	FSNode *GetRootNode();
+	FSNode *GetNode(VFilesystem *fs, char *path);
+
+	VFilesystem *GetRootFS();
+	VFilesystem *GetInitrdFS();
 
 	VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags);
 	uint64_t RemountFS(VFilesystem *fs, uint64_t flags);

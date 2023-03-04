@@ -6,7 +6,7 @@ BdsDxe: starting Boot0002 "UEFI QEMU HARDDISK QM00001 " from PciRoot(0x0)/Pci(0x
 GDT Loaded.
 Loading x86_64 IDT
 IDT Loaded.
-Bitmap allocator started: 8180Mb free out of 8192Mb
+Bitmap allocator started: 8179Mb free out of 8192Mb
 Memory map:
 [0x1000 - 0xa0000] -> Usable
 [0x100000 - 0x800000] -> Usable
@@ -15,29 +15,28 @@ Memory map:
 [0x80b000 - 0x80c000] -> ACPI NVS
 [0x80c000 - 0x810000] -> Usable
 [0x810000 - 0x900000] -> ACPI NVS
-[0x900000 - 0x79a48000] -> Usable
-[0x79a48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e00c000] -> Usable
-[0x7e00c000 - 0x7e011000] -> Reserved
-[0x7e011000 - 0x7e022000] -> Usable
-[0x7e022000 - 0x7e051000] -> Bootloader reclaimable
-[0x7e051000 - 0x7e071000] -> Usable
-[0x7e071000 - 0x7e079000] -> Kernel and modules
-[0x7e079000 - 0x7e081000] -> Reserved
-[0x7e081000 - 0x7e17f000] -> Usable
-[0x7e17f000 - 0x7e182000] -> Reserved
-[0x7e182000 - 0x7f4ed000] -> Usable
+[0x900000 - 0x798f1000] -> Usable
+[0x798f1000 - 0x79cf1000] -> Bootloader reclaimable
+[0x79cf1000 - 0x79e48000] -> Kernel and modules
+[0x79e48000 - 0x79f75000] -> Bootloader reclaimable
+[0x79f75000 - 0x7e004000] -> Usable
+[0x7e004000 - 0x7e009000] -> Reserved
+[0x7e009000 - 0x7e027000] -> Usable
+[0x7e027000 - 0x7e056000] -> Bootloader reclaimable
+[0x7e056000 - 0x7e07b000] -> Usable
+[0x7e07b000 - 0x7e086000] -> Reserved
+[0x7e086000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
 [0x7f5ed000 - 0x7f6ed000] -> Reserved
 [0x7f6ed000 - 0x7f76d000] -> Reserved
 [0x7f76d000 - 0x7f77f000] -> ACPI Reclaimable
 [0x7f77f000 - 0x7f7ff000] -> ACPI NVS
-[0x7f7ff000 - 0x7fe07000] -> Usable
-[0x7fe07000 - 0x7fe08000] -> Bootloader reclaimable
-[0x7fe08000 - 0x7fe0b000] -> Usable
-[0x7fe0b000 - 0x7fe16000] -> Bootloader reclaimable
-[0x7fe16000 - 0x7fe31000] -> Kernel and modules
-[0x7fe31000 - 0x7fe58000] -> Bootloader reclaimable
+[0x7f7ff000 - 0x7fe04000] -> Usable
+[0x7fe04000 - 0x7fe05000] -> Bootloader reclaimable
+[0x7fe05000 - 0x7fe0a000] -> Usable
+[0x7fe0a000 - 0x7fe15000] -> Bootloader reclaimable
+[0x7fe15000 - 0x7fe30000] -> Kernel and modules
+[0x7fe30000 - 0x7fe58000] -> Bootloader reclaimable
 [0x7fe58000 - 0x7fe80000] -> Usable
 [0x7fe80000 - 0x7fedb000] -> Bootloader reclaimable
 [0x7fedb000 - 0x7ff58000] -> Usable
@@ -55,10 +54,15 @@ Starting the VFS.
 The VFS has been initialized.
 Test: 0x69
 Available modules:
-Initrd: [ /initrd.tar 30720 ] INITRD
-Listing ramfs...
+Initrd: [ /initrd.tar 1402880 ] INITRD
+Unpacking initrd in /initrd.
+Listing initrd...
+ - microk.elf
+ - back.bmp
  - README.md
  - LICENSE
+Listing ramfs...
+ - initrd
  - proc
  - sys
 Loading the XSDT table...
@@ -86,5 +90,5 @@ ACPI initialization done.
 |_|  |_||_|\__||_|  \___/|_|\_\
 The operating system for the future...at your fingertips.
 MicroK Started.
-Free memory: 8311428kb out of 8377112kb (100% free).
+Free memory: 8310084kb out of 8375768kb (100% free).
 Kernel is now resting...

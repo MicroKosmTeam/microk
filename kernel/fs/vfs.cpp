@@ -2,10 +2,12 @@
 #include <sys/printk.hpp>
 #include <mm/memory.hpp>
 #include <fs/ramfs/ramfs.hpp>
+#include <mm/string.hpp>
 
 VFilesystem *rootfs;
 VFilesystem *sysfs;
 VFilesystem *procfs;
+VFilesystem *initrdfs;
 
 namespace VFS {
 void ListDir(FSNode *dir) {
@@ -22,7 +24,7 @@ void ListDir(FSNode *dir) {
 
 
 void Init(KInfo *info) {
-	rootfs = sysfs = procfs = NULL;
+	rootfs = sysfs = procfs = initrdfs = NULL;
 	PRINTK::PrintK("Starting the VFS.\r\n");
 
 	FSDriver *rootfsDriver = new RAMFSDriver(NULL, 10000);
@@ -36,11 +38,35 @@ void Init(KInfo *info) {
 	FSDriver *procDriver = new RAMFSDriver(procDir, 10000);
 	procfs = MountFS(procDir, procDriver, 0);
 
+	FSNode *initrdDir = MakeDir(rootfs->node, "initrd", 0, 0, 0);
+	FSDriver *initrdDriver = new RAMFSDriver(initrdDir, 10000);
+	initrdfs = MountFS(initrdDir, initrdDriver, 0);
+
 	PRINTK::PrintK("The VFS has been initialized.\r\n");
 }
 
-FSNode *GetRootNode() {
-	return rootfs->node;
+VFilesystem *GetRootFS() {
+	return rootfs;
+}
+
+VFilesystem *GetInitrdFS() {
+	return initrdfs;
+}
+
+FSNode *GetNode(VFilesystem *fs, char *path) {
+	FSNode *node = fs->node;
+
+	char *ptr = strtok(path, "/");
+
+	if (ptr == NULL) return node;
+
+	do {
+		node = FindDir(node, ptr);
+
+		if (node == NULL) break;
+	} while (ptr = strtok(NULL, " "));
+
+	return node;
 }
 
 VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags) {
