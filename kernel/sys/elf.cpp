@@ -28,11 +28,13 @@ uint64_t *LoadELF(uint8_t *data) {
 	Elf64_Phdr *programHeader = (Elf64_Phdr*)Malloc(programHeaderSize);
 	for (int i = 0; i < programHeaderNumber; i++) {
 		memcpy(programHeader, data + programHeaderOffset + programHeaderSize * i, programHeaderSize);
+
 		if(programHeader->p_type == PT_LOAD && programHeader->p_memsz > 0) {
 			VMalloc(programHeader->p_vaddr, programHeader->p_memsz);
 			memset(programHeader->p_vaddr, 0, programHeader->p_memsz);
 			memcpy(programHeader->p_vaddr, data + programHeader->p_offset, programHeader->p_filesz);
 		}
+
 		PRINTK::PrintK("Program Header %d\r\n"
 			       "- Offset: %d\r\n"
 			       "- Virtual address: 0x%x\r\n"
@@ -65,7 +67,7 @@ uint64_t *LoadELF(uint8_t *data) {
 			       sectionHeader->sh_size);
 	}
 
-	asm volatile("jmp %0" : : "r"(elfHeader->e_entry));
+	asm volatile("jmp *%0" : : "r"(elfHeader->e_entry));
 
 	return NULL;
 }

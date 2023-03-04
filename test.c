@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stddef.h>
 
 void PrintChar(uint8_t ch) {
 	const uint16_t port = 0x3f8;
@@ -8,15 +9,15 @@ void PrintChar(uint8_t ch) {
 void _start(void) {
 	while(1) {
 		PrintChar('H');
-		PrintChar('e');
-		PrintChar('l');
-		PrintChar('l');
-		PrintChar('o');
-		PrintChar(' ');
-		PrintChar('E');
-		PrintChar('L');
-		PrintChar('F');
-		PrintChar('!');
+                PrintChar('e');
+                PrintChar('l');
+                PrintChar('l');
+                PrintChar('o');
+                PrintChar(' ');
+                PrintChar('E');
+                PrintChar('L');
+                PrintChar('F');
+                PrintChar('!');
 
 		asm volatile ("hlt");
 	}

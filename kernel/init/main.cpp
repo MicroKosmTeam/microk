@@ -42,8 +42,6 @@ extern "C" void kernelStart(void) {
 
 	VFS::Init(info);
 
-	MODULE::Init(info);
-
 	ACPI::Init(info);
 
 	PRINTK::PrintK(" __  __  _                _  __\r\n"
@@ -56,6 +54,15 @@ extern "C" void kernelStart(void) {
 			PMM::GetFreeMem() / 1024,
 			(PMM::GetFreeMem() + PMM::GetUsedMem()) / 1024,
 			(PMM::GetFreeMem() + PMM::GetUsedMem()) / PMM::GetFreeMem() * 100 - 1);
+
+	PRINTK::PrintK("Press \'c\' to continue and load the ELF file.\n\r");
+
+	char ch;
+	while (ch != 'c') {
+		ch = info->kernelPort->GetChar();
+	}
+
+	MODULE::Init(info);
 
 	restInit(info);
 }

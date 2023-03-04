@@ -18,11 +18,10 @@ gcc test.c \
 	-mno-sse             \
 	-mno-sse2            \
 	-mno-red-zone        \
-	-mcmodel=kernel      \
-	-I kernel/include    \
+	-mcmodel=large       \
 	-fpermissive         \
 	-Wno-write-strings   \
-	-O4                  \
+	-O0                  \
 	-fno-rtti            \
 	-fno-exceptions      \
 	-o test.o
