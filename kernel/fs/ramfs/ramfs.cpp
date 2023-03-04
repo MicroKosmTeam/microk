@@ -91,7 +91,6 @@ FILE *RAMFSDriver::FSOpenFile(FSNode *node, uint64_t descriptor) {
 }
 
 void RAMFSDriver::FSCloseFile(FILE *file) {
-	delete[] file->buffer;
 	delete file;
 }
 
@@ -194,6 +193,7 @@ FSNode *RAMFSDriver::FSMakeFile(FSNode *node, const char *name, uint64_t uid, ui
 		inodeTable[node->inode]->firstObject->fileData = NULL;
 		inodeTable[node->inode]->firstObject->node = (FSNode*)Malloc(sizeof(FSNode));
 		strcpy(inodeTable[node->inode]->firstObject->node->name, name);
+		inodeTable[node->inode]->firstObject->node->driver = this;
 		inodeTable[node->inode]->firstObject->node->mask = mask;
 		inodeTable[node->inode]->firstObject->node->uid = uid;
 		inodeTable[node->inode]->firstObject->node->gid = gid;
@@ -216,6 +216,7 @@ FSNode *RAMFSDriver::FSMakeFile(FSNode *node, const char *name, uint64_t uid, ui
 		newDirectoryEntry->node = (FSNode*)Malloc(sizeof(FSNode));
 		strcpy(newDirectoryEntry->node->name, name);
 		newDirectoryEntry->node->mask = mask;
+		newDirectoryEntry->node->driver = this;
 		newDirectoryEntry->node->uid = uid;
 		newDirectoryEntry->node->gid = gid;
 		newDirectoryEntry->node->size = newDirectoryEntry->node->impl = 0;

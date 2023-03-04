@@ -3,8 +3,7 @@
 #include <mm/memory.hpp>
 #include <mm/heap.hpp>
 #include <mm/string.hpp>
-
-#define PREFIX "[USTAR] "
+#include <sys/panic.hpp>
 
 static int oct2bin(unsigned char *str, int size) {
         int n = 0;
@@ -23,28 +22,32 @@ namespace USTAR {
 
                 unsigned char *ptr = archive;
 
-		TarFile *file = new TarFile;
+		TarFile *tarFile = new TarFile;
                 while (!memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
                         int filesize = oct2bin(ptr + 0x7c, 11);
 
 			// Should also add check for directories
 			// Also, must add mode, gid, uid, ecc
 			// Converting them from octal
-			memcpy(file->filename, ptr, 100);
-                        file->size = filesize;
-                        file->data = new uint8_t[file->size];
-                        memcpy(file->data, ptr + 512, filesize);
+			memcpy(tarFile->filename, ptr, 100);
+                        tarFile->size = filesize;
+                        tarFile->data = new uint8_t[tarFile->size];
+                        memcpy(tarFile->data, ptr + 512, filesize);
 
-			node->driver->FSMakeFile(node, file->filename, 0, 0, 0);
-			// Load file into fs and then close it
-			// TODO: add vfs functions
-			//FILE *file =
+			FSNode *fileNode = VFS::MakeFile(node, tarFile->filename, 0, 0, 0);
+			if (fileNode == NULL) PANIC("Could not create file from initrd");
+			FILE *file = VFS::OpenFile(fileNode);
+			if (file == NULL) PANIC("Could not open file from initrd");
 
-			delete[] file->data;
+			VFS::WriteFile(file, 0, tarFile->size, tarFile->data);
+
+			VFS::CloseFile(file);
+
+			delete[] tarFile->data;
 
                         ptr += (((filesize + 511) / 512) + 1) * 512;
                 }
 
-		delete file;
+		delete tarFile;
         }
 }

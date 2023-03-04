@@ -8,6 +8,7 @@
 #include <sys/ustar/ustar.hpp>
 #include <mm/string.hpp>
 #include <sys/elf.hpp>
+#include <fs/vfs.hpp>
 #include <cdefs.h>
 
 static volatile limine_module_request moduleRequest {
@@ -55,6 +56,10 @@ void Init(KInfo *info) {
 					info->modules[i]->path,
 					info->modules[i]->size,
 					info->modules[i]->cmdline);
+
+			USTAR::LoadArchive(info->modules[i]->address, VFS::GetRootNode());
+
+			VFS::ListDir(VFS::GetRootNode());
 		} else {
 			PRINTK::PrintK("Unknown module: [ %s %d ] %s\r\n",
 					info->modules[i]->path,

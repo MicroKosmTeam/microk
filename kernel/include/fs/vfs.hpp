@@ -87,7 +87,12 @@ struct VFilesystem {
 };
 
 namespace VFS {
+	void ListDir(FSNode *dir);
+
+
 	void Init(KInfo *info);
+
+	FSNode *GetRootNode();
 
 	VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags);
 	uint64_t RemountFS(VFilesystem *fs, uint64_t flags);

@@ -1,3 +1,4 @@
 #pragma once
+#include <stdint.h>
 
-void LoadELF(uint8_t *data);
+uint64_t *LoadELF(uint8_t *data);

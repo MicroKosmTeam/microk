@@ -7,7 +7,8 @@ VFilesystem *rootfs;
 VFilesystem *sysfs;
 VFilesystem *procfs;
 
-static void ListDir(FSNode *dir) {
+namespace VFS {
+void ListDir(FSNode *dir) {
 	if (dir == NULL) return;
 	uint64_t dirElements = dir->driver->FSGetDirElements(dir);
 	if (dirElements == 0) return;
@@ -19,7 +20,7 @@ static void ListDir(FSNode *dir) {
 	}
 }
 
-namespace VFS {
+
 void Init(KInfo *info) {
 	rootfs = sysfs = procfs = NULL;
 	PRINTK::PrintK("Starting the VFS.\r\n");
@@ -35,9 +36,11 @@ void Init(KInfo *info) {
 	FSDriver *procDriver = new RAMFSDriver(procDir, 10000);
 	procfs = MountFS(procDir, procDriver, 0);
 
-	ListDir(rootfs->node);
-
 	PRINTK::PrintK("The VFS has been initialized.\r\n");
+}
+
+FSNode *GetRootNode() {
+	return rootfs->node;
 }
 
 VFilesystem *MountFS(FSNode *mountroot, FSDriver *fsdriver, uint64_t flags) {

@@ -17,17 +17,16 @@ Memory map:
 [0x810000 - 0x900000] -> ACPI NVS
 [0x900000 - 0x79a48000] -> Usable
 [0x79a48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e03b000] -> Usable
-[0x7e03b000 - 0x7e040000] -> Reserved
-[0x7e040000 - 0x7e04e000] -> Usable
-[0x7e04e000 - 0x7e07d000] -> Bootloader reclaimable
-[0x7e07d000 - 0x7e08e000] -> Usable
-[0x7e08e000 - 0x7e096000] -> Kernel and modules
-[0x7e096000 - 0x7e0a5000] -> Usable
-[0x7e0a5000 - 0x7e0ad000] -> Reserved
-[0x7e0ad000 - 0x7e2d9000] -> Usable
-[0x7e2d9000 - 0x7e2dc000] -> Reserved
-[0x7e2dc000 - 0x7f4ed000] -> Usable
+[0x79f75000 - 0x7e00c000] -> Usable
+[0x7e00c000 - 0x7e011000] -> Reserved
+[0x7e011000 - 0x7e022000] -> Usable
+[0x7e022000 - 0x7e051000] -> Bootloader reclaimable
+[0x7e051000 - 0x7e071000] -> Usable
+[0x7e071000 - 0x7e079000] -> Kernel and modules
+[0x7e079000 - 0x7e081000] -> Reserved
+[0x7e081000 - 0x7e17f000] -> Usable
+[0x7e17f000 - 0x7e182000] -> Reserved
+[0x7e182000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
 [0x7f5ed000 - 0x7f6ed000] -> Reserved
 [0x7f6ed000 - 0x7f76d000] -> Reserved
@@ -53,13 +52,15 @@ Initializing the heap at 0xffffffff90000000 with 16384 pages.
 67108864 free of 67108864 bytes memory allocated.
 Free bootmem memory: 63kb out of 64kb.
 Starting the VFS.
-Listing ramfs...
- - proc
- - sys
 The VFS has been initialized.
 Test: 0x69
 Available modules:
 Initrd: [ /initrd.tar 30720 ] INITRD
+Listing ramfs...
+ - README.md
+ - LICENSE
+ - proc
+ - sys
 Loading the XSDT table...
 Available Tables
 Found table: FACPô
