@@ -100,7 +100,7 @@ buildimg: kernel
 run:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF.fd \
-		-m 8G \
+		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \

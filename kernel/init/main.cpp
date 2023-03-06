@@ -64,6 +64,11 @@ extern "C" void kernelStart(void) {
 
 	MODULE::Init(info);
 
+	PRINTK::PrintK("Press \'r\' to reset the machine.\n\r");
+	while (ch != 'r') {
+		ch = info->kernelPort->GetChar();
+	}
+
 	restInit(info);
 }
 

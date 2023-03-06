@@ -10,6 +10,7 @@ int memcmp(const void* buf1, const void* buf2, size_t count);
 void *Malloc(size_t size);
 void *VMalloc(void *address, size_t size);
 void Free(void *p);
+void VFree(void *address, size_t size);
 
 void *operator new(size_t size);
 void *operator new[](size_t size);

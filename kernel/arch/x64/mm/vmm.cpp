@@ -18,6 +18,11 @@ static volatile limine_kernel_address_request kAddrRequest {
 
 extern volatile uintptr_t text_start_addr, text_end_addr, rodata_start_addr, rodata_end_addr, data_start_addr, data_end_addr;
 
+PageTable *PML4;
+
+uint64_t higherHalf;
+uint64_t kVirtualBase;
+
 namespace x86_64 {
 void InitVMM(KInfo *info) {
 	if(initialized) return;
@@ -26,11 +31,11 @@ void InitVMM(KInfo *info) {
 
 	if(kAddrRequest.response == NULL || hhdmRequest.response == NULL) PANIC("Virtual memory request not answered by Limine");
 
-	info->higherHalf = hhdmRequest.response->offset;
+	higherHalf = info->higherHalf = hhdmRequest.response->offset;
 	info->kernelPhysicalBase = kAddrRequest.response->physical_base;
-	info->kernelVirtualBase = kAddrRequest.response->virtual_base;
+	kVirtualBase = info->kernelVirtualBase = kAddrRequest.response->virtual_base;
 
-	PageTable *PML4 = (PageTable*)PMM::RequestPage();
+	PML4 = (PageTable*)PMM::RequestPage();
 	memset(PML4, 0, PAGE_SIZE);
 
 	// Copy the bootloader page table into ours, so we know it's right
@@ -72,8 +77,8 @@ void InitVMM(KInfo *info) {
 	}
 
 
-	PT_Flag flags[128];
-	bool flagStatus[128];
+	PT_Flag flags[16];
+	bool flagStatus[16];
 	uint64_t flagNumber;
 	flagNumber = 1;
 	flags[0] = PT_Flag::ReadWrite;
@@ -91,8 +96,8 @@ void InitVMM(KInfo *info) {
 		}
 	}
 
-	PRINTK::PrintK("Done mapping.\r\n");
 	*/
+	PRINTK::PrintK("Done mapping.\r\n");
 
 	asm volatile ("mov %0, %%cr3" : : "r" (PML4));
 }

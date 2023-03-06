@@ -22,7 +22,7 @@ void PrintTables(SDTHeader *sdtHeader) {
 				);
         }
 
-        return 0;
+        return;
 }
 
 void *FindTable(SDTHeader *sdtHeader, char *signature) {
@@ -35,7 +35,7 @@ void *FindTable(SDTHeader *sdtHeader, char *signature) {
                 }
         }
 
-        return 0;
+        return NULL;
 }
 
 void Init(KInfo *info) {
@@ -48,8 +48,12 @@ void Init(KInfo *info) {
 
 	PrintTables(xsdt);
 
+	PRINTK::PrintK("Loading the FADT table...\r\n");
+	FADT *fadt = (FADT*)FindTable(xsdt, (char*)"FACP");
+	if (fadt == NULL) PANIC("Could not find FADT");
+
 	PRINTK::PrintK("Loading the MCFG table...\r\n");
-        MCFGHeader *mcfg = (MCFGHeader*)ACPI::FindTable(xsdt, (char*)"MCFG");
+        MCFGHeader *mcfg = (MCFGHeader*)FindTable(xsdt, (char*)"MCFG");
 	if (mcfg == NULL) PANIC("Could not find MCFG");
 
 	PRINTK::PrintK("Enumerating PCI devices...\r\n");

@@ -6,8 +6,8 @@ void PrintChar(uint8_t ch) {
 	asm volatile ("outb %0, %1" : : "a"(ch), "d"(port));
 }
 
-void _start(void) {
-	while(1) {
+int _start(void) {
+	for (int i = 0; i < 10; i++) {
 		PrintChar('H');
                 PrintChar('e');
                 PrintChar('l');
@@ -18,8 +18,10 @@ void _start(void) {
                 PrintChar('L');
                 PrintChar('F');
                 PrintChar('!');
-
-		asm volatile ("hlt");
+                PrintChar('\r');
+                PrintChar('\n');
 	}
+
+	return 1;
 }
 

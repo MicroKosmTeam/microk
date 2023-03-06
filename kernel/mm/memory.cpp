@@ -5,6 +5,7 @@
 #include <mm/vmm.hpp>
 #include <mm/bootmem.hpp>
 #include <mm/heap.hpp>
+#include <arch/x64/mm/pageindexer.hpp>
 
 volatile limine_hhdm_request hhdmRequest {
 	.id = LIMINE_HHDM_REQUEST,
@@ -39,7 +40,8 @@ void *VMalloc(void *address, size_t size) {
 	}
 
 	for (int i = 0; i < size; i+= 0x1000) {
-		VMM::MapMemory(address + size, PMM::RequestPage());
+		void *page = PMM::RequestPage();
+		VMM::MapMemory(address + size, page);
 	}
 
 	return address;
@@ -47,6 +49,21 @@ void *VMalloc(void *address, size_t size) {
 
 void Free(void *p) {
 	HEAP::Free(p);
+}
+
+// Doesn't actually work, we need to get the physicalAddress
+void VFree(void *address, size_t size) {
+	if(size % 0x1000) {
+		size = (size / 0x1000 + 1) * 0x1000;
+	}
+
+	uint64_t physicalAddress = 0;
+
+	for (int i = 0; i < size; i+= 0x1000) {
+		PMM::FreePage(physicalAddress + i);
+		VMM::MapMemory(physicalAddress + i, physicalAddress + i);
+	}
+
 }
 
 void *operator new(size_t size) {

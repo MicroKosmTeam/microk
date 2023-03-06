@@ -8,7 +8,7 @@ Loading x86_64 IDT
 IDT Loaded.
 SSE status: Present but not active
 SSE status: Active
-Bitmap allocator started: 8179Mb free out of 8192Mb
+Bitmap allocator started: 4083Mb free out of 4096Mb
 Memory map:
 [0x1000 - 0xa0000] -> Usable
 [0x100000 - 0x800000] -> Usable
@@ -21,13 +21,13 @@ Memory map:
 [0x79912000 - 0x79d12000] -> Bootloader reclaimable
 [0x79d12000 - 0x79e48000] -> Kernel and modules
 [0x79e48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e02c000] -> Usable
-[0x7e02c000 - 0x7e031000] -> Reserved
-[0x7e031000 - 0x7e050000] -> Usable
-[0x7e050000 - 0x7e07f000] -> Bootloader reclaimable
-[0x7e07f000 - 0x7e0a4000] -> Usable
-[0x7e0a4000 - 0x7e0af000] -> Reserved
-[0x7e0af000 - 0x7f4ed000] -> Usable
+[0x79f75000 - 0x7e004000] -> Usable
+[0x7e004000 - 0x7e009000] -> Reserved
+[0x7e009000 - 0x7e027000] -> Usable
+[0x7e027000 - 0x7e056000] -> Bootloader reclaimable
+[0x7e056000 - 0x7e07b000] -> Usable
+[0x7e07b000 - 0x7e086000] -> Reserved
+[0x7e086000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
 [0x7f5ed000 - 0x7f6ed000] -> Reserved
 [0x7f6ed000 - 0x7f76d000] -> Reserved
@@ -39,15 +39,16 @@ Memory map:
 [0x7fe08000 - 0x7fe13000] -> Bootloader reclaimable
 [0x7fe13000 - 0x7fe2f000] -> Kernel and modules
 [0x7fe2f000 - 0x7fe58000] -> Bootloader reclaimable
-[0x7fe58000 - 0x7fe80000] -> Usable
-[0x7fe80000 - 0x7fedb000] -> Bootloader reclaimable
+[0x7fe58000 - 0x7fe88000] -> Usable
+[0x7fe88000 - 0x7fedb000] -> Bootloader reclaimable
 [0x7fedb000 - 0x7ff58000] -> Usable
 [0x7ff58000 - 0x7ff78000] -> Reserved
 [0x7ff78000 - 0x80000000] -> ACPI NVS
 [0xb0000000 - 0xc0000000] -> Reserved
 [0xc0000000 - 0xc03e8000] -> Framebuffer
-[0x100000000 - 0x280000000] -> Usable
+[0x100000000 - 0x180000000] -> Usable
 Kernel page table initialized.
+Done mapping.
 Done.
 Initializing the heap at 0xffffffff90000000 with 16385 pages.
 67112960 free of 67112960 bytes memory allocated.
@@ -61,6 +62,7 @@ Found table: HPET
 Found table: MCFG
 Found table: WAET
 Found table: BGRT
+Loading the FADT table...
 Loading the MCFG table...
 Enumerating PCI devices...
 Enumerating the PCI bus...
@@ -78,7 +80,7 @@ ACPI initialization done.
 |_|  |_||_|\__||_|  \___/|_|\_\
 The operating system for the future...at your fingertips.
 MicroK Vanilla 0.0.1 Started.
-Free memory: 8310216kb out of 8375892kb (99% free).
+Free memory: 4116072kb out of 4181748kb (99% free).
 Press 'c' to continue and load the ELF file.
 Test: 0x69
 Available modules:
@@ -87,18 +89,36 @@ Unpacking initrd in /initrd.
 ELF file is valid
 Program Header 0
 - Offset: 4096
-- Virtual address: 0x100000000
-- File Size: 0xd3
-- Memory Size: 0xd3
+- Virtual address: 0x100000
+- File Size: 0x114
+- Memory Size: 0x114
 Program Header 1
-- Offset: 232
+- Offset: 0
 - Virtual address: 0x0
 - File Size: 0x0
 - Memory Size: 0x0
-Program Header 2
-- Offset: 232
-- Virtual address: 0x0
-- File Size: 0x0
-- Memory Size: 0x0
-Loading Complete. Jumping to entry point at 0x10000001f
+Loading Complete. Jumping to entry point at 0x10001f
 Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+Hello ELF!
+
+ELF file returned to kernel with code 1.
+Cleaned up.
+Listing initrd...
+ - test.elf
+ - back.bmp
+ - README.md
+ - LICENSE
+Listing ramfs...
+ - initrd
+ - proc
+ - sys
+Press 'r' to reset the machine.
+
