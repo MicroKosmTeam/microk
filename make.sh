@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gcc test.c \
+gcc test.cpp \
 	-c \
 	-fPIC\
 	-ffreestanding       \
@@ -24,6 +24,7 @@ gcc test.c \
 	-O0                  \
 	-fno-rtti            \
 	-fno-exceptions      \
+	-I kernel/include    \
 	-o test.o
 ld test.o \
 	-nostdlib               \

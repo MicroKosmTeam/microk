@@ -21,9 +21,9 @@ Memory map:
 [0x79912000 - 0x79d12000] -> Bootloader reclaimable
 [0x79d12000 - 0x79e48000] -> Kernel and modules
 [0x79e48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e004000] -> Usable
-[0x7e004000 - 0x7e009000] -> Reserved
-[0x7e009000 - 0x7e027000] -> Usable
+[0x79f75000 - 0x7e011000] -> Usable
+[0x7e011000 - 0x7e016000] -> Reserved
+[0x7e016000 - 0x7e027000] -> Usable
 [0x7e027000 - 0x7e056000] -> Bootloader reclaimable
 [0x7e056000 - 0x7e07b000] -> Usable
 [0x7e07b000 - 0x7e086000] -> Reserved
@@ -90,25 +90,21 @@ ELF file is valid
 Program Header 0
 - Offset: 4096
 - Virtual address: 0x100000
-- File Size: 0x114
-- Memory Size: 0x114
+- File Size: 0x233
+- Memory Size: 0x240
 Program Header 1
 - Offset: 0
 - Virtual address: 0x0
 - File Size: 0x0
 - Memory Size: 0x0
-Loading Complete. Jumping to entry point at 0x10001f
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-Hello ELF!
-
+Loading Complete. Jumping to entry point at 0x10005d
+OK
+Hello, world!
+Now printing from kernel...
+Hello from kernel printk!
+Allocation kernel: 0x69 (at 0xffffffff9004fb80)
+Bye!
+
 ELF file returned to kernel with code 1.
 Cleaned up.
 Listing initrd...
