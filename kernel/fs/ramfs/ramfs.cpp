@@ -236,6 +236,7 @@ FSNode *RAMFSDriver::FSMakeFile(FSNode *node, const char *name, uint64_t uid, ui
 }
 
 FSNode *RAMFSDriver::FSFindDir(FSNode *node, const char *name) {
+	// This function is really sketchy. I will have to rewrite it.
 	if(node->inode > maxInodes) return 0;
 	if(inodeTable[node->inode] == NULL) return 0;
 	if(inodeTable[node->inode]->firstObject == NULL) return 0;

@@ -8,7 +8,7 @@ Loading x86_64 IDT
 IDT Loaded.
 SSE status: Present but not active
 SSE status: Active
-Bitmap allocator started: 4083Mb free out of 4096Mb
+Bitmap allocator started: 4086Mb free out of 4096Mb
 Memory map:
 [0x1000 - 0xa0000] -> Usable
 [0x100000 - 0x800000] -> Usable
@@ -17,15 +17,13 @@ Memory map:
 [0x80b000 - 0x80c000] -> ACPI NVS
 [0x80c000 - 0x810000] -> Usable
 [0x810000 - 0x900000] -> ACPI NVS
-[0x900000 - 0x79912000] -> Usable
-[0x79912000 - 0x79d12000] -> Bootloader reclaimable
-[0x79d12000 - 0x79e48000] -> Kernel and modules
-[0x79e48000 - 0x79f75000] -> Bootloader reclaimable
-[0x79f75000 - 0x7e011000] -> Usable
-[0x7e011000 - 0x7e016000] -> Reserved
-[0x7e016000 - 0x7e027000] -> Usable
-[0x7e027000 - 0x7e056000] -> Bootloader reclaimable
-[0x7e056000 - 0x7e07b000] -> Usable
+[0x900000 - 0x79b75000] -> Usable
+[0x79b75000 - 0x79f75000] -> Bootloader reclaimable
+[0x79f75000 - 0x7dffa000] -> Usable
+[0x7dffa000 - 0x7dfff000] -> Reserved
+[0x7dfff000 - 0x7e00d000] -> Usable
+[0x7e00d000 - 0x7e049000] -> Bootloader reclaimable
+[0x7e049000 - 0x7e07b000] -> Usable
 [0x7e07b000 - 0x7e086000] -> Reserved
 [0x7e086000 - 0x7f4ed000] -> Usable
 [0x7f4ed000 - 0x7f5ed000] -> Reserved
@@ -34,11 +32,12 @@ Memory map:
 [0x7f76d000 - 0x7f77f000] -> ACPI Reclaimable
 [0x7f77f000 - 0x7f7ff000] -> ACPI NVS
 [0x7f7ff000 - 0x7fe02000] -> Usable
-[0x7fe02000 - 0x7fe03000] -> Bootloader reclaimable
-[0x7fe03000 - 0x7fe08000] -> Usable
-[0x7fe08000 - 0x7fe13000] -> Bootloader reclaimable
-[0x7fe13000 - 0x7fe2f000] -> Kernel and modules
-[0x7fe2f000 - 0x7fe58000] -> Bootloader reclaimable
+[0x7fe02000 - 0x7fe05000] -> Kernel and modules
+[0x7fe05000 - 0x7fe06000] -> Bootloader reclaimable
+[0x7fe06000 - 0x7fe09000] -> Usable
+[0x7fe09000 - 0x7fe14000] -> Bootloader reclaimable
+[0x7fe14000 - 0x7fe30000] -> Kernel and modules
+[0x7fe30000 - 0x7fe58000] -> Bootloader reclaimable
 [0x7fe58000 - 0x7fe88000] -> Usable
 [0x7fe88000 - 0x7fedb000] -> Bootloader reclaimable
 [0x7fedb000 - 0x7ff58000] -> Usable
@@ -80,11 +79,11 @@ ACPI initialization done.
 |_|  |_||_|\__||_|  \___/|_|\_\
 The operating system for the future...at your fingertips.
 MicroK Vanilla 0.0.1 Started.
-Free memory: 4116072kb out of 4181748kb (99% free).
+Free memory: 4118456kb out of 4184132kb (99% free).
 Press 'c' to continue and load the ELF file.
 Test: 0x69
 Available modules:
-Initrd: [ /initrd.tar 1269760 ] INITRD
+Initrd: [ /initrd.tar 10240 ] INITRD
 Unpacking initrd in /initrd.
 ELF file is valid
 Program Header 0
@@ -102,16 +101,13 @@ OK
 Hello, world!
 Now printing from kernel...
 Hello from kernel printk!
-Allocation kernel: 0x69 (at 0xffffffff9004fb80)
+Allocation kernel: 0x69 (at 0xffffffff90050f40)
 Bye!
 
 ELF file returned to kernel with code 1.
 Cleaned up.
 Listing initrd...
  - test.elf
- - back.bmp
- - README.md
- - LICENSE
 Listing ramfs...
  - initrd
  - proc
