@@ -8,9 +8,15 @@ void PrintChar(uint8_t ch) {
 }
 
 void PrintString(const char *str) {
-	while(*str) {
-		PrintChar(*str++);
-	}
+	for (size_t i = 0; 1; i++) {
+                char character = (uint8_t) str[i];
+
+                if (character == '\0') {
+                        return;
+                }
+
+                PrintChar(character);
+        }
 }
 uint64_t *KRNLSYMTABLE;
 extern "C" int _start(void) {
