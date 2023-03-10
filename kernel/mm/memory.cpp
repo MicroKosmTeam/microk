@@ -5,7 +5,6 @@
 #include <mm/vmm.hpp>
 #include <mm/bootmem.hpp>
 #include <mm/heap.hpp>
-#include <arch/x64/mm/pageindexer.hpp>
 
 volatile limine_hhdm_request hhdmRequest {
 	.id = LIMINE_HHDM_REQUEST,
