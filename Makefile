@@ -13,11 +13,8 @@ CFLAGS = -ffreestanding       \
 	 -fno-omit-frame-pointer \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
-	 -fno-lto             \
-	 -fno-pie             \
-	 -fno-pic             \
+	 -I kernel/include    \
 	 -m64                 \
-	 -march=x86-64        \
 	 -mabi=sysv           \
 	 -mno-80387           \
 	 -mno-mmx             \
@@ -25,14 +22,18 @@ CFLAGS = -ffreestanding       \
 	 -mno-sse2            \
 	 -mno-red-zone        \
 	 -mcmodel=kernel      \
-	 -I kernel/include    \
 	 -fpermissive         \
 	 -Wall                \
 	 -Wno-write-strings   \
 	 -Og                  \
 	 -fno-rtti            \
 	 -fno-exceptions      \
+	 -fno-lto             \
+	 -fno-pie             \
+	 -fno-pic             \
+	 -march=x86-64        \
 	 -ggdb
+
 
 ASMFLAGS = -f elf64
 
@@ -71,6 +72,9 @@ $(KERNDIR)/%.o: $(KERNDIR)/%.asm
 link: $(KOBJS)
 	@ echo !==== LINKING
 	$(LD) $(LDFLAGS) -o microk.elf $(KOBJS)
+	@ ./symbolstocpp.sh
+	$(CPP) $(CFLAGS) -c kernel/sys/symbolMap.cpp -o kernel/sys/symbolMap.o
+	$(LD) $(LDFLAGS) -o microk.elf $(KOBJS)
 
 clean:
 	@rm $(KOBJS)
@@ -100,7 +104,7 @@ buildimg: kernel
 run:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF.fd \
-		-m 4G \
+		-m 8G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
