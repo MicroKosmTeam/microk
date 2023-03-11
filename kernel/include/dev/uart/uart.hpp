@@ -20,7 +20,7 @@ class UARTDevice : public Device {
 public:
 	UARTDevice() { active = false; }
 
-	uint64_t Ioctl(uint64_t request, ...);
+	uint64_t Ioctl(uint64_t request, va_list ap);
 
 	uint64_t Init(SerialPorts serialPort);
 	void PutStr(const char* str);

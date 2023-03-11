@@ -5,7 +5,9 @@
 #include <mm/memory.hpp>
 #include <mm/string.hpp>
 #include <sys/panic.hpp>
+#include <stdarg.h>
 
+uint64_t *currentStack;
 uint64_t *LoadELF(uint8_t *data) {
 	if (data[0] != 0x7F || data[1] != 'E' || data[2] != 'L' || data[3] != 'F') {
 		PRINTK::PrintK("ELF File not valid.\r\n");
@@ -44,6 +46,8 @@ uint64_t *LoadELF(uint8_t *data) {
 	uint64_t programHeaderOffset = elfHeader->e_phoff;
 	uint64_t programHeaderNumber = elfHeader->e_phnum;
 
+	uint64_t progSize = 0;
+
 	Elf64_Phdr *programHeader = (Elf64_Phdr*)Malloc(programHeaderSize);
 	for (int i = 0; i < programHeaderNumber; i++) {
 		memcpy(programHeader, data + programHeaderOffset + programHeaderSize * i, programHeaderSize);
@@ -53,6 +57,8 @@ uint64_t *LoadELF(uint8_t *data) {
 			memset(programHeader->p_vaddr, 0, programHeader->p_memsz);
 			memcpy(programHeader->p_vaddr, data + programHeader->p_offset, programHeader->p_filesz);
 		}
+
+		progSize += programHeader->p_memsz;
 
 		PRINTK::PrintK("Program Header %d\r\n"
 			       "- Offset: %d\r\n"
@@ -66,16 +72,23 @@ uint64_t *LoadELF(uint8_t *data) {
 			       programHeader->p_memsz);
 	}
 
-	PRINTK::PrintK("Loading Complete. Jumping to entry point at 0x%x\r\n", elfHeader->e_entry);
+	PRINTK::PrintK("Loading Complete. Program is %d bytes. Jumping to entry point at 0x%x\r\n", progSize ,elfHeader->e_entry);
 
 	int (*elfEntry)(void) = elfHeader->e_entry;
 
-	PRINTK::PrintK("\r\nELF file returned to kernel with code %d.\r\n", elfEntry());
+	uint64_t (*Ioctl)(uint64_t request, va_list ap) = elfEntry();
+
+	PRINTK::PrintK("\r\nELF file returned to kernel. Ioctl address: 0x%x.\r\n", Ioctl);
 
 	delete programHeader;
 	delete elfHeader;
 
 	PRINTK::PrintK("Cleaned up.\r\n");
+
+	PRINTK::PrintK("Now calling Ioctl with request 0.\r\n");
+	Ioctl(0, 0);
+
+	PRINTK::PrintK("\r\nELF Loader is done.\r\n");
 
 	return NULL;
 }

@@ -15,10 +15,7 @@ inline uint8_t InB(uint16_t port) {
 
 #endif
 
-uint64_t UARTDevice::Ioctl(uint64_t request, ...) {
-	va_list ap;
-        va_start(ap, request);
-
+uint64_t UARTDevice::Ioctl(uint64_t request, va_list ap){
 	uint64_t result;
 
 	switch (request) {
@@ -39,8 +36,6 @@ uint64_t UARTDevice::Ioctl(uint64_t request, ...) {
 		default:
 			result = 0;
 	}
-
-        va_end(ap);
 
 	return result;
 }

@@ -36,6 +36,7 @@ void EnumeratePCI(ACPI::MCFGHeader *mcfg) {
 				/* TODO: Do something */
 				newBus->SetMajor(1);
 				newBus->SetMinor(0);
+
 			}
 		}
 	}

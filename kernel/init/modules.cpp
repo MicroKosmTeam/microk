@@ -10,6 +10,7 @@
 #include <sys/elf.hpp>
 #include <fs/vfs.hpp>
 #include <cdefs.h>
+#include <sys/driver.hpp>
 
 static volatile limine_module_request moduleRequest {
 	.id = LIMINE_MODULE_REQUEST,
@@ -21,25 +22,16 @@ uint64_t *KRNLSYMTABLE;
 namespace MODULE {
 void Init(KInfo *info) {
 	// Kernel symbol table
-	for (int i = 0; i < CONFIG_SYMBOL_TABLE_PAGES * 0x1000; i+=0x1000) {
+	for (int i = 0; i < CONFIG_SYMBOL_TABLE_PAGES * 0x1000; i += 0x1000) {
 		VMM::MapMemory(CONFIG_SYMBOL_TABLE_BASE + i, PMM::RequestPage());
 	}
 
 	KRNLSYMTABLE = CONFIG_SYMBOL_TABLE_BASE;
 	memset(KRNLSYMTABLE, 0, 0x1000);
 
-	KRNLSYMTABLE[0] = &PRINTK::PrintK;
-	KRNLSYMTABLE[1] = &Malloc;
-	KRNLSYMTABLE[2] = &Free;
-
-	void (*testPrintk)(char *format, ...) = KRNLSYMTABLE[0];
-	void* (*testMalloc)(size_t size) = KRNLSYMTABLE[1];
-	void (*testFree)(void *p) = KRNLSYMTABLE[2];
-
-	uint64_t *test = testMalloc(10);
-	*test = 0x69;
-	testPrintk("Test: 0x%x\r\n", *test);
-	testFree(test);
+	KRNLSYMTABLE[KRNLSYMTABLE_PRINTK] = PRINTK::PrintK;
+	KRNLSYMTABLE[KRNLSYMTABLE_MALLOC] = &Malloc;
+	KRNLSYMTABLE[KRNLSYMTABLE_FREE] = &Free;
 
 	// Loading initrd
 	if (moduleRequest.response == NULL) PANIC("Module request not answered by Limine");

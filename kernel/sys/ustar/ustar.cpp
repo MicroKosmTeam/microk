@@ -36,7 +36,7 @@ namespace USTAR {
                         tarFile->data = new uint8_t[tarFile->size];
                         memcpy(tarFile->data, ptr + 512, filesize);
 
-			if (strcmp(tarFile->filename, "test.elf") == 0) {
+			if (strcmp(tarFile->filename, "module.elf") == 0) {
 				LoadELF(tarFile->data);
 			}
 

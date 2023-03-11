@@ -1,13 +1,14 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <stdarg.h>
 
 class Device {
 public:
 	Device() { }
 	~Device() { }
 
-	virtual uint64_t Ioctl(uint64_t request, ...) { return request; }
+	virtual uint64_t Ioctl(uint64_t request, va_list ap) { return request; }
 
 	uint64_t GetMajor() { return major; }
 	uint64_t GetMinor() { return minor; }

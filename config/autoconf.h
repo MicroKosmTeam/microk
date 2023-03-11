@@ -59,7 +59,7 @@
  */
 
 #define CONFIG_SYMBOL_TABLE_BASE 0xffffffffffff0000
-#define CONFIG_SYMBOL_TABLE_PAGES (2)
+#define CONFIG_SYMBOL_TABLE_PAGES (8)
 
 /*
  * Drivers
@@ -86,3 +86,4 @@
  */
 
 #define CONFIG_IMG_ELF 1
+
