@@ -1,5 +1,6 @@
 [bits 64]
 
+; ISR macros
 %macro isr_err_stub 1
 isr_stub_%+%1:
     call exceptionHandler
@@ -18,8 +19,10 @@ isr_stub_%+%1:
     iretq
 %endmacro
 
+; Handling functions
 extern exceptionHandler
 extern pageFaultHandler
+
 isr_no_err_stub 0
 isr_no_err_stub 1
 isr_no_err_stub 2
@@ -53,8 +56,9 @@ isr_no_err_stub 29
 isr_err_stub    30
 isr_no_err_stub 31
 
-global isr_stub_table
-isr_stub_table:
+; The isr stub table
+global isrStubTable
+isrStubTable:
 %assign i 0
 %rep    32
     dq isr_stub_%+i

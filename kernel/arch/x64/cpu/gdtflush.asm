@@ -1,4 +1,6 @@
 [bits 64]
+
+; Function to load the GDT
 global FlushGDT
 FlushGDT:
 	lgdt [rdi]
@@ -14,6 +16,7 @@ FlushGDT:
 	push rdi
 	retfq
 
+; Function to load the TSS
 global FlushTSS
 FlushTSS:
 	mov ax, 0x48

@@ -2,7 +2,7 @@
 #include <arch/x64/cpu/cpu.hpp>
 
 void memcpy(void *dest, void *src, size_t n) {
-	if (x86_64::IsSSE()) {
+	if (false) {
 		int i;
 	        for(i=0; i<n/16; i++) {
 			__asm__ __volatile__ (

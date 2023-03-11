@@ -1,36 +1,43 @@
-#include <dev/pci/pci.hpp>
-#include <mm/vmm.hpp>
-#include <sys/printk.hpp>
-#include <mm/memory.hpp>
+/*
+   File: dev/pci/pci.cpp
+*/
 
+#include <mm/vmm.hpp>
+#include <mm/memory.hpp>
+#include <sys/printk.hpp>
+#include <dev/pci/pci.hpp>
+
+/* Variable that stores high memory mapping offset for our convenience */
 static uint64_t hhdm = hhdmRequest.response->offset;
 
 namespace PCI {
+/* Function that passes through every PCI bus and initializes its driver */
 void EnumeratePCI(ACPI::MCFGHeader *mcfg) {
 	int entries = ((mcfg->Header.Length) - sizeof(ACPI::MCFGHeader)) / sizeof(ACPI::DeviceConfig);
 
 	PRINTK::PrintK("Enumerating the PCI bus...\r\n");
 	for (int i = 0; i < entries; i++) {
+		/* Get the PCI device config */
 		ACPI::DeviceConfig *newDeviceConfig = (ACPI::DeviceConfig*)((uint64_t)mcfg + sizeof(ACPI::MCFGHeader) + (sizeof(ACPI::DeviceConfig) * i));
 
-
-		/* For now, we will just support one bus.
-
+		/* Now, there will be up to 256 PCI buses in a system. Usually there will be only one.
+		   For now we limit the maximum number of buses to 1, we can change it later */
 		for (uint64_t bus = newDeviceConfig->StartBus;
-		     bus < newDeviceConfig->EndBus;
+		     bus < newDeviceConfig->EndBus /* TODO: Do more than one bus */ && bus < 1;
 		     bus++) {
-		*/
+			/* Initialize the PCI bus driver */
 			PCIBus *newBus = new PCIBus(newDeviceConfig->BaseAddress, 0);
 
+			/* If it doesn't exist we delete it */
 			if(!newBus->Exists()) {
 				delete newBus;
 			} else {
+				/* Device managmant */
+				/* TODO: Do something */
 				newBus->SetMajor(1);
 				newBus->SetMinor(0);
-
-				//AddDevice(newBus);
 			}
-		//}
+		}
 	}
 }
 

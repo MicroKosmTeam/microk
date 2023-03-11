@@ -2,7 +2,7 @@
 #include <arch/x64/cpu/cpu.hpp>
 
 void memset(void *start, uint8_t value, uint64_t num) {
-	if(x86_64::IsSSE()) {
+	if(false) {
 		int d0, d1;
 	        __asm__ __volatile__(
 		        "rep\n\t"

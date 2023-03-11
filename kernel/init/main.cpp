@@ -22,7 +22,7 @@
 
 /*
    Stack request for Limine
-    Stack size configured in autoconf.h
+   Stack size configured in autoconf.h
 */
 static volatile limine_stack_size_request stackRequest {
 	.id = LIMINE_STACK_SIZE_REQUEST,
@@ -31,21 +31,18 @@ static volatile limine_stack_size_request stackRequest {
 };
 
 /*
-   void restInit(KInfo *info)
-    Function that is started by the schedduler once kernel startup is complete.
+   Function that is started by the schedduler once kernel startup is complete.
 */
 void restInit(KInfo *info);
 
 /*
-   KInfo *info
-    Contains some basic information to be passed between components of the kernel
+   Contains some basic information to be passed between components of the kernel
 */
 KInfo *info;
 
 /*
-   extern "C" void kenrnelStart()
-    Main kernel function. Declared extern "C" so that its name doesn't get
-    mangled by the compiler
+   Main kernel function. Declared extern "C" so that its name doesn't get
+   mangled by the compiler
 */
 extern "C" void kernelStart(void) {
 	/* Allocating memory for the info struct*/
