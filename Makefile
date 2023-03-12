@@ -1,7 +1,6 @@
 ARCH = x86_64
 
 KERNDIR = kernel
-MODDIR = module
 
 LDS64 = kernel64.ld
 CC = $(ARCH)-elf-gcc
@@ -50,13 +49,7 @@ ASMSRC = $(call rwildcard,$(KERNDIR),*.asm)
 KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
 
-MODCPPSRC = $(call rwildcard,$(MODDIR),*.cpp)
-MODASMSRC = $(call rwildcard,$(MODDIR),*.asm)
-MODOBJS = $(patsubst $(MODDIR)/%.cpp, $(MODDIR)/%.o, $(MODCPPSRC))
-MODOBJS += $(patsubst $(MODDIR)/%.asm, $(MODDIR)/%.o, $(MODASMSRC))
-
 kernel: $(KOBJS) link
-modules: $(MODOBJS) link-module
 
 nconfig:
 	@ ./config/Configure ./config/config.in
@@ -75,17 +68,6 @@ $(KERNDIR)/%.o: $(KERNDIR)/%.asm
 	@ echo !==== COMPILING $^  && \
 	$(ASM) $(ASMFLAGS) $^ -o $@
 
-$(MODDIR)/%.o: $(MODDIR)/%.cpp
-	@ mkdir -p $(@D)
-	@ echo !==== COMPILING MODULE $^ && \
-	$(CPP) $(CFLAGS) -c $^ -o $@
-
-
-$(MODDIR)/%.o: $(MODDIR)/%.asm
-	@ mkdir -p $(@D)
-	@ echo !==== COMPILING MODULE $^  && \
-	$(ASM) $(ASMFLAGS) $^ -o $@
-
 link: $(KOBJS)
 	@ echo !==== LINKING
 	$(LD) $(LDFLAGS) -T kernel/kernel.ld -o microk.elf $(KOBJS)
@@ -93,14 +75,14 @@ link: $(KOBJS)
 	$(CPP) $(CFLAGS) -c kernel/sys/symbolMap.cpp -o kernel/sys/symbolMap.o
 	$(LD) $(LDFLAGS) -T kernel/kernel.ld -o microk.elf $(KOBJS)
 
-link-module: $(MODOBJS)
-	@ echo !==== LINKING
-	$(LD) $(LDFLAGS) -T module/module.ld -o module.elf $(MODOBJS)
 
 clean:
 	@rm $(KOBJS) $(MODOBJS)
 
-buildimg: kernel modules
+initrd:
+	@ tar -cvf initrd.tar module/*.elf
+
+buildimg: initrd kernel
 	parted -s microk.img mklabel gpt
 	parted -s microk.img mkpart ESP fat32 2048s 100%
 	parted -s microk.img set 1 esp on

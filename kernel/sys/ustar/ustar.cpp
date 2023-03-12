@@ -36,10 +36,11 @@ namespace USTAR {
                         tarFile->data = new uint8_t[tarFile->size];
                         memcpy(tarFile->data, ptr + 512, filesize);
 
-			if (strcmp(tarFile->filename, "module.elf") == 0) {
+			if (memcmp(tarFile->filename, "module/", 7) == 0 && tarFile-> size > 0) {
 				LoadELF(tarFile->data);
 			}
 
+/*
 			FSNode *fileNode = VFS::MakeFile(node, tarFile->filename, 0, 0, 0);
 			if (fileNode == NULL) PANIC("Could not create file from initrd");
 			FILE *file = VFS::OpenFile(fileNode);
@@ -48,6 +49,7 @@ namespace USTAR {
 			VFS::WriteFile(file, 0, tarFile->size, tarFile->data);
 
 			VFS::CloseFile(file);
+*/
 
 			delete[] tarFile->data;
 
