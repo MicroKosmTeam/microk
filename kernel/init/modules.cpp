@@ -3,6 +3,7 @@
 #include <sys/panic.hpp>
 #include <sys/printk.hpp>
 #include <mm/memory.hpp>
+#include <mm/string.hpp>
 #include <mm/pmm.hpp>
 #include <mm/vmm.hpp>
 #include <sys/ustar/ustar.hpp>
@@ -29,9 +30,15 @@ void Init(KInfo *info) {
 	KRNLSYMTABLE = CONFIG_SYMBOL_TABLE_BASE;
 	memset(KRNLSYMTABLE, 0, 0x1000);
 
-	KRNLSYMTABLE[KRNLSYMTABLE_PRINTK] = PRINTK::PrintK;
+	KRNLSYMTABLE[KRNLSYMTABLE_REQUESTPAGE] = &PMM::RequestPage;
+	KRNLSYMTABLE[KRNLSYMTABLE_REQUESTPAGES] = &PMM::RequestPages;
+	KRNLSYMTABLE[KRNLSYMTABLE_MEMCPY] = &memcpy;
+	KRNLSYMTABLE[KRNLSYMTABLE_MEMSET] = &memset;
+	KRNLSYMTABLE[KRNLSYMTABLE_MEMCMP] = &memcmp;
+	KRNLSYMTABLE[KRNLSYMTABLE_PRINTK] = &PRINTK::PrintK;
 	KRNLSYMTABLE[KRNLSYMTABLE_MALLOC] = &Malloc;
 	KRNLSYMTABLE[KRNLSYMTABLE_FREE] = &Free;
+	KRNLSYMTABLE[KRNLSYMTABLE_STRCPY] = &strcpy;
 
 	// Loading initrd
 	if (moduleRequest.response == NULL) PANIC("Module request not answered by Limine");

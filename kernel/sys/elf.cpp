@@ -6,6 +6,7 @@
 #include <mm/string.hpp>
 #include <sys/panic.hpp>
 #include <stdarg.h>
+#include <sys/driver.hpp>
 
 uint64_t *currentStack;
 uint64_t *LoadELF(uint8_t *data) {
@@ -74,19 +75,19 @@ uint64_t *LoadELF(uint8_t *data) {
 
 	PRINTK::PrintK("Loading Complete. Program is %d bytes. Jumping to entry point at 0x%x\r\n", progSize ,elfHeader->e_entry);
 
-	int (*elfEntry)(void) = elfHeader->e_entry;
+	Driver* (*elfEntry)(void) = elfHeader->e_entry;
 
-	uint64_t (*Ioctl)(uint64_t request, va_list ap) = elfEntry();
+	Driver *driverInfo = elfEntry();
 
-	PRINTK::PrintK("\r\nELF file returned to kernel. Ioctl address: 0x%x.\r\n", Ioctl);
+	PRINTK::PrintK("\r\nELF file returned to kernel. Driver info address: 0x%x.\r\n", driverInfo);
 
 	delete programHeader;
 	delete elfHeader;
 
 	PRINTK::PrintK("Cleaned up.\r\n");
 
-	PRINTK::PrintK("Now calling Ioctl with request 0.\r\n");
-	Ioctl(0, 0);
+	PRINTK::PrintK("Now calling %s with request Init.\r\n", driverInfo->Name);
+	driverInfo->Ioctl(0, 0);
 
 	PRINTK::PrintK("\r\nELF Loader is done.\r\n");
 
