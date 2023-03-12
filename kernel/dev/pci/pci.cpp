@@ -136,7 +136,7 @@ PCIFunction::PCIFunction(uint64_t deviceAddress, uint64_t function) {
 		return;
 	}
 
-	PRINTK::PrintK("PCI device: 0x%x - 0x%x - 0x%x - 0x%x\n",
+	PRINTK::PrintK("PCI device: 0x%x - 0x%x - 0x%x - 0x%x\r\n",
 			pciDeviceHeader->VendorID,
 			pciDeviceHeader->DeviceID,
 			pciDeviceHeader->Subclass,

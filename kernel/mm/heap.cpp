@@ -64,7 +64,7 @@ HeapSegHeader *HeapSegHeader::Split(size_t splitlength) {
 
 void InitializeHeap(void *heapAddress, size_t pageCount) {
         void *pos = heapAddress;
-	PRINTK::PrintK("Initializing the heap at 0x%x with %d pages.\n", heapAddress, pageCount);
+	PRINTK::PrintK("Initializing the heap at 0x%x with %d pages.\r\n", heapAddress, pageCount);
 
         for (size_t i = 0; i < pageCount; i++) {
 		VMM::MapMemory(pos, PMM::RequestPage());
@@ -84,7 +84,6 @@ void InitializeHeap(void *heapAddress, size_t pageCount) {
         lastHeader = startSeg;
 
 	totalMem = freeMem = heaplength;
-	PRINTK::PrintK("%d free of %d bytes memory allocated.\n", freeMem, totalMem);
 
 	isHeapActive = true;
 }
@@ -154,6 +153,6 @@ void ExpandHeap(size_t length) {
 	totalMem += length;
 	freeMem += length;
 
-	PRINTK::PrintK("%d bytes memory allocated.\n", length);
+	PRINTK::PrintK("%d bytes memory allocated.\r\n", length);
 }
 }

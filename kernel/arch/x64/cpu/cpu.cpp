@@ -83,11 +83,11 @@ namespace x86_64 {
 void x86CPU::Init() {
 	/* We check for SSE first of all */
         if(CheckSSE()) {
-		PRINTK::PrintK("SSE status: Present but not active\n");
+		PRINTK::PrintK("SSE status: Present but not active\r\n");
 		/* If it is present, we activate it */
 		ActivateSSE();
 		sseStatus = true;
-		PRINTK::PrintK("SSE status: Active\n");
+		PRINTK::PrintK("SSE status: Active\r\n");
         } else {
 		/* Otherwise, we disable SSE */
 		sseStatus = false;

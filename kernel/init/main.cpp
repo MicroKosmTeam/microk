@@ -88,7 +88,7 @@ extern "C" void kernelStart(void) {
 			(PMM::GetFreeMem() + PMM::GetUsedMem()) / 1024,
 			(PMM::GetFreeMem() + PMM::GetUsedMem()) / PMM::GetFreeMem() * 100 - 1);
 
-	PRINTK::PrintK("Press \'c\' to continue and load the ELF file.\n\r");
+	PRINTK::PrintK("Press \'c\' to continue the boot process.\n\r");
 
 	char ch;
 	while (ch != 'c') {
