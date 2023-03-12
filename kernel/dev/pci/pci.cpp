@@ -8,11 +8,18 @@
 #include <dev/pci/pci.hpp>
 
 /* Variable that stores high memory mapping offset for our convenience */
-static uint64_t hhdm = hhdmRequest.response->offset;
+static uint64_t hhdm;
 
 namespace PCI {
+PCIDeviceHeader *ahciHeader;
+
+PCIDeviceHeader *GetHeader() {
+	return ahciHeader;
+}
+
 /* Function that passes through every PCI bus and initializes its driver */
-void EnumeratePCI(ACPI::MCFGHeader *mcfg) {
+void EnumeratePCI(ACPI::MCFGHeader *mcfg, uint64_t highMap) {
+	hhdm = highMap;
 	int entries = ((mcfg->Header.Length) - sizeof(ACPI::MCFGHeader)) / sizeof(ACPI::DeviceConfig);
 
 	PRINTK::PrintK("Enumerating the PCI bus...\r\n");
@@ -107,6 +114,7 @@ PCIDevice::PCIDevice(uint64_t busAddress, uint64_t device) {
 	}
 }
 
+#include <sys/driver.hpp>
 PCIFunction::PCIFunction(uint64_t deviceAddress, uint64_t function) {
 	this->deviceAddress = deviceAddress;
 	this->function = function;
@@ -133,6 +141,22 @@ PCIFunction::PCIFunction(uint64_t deviceAddress, uint64_t function) {
 			pciDeviceHeader->DeviceID,
 			pciDeviceHeader->Subclass,
 			pciDeviceHeader->ProgIF);
+
+	switch (pciDeviceHeader->Class) {
+                case 0x01: //Mass storage
+                        switch (pciDeviceHeader->Subclass) {
+                                case 0x06: //Serial Ata
+                                        switch (pciDeviceHeader->ProgIF) {
+                                                case 0x01: // AHCI 1.0 device
+                                                        // save this pciDeviceHeader;
+							PRINTK::PrintK("AHCI 1.0 device.\r\n");
+							ahciHeader = new PCIDeviceHeader;
+							memcpy(ahciHeader, pciDeviceHeader, sizeof(PCIDeviceHeader));
+							break;
+                                        }
+                        }
+			break;
+	}
 
 	return;
 }

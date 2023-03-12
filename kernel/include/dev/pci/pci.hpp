@@ -79,7 +79,7 @@ namespace PCI {
 
 		bool Exists() { return exists; }
 	private:
-		EnumerateDevice(uint64_t busAddress, uint64_t device);
+		void EnumerateDevice(uint64_t busAddress, uint64_t device);
 
 		PCIDevice *devices[32];
 		bool exists = true;
@@ -90,5 +90,6 @@ namespace PCI {
 		uint64_t busAddress;
 	};
 
-        void EnumeratePCI(ACPI::MCFGHeader *mcfg);
+	void EnumeratePCI(ACPI::MCFGHeader *mcfg, uint64_t highMap);
+	PCIDeviceHeader *GetHeader();
 }

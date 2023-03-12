@@ -82,7 +82,7 @@ void Init(KInfo *info) {
 
 	/* Enumerating PCI devices provided by the MCFG table */
 	PRINTK::PrintK("Enumerating PCI devices...\r\n");
-        PCI::EnumeratePCI(mcfg);
+        PCI::EnumeratePCI(mcfg, info->higherHalf);
 
 	PRINTK::PrintK("ACPI initialization done.\r\n");
 

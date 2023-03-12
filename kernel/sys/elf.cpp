@@ -7,8 +7,10 @@
 #include <sys/panic.hpp>
 #include <stdarg.h>
 #include <sys/driver.hpp>
+#include <dev/pci/pci.hpp>
 
 uint64_t *currentStack;
+
 uint64_t *LoadELF(uint8_t *data) {
 	if (data[0] != 0x7F || data[1] != 'E' || data[2] != 'L' || data[3] != 'F') {
 		PRINTK::PrintK("ELF File not valid.\r\n");
@@ -77,17 +79,17 @@ uint64_t *LoadELF(uint8_t *data) {
 
 	Driver* (*elfEntry)(void) = elfHeader->e_entry;
 
-	Driver *driverInfo = elfEntry();
+	Driver *driver= elfEntry();
 
-	PRINTK::PrintK("\r\nELF file returned to kernel. Driver info address: 0x%x.\r\n", driverInfo);
+	PRINTK::PrintK("\r\nELF file returned to kernel. Driver info address: 0x%x.\r\n", driver);
 
 	delete programHeader;
 	delete elfHeader;
 
 	PRINTK::PrintK("Cleaned up.\r\n");
 
-	PRINTK::PrintK("Now calling %s with request Init.\r\n", driverInfo->Name);
-	driverInfo->Ioctl(0, 0);
+	PRINTK::PrintK("Now calling %s with request 0.\r\n", driver->Name);
+	Ioctl(driver, 0, PCI::GetHeader());
 
 	PRINTK::PrintK("\r\nELF Loader is done.\r\n");
 

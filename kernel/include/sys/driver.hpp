@@ -14,3 +14,5 @@ struct Driver {
 
 	uint64_t (*Ioctl)(uint64_t request, va_list ap);
 };
+
+uint64_t Ioctl(Driver *device, uint64_t request, ...);
