@@ -8,38 +8,37 @@ CPP = $(ARCH)-elf-g++
 ASM = nasm
 LD = $(ARCH)-elf-ld
 
-CFLAGS = -ffreestanding       \
-	 -fno-stack-protector \
-	 -fno-omit-frame-pointer \
-	 -fno-builtin-g       \
-	 -fno-stack-check     \
-	 -I kernel/include    \
-	 -m64                 \
-	 -mabi=sysv           \
-	 -mno-80387           \
-	 -mno-mmx             \
-	 -mno-sse             \
-	 -mno-sse2            \
-	 -mno-red-zone        \
-	 -mcmodel=kernel      \
-	 -fpermissive         \
-	 -Wall                \
-	 -Wno-write-strings   \
-	 -Og                  \
-	 -fno-rtti            \
-	 -fno-exceptions      \
-	 -fno-lto             \
-	 -fno-pie             \
-	 -fno-pic             \
-	 -march=x86-64        \
+CFLAGS = -ffreestanding             \
+	 -fstack-protector          \
+	 -fno-omit-frame-pointer    \
+	 -fno-builtin-g             \
+	 -I kernel/include          \
+	 -m64                       \
+	 -mabi=sysv                 \
+	 -mno-80387                 \
+	 -mno-mmx                   \
+	 -mno-sse                   \
+	 -mno-sse2                  \
+	 -mno-red-zone              \
+	 -mcmodel=kernel            \
+	 -fpermissive               \
+	 -Wall                      \
+	 -Wno-write-strings         \
+	 -Og                        \
+	 -fno-rtti                  \
+	 -fno-exceptions            \
+	 -fno-lto                   \
+	 -fno-pie                   \
+	 -fno-pic                   \
+	 -march=x86-64              \
 	 -ggdb
 
 
 ASMFLAGS = -f elf64
 
-LDFLAGS = -nostdlib               \
-	  -static                 \
-	  -m elf_$(ARCH)          \
+LDFLAGS = -nostdlib                \
+	  -static                  \
+	  -m elf_$(ARCH)           \
 	  -z max-page-size=0x1000
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
