@@ -6,7 +6,7 @@
 
 #include "module.hpp"
 
-const char *MODULE_NAME = "MicroK Test Driver";
+const char *MODULE_NAME = "MicroK Acqua in Vino";
 uint64_t *KRNLSYMTABLE;
 Driver *testDriverHeader;
 

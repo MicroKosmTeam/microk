@@ -111,6 +111,12 @@ extern "C" void kernelStart(void) {
 
 	PRINTK::PrintK("Press \'c\' to continue the boot process.\n\r");
 
+	/*
+	MKMI::BUFFER::Buffer *buffer = MKMI::BUFFER::Create(MKMI::BUFFER::COMMUNICATION_INTERKERNEL, 4096);
+	char *buffe[ = "Hello, world\0";
+	MKMI::BUFFER::IOCtl(buffer, MKMI::BUFFER::OPERATION_WRITEDATA, buffer, 13);
+*/
+
 	char ch;
 	while (ch != 'c') {
 		ch = info->kernelPort->GetChar();
