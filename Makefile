@@ -1,6 +1,7 @@
 ARCH = x86_64
 
 KERNDIR = kernel
+MKMIDIR = mkmi
 
 LDS64 = kernel64.ld
 CC = $(ARCH)-elf-gcc
@@ -12,6 +13,7 @@ CFLAGS = -ffreestanding             \
 	 -fstack-protector          \
 	 -fno-omit-frame-pointer    \
 	 -fno-builtin-g             \
+	 -I mkmi/include            \
 	 -I kernel/include          \
 	 -m64                       \
 	 -mabi=sysv                 \
@@ -44,9 +46,11 @@ LDFLAGS = -nostdlib                \
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 CPPSRC = $(call rwildcard,$(KERNDIR),*.cpp)
+MKMISRC += $(call rwildcard,$(MKMIDIR),*.cpp)
 ASMSRC = $(call rwildcard,$(KERNDIR),*.asm)
 KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
+KOBJS += $(patsubst $(MKMIDIR)/%.cpp, $(MKMIDIR)/%.o, $(MKMISRC))
 
 kernel: $(KOBJS) link
 
@@ -55,6 +59,12 @@ nconfig:
 
 menuconfig:
 	@ ./config/Menuconfig ./config/config.in
+
+$(MKMIDIR)/%.o: $(MKMIDIR)/%.cpp
+	@ mkdir -p $(@D)
+	@ echo !==== COMPILING $^ && \
+	$(CPP) $(CFLAGS) -c $^ -o $@
+
 
 $(KERNDIR)/%.o: $(KERNDIR)/%.cpp
 	@ mkdir -p $(@D)

@@ -14,6 +14,7 @@ CFLAGS = -ffreestanding       \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
 	 -I ../../kernel/include    \
+	 -I ../../mkmi/include    \
 	 -m64                 \
 	 -mabi=sysv           \
 	 -mno-80387           \

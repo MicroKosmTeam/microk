@@ -5,7 +5,7 @@
 */
 
 #pragma once
-#include <mkmi/mkmi_buffer.hpp>
+#include <mkmi_buffer.hpp>
 
 namespace MKMI {
 

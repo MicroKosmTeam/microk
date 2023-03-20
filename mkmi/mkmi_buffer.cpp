@@ -1,4 +1,4 @@
-#include <mkmi/mkmi_buffer.hpp>
+#include <mkmi_buffer.hpp>
 #include <mm/pmm.hpp>
 #include <mm/memory.hpp>
 
@@ -39,10 +39,15 @@ Buffer *Create(BufferType type, size_t size) {
 	Buffer *destBuffer;
 
 	switch(type) {
-		case COMMUNICATION_INTERKERNEL:
+		case COMMUNICATION_INTERKERNEL: {
 			destBuffer = Malloc(size);
 			buffer.address = (uintptr_t)destBuffer;
+			}
 			break;
+		case DATA_KERNEL_GENERIC: {
+			destBuffer = Malloc(size);
+			buffer.address = (uintptr_t)destBuffer;
+			}
 		default:
 			return NULL;
 	}
@@ -69,8 +74,13 @@ uint64_t IOCtl(Buffer *buffer, BufferOperation operation, ...) {
 	va_start(ap, operation);
 
 	switch(buffer->type) {
-		case COMMUNICATION_INTERKERNEL:
+		case COMMUNICATION_INTERKERNEL: {
 			result = InterkernelIOCtl(buffer, operation, ap);
+			}
+			break;
+		case DATA_KERNEL_GENERIC: {
+			result = InterkernelIOCtl(buffer, operation, ap);
+			}
 			break;
 		default:
 			result = 0;
@@ -85,6 +95,25 @@ uint64_t IOCtl(Buffer *buffer, BufferOperation operation, ...) {
 }
 
 uint64_t Delete(Buffer *buffer) {
+	if (buffer == NULL) return 0;
+	if (!buffer->readable) return 0;
+
+	buffer->readable = false;
+
+	switch(buffer->type) {
+		case COMMUNICATION_INTERKERNEL: {
+			size_t size = buffer->size;
+			memset(buffer, 0, size);
+			Free(buffer);
+			}
+			break;
+		case DATA_KERNEL_GENERIC: {
+			size_t size = buffer->size;
+			memset(buffer, 0, size);
+			Free(buffer);
+			}
+			break;
+	}
 }
 
 }

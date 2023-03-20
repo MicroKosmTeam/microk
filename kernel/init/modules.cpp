@@ -12,6 +12,7 @@
 #include <fs/vfs.hpp>
 #include <cdefs.h>
 #include <sys/driver.hpp>
+#include <mkmi.hpp>
 
 static volatile limine_module_request moduleRequest {
 	.id = LIMINE_MODULE_REQUEST,
@@ -39,6 +40,9 @@ void Init(KInfo *info) {
 	KRNLSYMTABLE[KRNLSYMTABLE_MALLOC] = &Malloc;
 	KRNLSYMTABLE[KRNLSYMTABLE_FREE] = &Free;
 	KRNLSYMTABLE[KRNLSYMTABLE_STRCPY] = &strcpy;
+	KRNLSYMTABLE[KRNLSYMTABLE_BUFFERCREATE] = &MKMI::BUFFER::Create;
+	KRNLSYMTABLE[KRNLSYMTABLE_BUFFERIOCTL] = &MKMI::BUFFER::IOCtl;
+	KRNLSYMTABLE[KRNLSYMTABLE_BUFFERDELETE] = &MKMI::BUFFER::Delete;
 
 	// Loading initrd
 	if (moduleRequest.response == NULL) PANIC("Module request not answered by Limine");
