@@ -20,6 +20,23 @@ uint64_t IOCtl(uint64_t request, va_list ap) {
 			PrintK("Creating buffer\r\n");
 			MKMI::BUFFER::Buffer *testBuffer = BufferCreate(MKMI::BUFFER::DATA_KERNEL_GENERIC, 128);
 
+			if(testBuffer == NULL) {
+				PrintK("!!!! WARNING !!!!\r\n"
+				       "Null Buffer.\r\n");
+				return 0;
+			}
+
+			PrintK("Buffer 0x%x:\r\n"
+			       " - Address: 0x%x\r\n"
+			       " - Readable: %d\r\n"
+			       " - Type: 0x%x\r\n"
+			       " - Size: %d\r\n",
+			       testBuffer,
+			       testBuffer->address,
+			       testBuffer->readable ? 1 : 0,
+			       testBuffer->type,
+			       testBuffer->size);
+
 			PrintK("Doing I/O work\r\n");
 			uint64_t writeTest[128] = { 0x69 };
 			PrintK("Writing data...\r\n");

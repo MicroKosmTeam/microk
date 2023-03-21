@@ -13,8 +13,8 @@ CFLAGS = -ffreestanding       \
 	 -fno-omit-frame-pointer \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
-	 -I ../../kernel/include    \
-	 -I ../../mkmi/include    \
+	 -I ../../microk-kernel/src/include    \
+	 -I ../../mkmi/src/include    \
 	 -m64                 \
 	 -mabi=sysv           \
 	 -mno-80387           \

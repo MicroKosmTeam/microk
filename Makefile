@@ -52,6 +52,8 @@ KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
 KOBJS += $(patsubst $(MKMIDIR)/%.cpp, $(MKMIDIR)/%.o, $(MKMISRC))
 
+.PHONY: kernel nconfig menuconfig link clean initrd buildimg
+
 kernel: $(KOBJS) link
 
 nconfig:
