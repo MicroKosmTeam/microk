@@ -1,0 +1,3 @@
+[submodule "mkmi"]
+	path = mkmi
+	url = git@github.com:FilippoMutta/mkmi.git
