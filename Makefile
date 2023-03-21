@@ -1,7 +1,7 @@
 ARCH = x86_64
 
-KERNDIR = kernel
-MKMIDIR = mkmi
+KERNDIR = microk-kernel/src
+MKMIDIR = mkmi/src
 
 LDS64 = kernel64.ld
 CC = $(ARCH)-elf-gcc
@@ -13,8 +13,8 @@ CFLAGS = -ffreestanding             \
 	 -fstack-protector          \
 	 -fno-omit-frame-pointer    \
 	 -fno-builtin-g             \
-	 -I mkmi/include            \
-	 -I kernel/include          \
+	 -I $(MKMIDIR)/include            \
+	 -I $(KERNDIR)/include          \
 	 -m64                       \
 	 -mabi=sysv                 \
 	 -mno-80387                 \
@@ -79,10 +79,10 @@ $(KERNDIR)/%.o: $(KERNDIR)/%.asm
 
 link: $(KOBJS)
 	@ echo !==== LINKING
-	$(LD) $(LDFLAGS) -T kernel/kernel.ld -o microk.elf $(KOBJS)
+	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernel.ld -o microk.elf $(KOBJS)
 	@ ./symbolstocpp.sh
-	$(CPP) $(CFLAGS) -c kernel/sys/symbolMap.cpp -o kernel/sys/symbolMap.o
-	$(LD) $(LDFLAGS) -T kernel/kernel.ld -o microk.elf $(KOBJS)
+	$(CPP) $(CFLAGS) -c $(KERNDIR)/sys/symbolMap.cpp -o $(KERNDIR)/sys/symbolMap.o
+	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernel.ld -o microk.elf $(KOBJS)
 
 
 clean:
@@ -104,15 +104,27 @@ buildimg: initrd kernel
 	sudo cp -v microk.elf \
 		   limine.cfg \
 		   initrd.tar \
-		   back.bmp \
 		   limine/limine.sys \
 		   img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
+	sudo cp -v limine/BOOTAA64.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
 	sudo losetup -d /dev/loop0
 	rm -rf img_mount
-
+run-arm:
+	qemu-system-aarch64 \
+		-machine virt \
+		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
+		-m 8G \
+		-cpu cortex-a57 \
+		-chardev stdio,id=char0,logfile=serial.log,signal=off \
+		-serial chardev:char0 \
+		-smp sockets=1,cores=4,threads=1 \
+		-drive file="microk.img" \
+		-s \
+		-S \
+		-device qemu-xhci
 run:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF.fd \
