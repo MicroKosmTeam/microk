@@ -17,11 +17,23 @@ uint64_t IOCtl(uint64_t request, va_list ap) {
 		case 0:  {
 			PrintK("Hello, world!\r\n");
 
-			Printk("Creating buffer\r\n");
+			PrintK("Creating buffer\r\n");
 			MKMI::BUFFER::Buffer *testBuffer = BufferCreate(MKMI::BUFFER::DATA_KERNEL_GENERIC, 128);
 
 			PrintK("Doing I/O work\r\n");
-			BufferIOCtl(testBuffer, MKMI::BUFFER::OPER
+			uint64_t writeTest[128] = { 0x69 };
+			PrintK("Writing data...\r\n");
+			BufferIOCtl(testBuffer, MKMI::BUFFER::OPERATION_WRITEDATA, &writeTest, 128);
+
+			uint64_t readTest[128] = { 0 };
+			PrintK("Reading data...\r\n");
+			BufferIOCtl(testBuffer, MKMI::BUFFER::OPERATION_READDATA, &readTest, 128);
+			PrintK("Result 0x%x\r\n", readTest[0]);
+
+			PrintK("Deleting buffer.\r\n");
+			BufferDelete(testBuffer);
+
+			PrintK("Done.\r\n");
 
 			}
 			break;
@@ -41,9 +53,9 @@ extern "C" Driver *ModuleInit() {
 	Malloc = KRNLSYMTABLE[KRNLSYMTABLE_MALLOC];
 	Free = KRNLSYMTABLE[KRNLSYMTABLE_FREE];
 	Strcpy = KRNLSYMTABLE[KRNLSYMTABLE_STRCPY];
-	Create = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERCREATE];
-	IOCtl = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERIOCTL];
-	Delete = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERDELETE];
+	BufferCreate = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERCREATE];
+	BufferIOCtl = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERIOCTL];
+	BufferDelete = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERDELETE];
 
 	PrintK("Hello from %s.\r\n", MODULE_NAME);
 	PrintK("Initializing...\r\n");

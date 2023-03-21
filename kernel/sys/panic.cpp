@@ -10,7 +10,7 @@ void Panic(const char *message, const char *file, const char *function, unsigned
 	PRINTK::PrintK("Irrecoverable error in the kernel.\r\n\r\n");
 	PRINTK::PrintK("%s in function %s at line %d\r\n", file, function, line);
 	PRINTK::PrintK("Cause: %s\r\n", message);
-	UnwindStack(4);
+	UnwindStack(8);
 	PRINTK::PrintK("[Hanging now...]\r\n");
 
         while (true) {
