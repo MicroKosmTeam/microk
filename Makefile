@@ -104,6 +104,7 @@ buildimg: initrd kernel
 	sudo mount /dev/loop0p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v microk.elf \
+		   module/hello.elf \
 		   limine.cfg \
 		   initrd.tar \
 		   limine/limine.sys \
