@@ -11,6 +11,6 @@ void (*Memcpy)(void *dest, void *src, size_t n);
 void (*Memset)(void *start, uint8_t value, uint64_t num);
 int (*Memcmp)(const void* buf1, const void* buf2, size_t count);
 
-MKMI::BUFFER::Buffer *(*BufferCreate)(MKMI::BUFFER::BufferType type, size_t size);
-uint64_t (*BufferIOCtl)(MKMI::BUFFER::Buffer *buffer, MKMI::BUFFER::BufferOperation operation, ...);
-uint64_t (*BufferDelete)(MKMI::BUFFER::Buffer *buffer);
+MKMI::Buffer *(*BufferCreate)(uint64_t code, MKMI::BufferType type, size_t size);
+uint64_t (*BufferIO)(MKMI::Buffer *buffer, MKMI::BufferOperation operation, ...);
+uint64_t (*BufferDelete)(MKMI::Buffer *buffer);

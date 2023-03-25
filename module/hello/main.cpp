@@ -6,7 +6,7 @@
 
 #include "module.hpp"
 
-const char *MODULE_NAME = "MicroK Acqua in Vino";
+const char *MODULE_NAME = "MicroK Test Driver";
 uint64_t *KRNLSYMTABLE;
 Driver *testDriverHeader;
 
@@ -18,7 +18,7 @@ uint64_t IOCtl(uint64_t request, va_list ap) {
 			PrintK("Hello, world!\r\n");
 
 			PrintK("Creating buffer\r\n");
-			MKMI::BUFFER::Buffer *testBuffer = BufferCreate(MKMI::BUFFER::DATA_KERNEL_GENERIC, 128);
+			MKMI::Buffer *testBuffer = BufferCreate(0, MKMI::DATA_MODULE_GENERIC, 128);
 
 			if(testBuffer == NULL) {
 				PrintK("!!!! WARNING !!!!\r\n"
@@ -40,11 +40,11 @@ uint64_t IOCtl(uint64_t request, va_list ap) {
 			PrintK("Doing I/O work\r\n");
 			uint64_t writeTest[128] = { 0x69 };
 			PrintK("Writing data...\r\n");
-			BufferIOCtl(testBuffer, MKMI::BUFFER::OPERATION_WRITEDATA, &writeTest, 128);
+			BufferIO(testBuffer, MKMI::OPERATION_WRITEDATA, &writeTest, 128);
 
 			uint64_t readTest[128] = { 0 };
 			PrintK("Reading data...\r\n");
-			BufferIOCtl(testBuffer, MKMI::BUFFER::OPERATION_READDATA, &readTest, 128);
+			BufferIO(testBuffer, MKMI::OPERATION_READDATA, &readTest, 128);
 			PrintK("Result 0x%x\r\n", readTest[0]);
 
 			PrintK("Deleting buffer.\r\n");
@@ -71,7 +71,7 @@ extern "C" Driver *ModuleInit() {
 	Free = KRNLSYMTABLE[KRNLSYMTABLE_FREE];
 	Strcpy = KRNLSYMTABLE[KRNLSYMTABLE_STRCPY];
 	BufferCreate = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERCREATE];
-	BufferIOCtl = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERIOCTL];
+	BufferIO = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERIOCTL];
 	BufferDelete = KRNLSYMTABLE[KRNLSYMTABLE_BUFFERDELETE];
 
 	PrintK("Hello from %s.\r\n", MODULE_NAME);

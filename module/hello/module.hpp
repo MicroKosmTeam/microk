@@ -14,9 +14,9 @@ extern void (*Memcpy)(void *dest, void *src, size_t n);
 extern void (*Memset)(void *start, uint8_t value, uint64_t num);
 extern int (*Memcmp)(const void* buf1, const void* buf2, size_t count);
 
-extern MKMI::BUFFER::Buffer *(*BufferCreate)(MKMI::BUFFER::BufferType type, size_t size);
-extern uint64_t (*BufferIOCtl)(MKMI::BUFFER::Buffer *buffer, MKMI::BUFFER::BufferOperation operation, ...);
-extern uint64_t (*BufferDelete)(MKMI::BUFFER::Buffer *buffer);
+extern MKMI::Buffer *(*BufferCreate)(uint64_t code, MKMI::BufferType type, size_t size);
+extern uint64_t (*BufferIO)(MKMI::Buffer *buffer, MKMI::BufferOperation operation, ...);
+extern uint64_t (*BufferDelete)(MKMI::Buffer *buffer);
 
 inline void *operator new(size_t size) { return Malloc(size); }
 inline void *operator new[](size_t size) { return Malloc(size); }
