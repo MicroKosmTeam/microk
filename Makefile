@@ -80,10 +80,10 @@ $(KERNDIR)/%.o: $(KERNDIR)/%.asm
 
 link: $(KOBJS)
 	@ echo !==== LINKING
-	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernel.ld -o microk.elf $(KOBJS)
+	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernelx64.ld -o microk.elf $(KOBJS)
 	@ ./symbolstocpp.sh
 	$(CPP) $(CFLAGS) -c $(KERNDIR)/sys/symbolMap.cpp -o $(KERNDIR)/sys/symbolMap.o
-	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernel.ld -o microk.elf $(KOBJS)
+	$(LD) $(LDFLAGS) -T $(KERNDIR)/kernelx64.ld -o microk.elf $(KOBJS)
 
 
 clean:
@@ -128,7 +128,19 @@ run-arm:
 		-s \
 		-S \
 		-device qemu-xhci
-run:
+run-x64-bios:
+	qemu-system-x86_64 \
+		-m 8G \
+		-chardev stdio,id=char0,logfile=serial.log,signal=off \
+		-serial chardev:char0 \
+		-smp sockets=1,cores=4,threads=1 \
+		-drive file="microk.img" \
+		-s \
+		-machine type=q35 \
+		-S \
+		-device qemu-xhci
+
+run-x64-efi:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
 		-m 8G \
