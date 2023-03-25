@@ -81,6 +81,9 @@ extern "C" Driver *ModuleInit() {
 	testDriverHeader->Ioctl = &IOCtl;
 	Strcpy(testDriverHeader->Name, MODULE_NAME);
 
+	MKMI::Buffer *kernelBuffer = BufferCreate(0, MKMI::COMMUNICATION_MODULEKERNEL, 128);
+	BufferDelete(kernelBuffer);
+
 	PrintK("%s initialization is done. Returning device structure.\r\n", MODULE_NAME);
 
 	return testDriverHeader;

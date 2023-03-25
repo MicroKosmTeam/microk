@@ -17,7 +17,6 @@ CFLAGS = -ffreestanding             \
 	 -I $(KERNDIR)/include          \
 	 -m64                       \
 	 -mabi=sysv                 \
-	 -mno-80387                 \
 	 -mno-mmx                   \
 	 -mno-sse                   \
 	 -mno-sse2                  \
@@ -115,6 +114,7 @@ buildimg: initrd kernel
 	sudo umount img_mount
 	sudo losetup -d /dev/loop0
 	rm -rf img_mount
+
 run-arm:
 	qemu-system-aarch64 \
 		-machine virt \
@@ -130,7 +130,7 @@ run-arm:
 		-device qemu-xhci
 run:
 	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/x64/OVMF.fd \
+		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
 		-m 8G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
