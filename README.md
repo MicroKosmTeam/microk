@@ -5,7 +5,7 @@
 *_It is NOT ready for use._*
 *_Do NOT use it on production hardware._*
 
-MicroKernel (or MicroK for short) is a hybrid-kernel written from scratch. It tries to reach both a great deal great speed and a high degree of security, all while mantaining a small footprint and an extreme flexibility.
+MicroKosm (or MicroK for short) is a hybrid-kernel written from scratch. It tries to reach both a great deal great speed and a high degree of security, all while mantaining a small footprint and an extreme flexibility.
 It aims to reach these ambitious objectives by dividing the system in two main parts: the *Core* and the *Modules*, so get the most out of the hybrid-kernel model.
 
 ## Structure
