@@ -2,11 +2,15 @@ ARCH = x86_64
 
 KERNDIR = microk-kernel/src
 MKMIDIR = mkmi/src
+COMPILERDIR = ../compiler/compiler
 
 LDS64 = kernel64.ld
+#CC = $(COMPILERDIR)/$(ARCH)/bin/$(ARCH)-elf-gcc
 CC = $(ARCH)-elf-gcc
+#CPP = $(COMPILERDIR)/$(ARCH)/bin/$(ARCH)-elf-g++
 CPP = $(ARCH)-elf-g++
 ASM = nasm
+#LD = $(COMPILERDIR)/$(ARCH)/bin/$(ARCH)-elf-ld
 LD = $(ARCH)-elf-ld
 
 CFLAGS = -ffreestanding             \
@@ -17,22 +21,21 @@ CFLAGS = -ffreestanding             \
 	 -I $(KERNDIR)/include          \
 	 -m64                       \
 	 -mabi=sysv                 \
-	 -mno-mmx                   \
-	 -mno-sse                   \
-	 -mno-sse2                  \
+         -mno-mmx                   \
+         -mno-sse                   \
+         -mno-sse2                  \
 	 -mno-red-zone              \
 	 -mcmodel=kernel            \
 	 -fpermissive               \
 	 -Wall                      \
 	 -Wno-write-strings         \
-	 -Og                        \
+	 -O3                        \
 	 -fno-rtti                  \
 	 -fno-exceptions            \
 	 -fno-lto                   \
 	 -fno-pie                   \
 	 -fno-pic                   \
-	 -march=x86-64              \
-	 -ggdb
+	 -march=x86-64
 
 
 ASMFLAGS = -f elf64
@@ -107,6 +110,7 @@ buildimg: initrd kernel
 		   limine.cfg \
 		   initrd.tar \
 		   limine/limine.sys \
+		   splash.ppm \
 		   img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
 	sudo cp -v limine/BOOTAA64.EFI img_mount/EFI/BOOT/
