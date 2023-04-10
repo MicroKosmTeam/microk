@@ -8,19 +8,4 @@ mainmenu_name "MicroK"
 # MicroK Kernel
 #
 
-mainmenu_option next_comment
-	comment 'Kernel & Hardware'
-	source config/kernelconfig.in
-endmenu
-
-#
-# MicroK Userland
-#
-
-source config/userconfig.in
-
-#
-# MicroK Images
-#
-
-source config/imageconfig.in
+source config/kernelconfig.in

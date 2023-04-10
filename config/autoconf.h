@@ -5,85 +5,49 @@
 #define AUTOCONF_INCLUDED
 
 /*
- * Kernel & Hardware
- */
-
-
-/*
  * System Architecture
  */
 
 #define CONFIG_ARCH_x86_64 1
 #undef CONFIG_ARCH_AARCH64
-#define CONFIG_HW_SSE 1
-#undef CONFIG_HW_COMP
-#define CONFIG_FM_UEFI 1
-#undef CONFIG_FM_BIOS
-
-/*
- * Bootloader settings
- */
-
-#define CONFIG_FM_ACPI 1
-#undef CONFIG_FM_SMBIOS
+#define CONFIG_HW_x86_64_SSE 1
+#define CONFIG_HW_x86_64_SCE 1
+#undef CONFIG_HW_x86_64_AVX
+#undef CONFIG_HW_x86_64_COMP
+#define CONFIG_MP_SMP 1
+#define CONFIG_HW_UART 1
 
 /*
  * Kernel settings
  */
 
-#define CONFIG_KERNEL_CNAME "MicroK Vanilla"
-#define CONFIG_KERNEL_CVER "0.0.1"
+#define CONFIG_KERNEL_CNAME "MicroKosm"
+#define CONFIG_KERNEL_CVER "0.1.0"
+#define CONFIG_KERNEL_MODULES 1
 
 /*
  * Memory Settings
  */
 
 #define CONFIG_KENREL_BASE 0xffffffff80000000
-#define CONFIG_STACK_SIZE (4194304)
+#define CONFIG_STACK_SIZE (1048576)
 
 /*
  * Bootmem allocator
  */
 
-#define CONFIG_BOOTMEM_SIZE (65536)
+#define CONFIG_BOOTMEM_SIZE (4096)
 
 /*
  * Kernel heap
  */
 
 #define CONFIG_HEAP_BASE 0xffffffff90000000
-#define CONFIG_HEAP_SIZE (67108864)
+#define CONFIG_HEAP_SIZE (4194304)
 
 /*
  * Symbol table
  */
 
 #define CONFIG_SYMBOL_TABLE_BASE 0xffffffffffff0000
-#define CONFIG_SYMBOL_TABLE_PAGES (8)
-
-/*
- * Drivers
- */
-
-
-/*
- * Internal Kernel Drivers
- */
-
-#define CONFIG_PRINTK 1
-#define CONFIG_HW_SERIAL 1
-
-/*
- * VFS
- */
-
-#define CONFIG_VFS 1
-#define CONFIG_VFS_MAX_DRIVES (128)
-#define CONFIG_VFS_FILE_MAX_NAME_LENGTH (128)
-
-/*
- * Output images
- */
-
-#define CONFIG_IMG_ELF 1
-
+#define CONFIG_SYMBOL_TABLE_PAGES (2)

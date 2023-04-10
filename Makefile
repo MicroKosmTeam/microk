@@ -29,13 +29,14 @@ CFLAGS = -ffreestanding             \
 	 -fpermissive               \
 	 -Wall                      \
 	 -Wno-write-strings         \
-	 -O3                        \
+	 -O1                        \
 	 -fno-rtti                  \
 	 -fno-exceptions            \
 	 -fno-lto                   \
 	 -fno-pie                   \
 	 -fno-pic                   \
-	 -march=x86-64
+	 -march=x86-64              \
+	 -ggdb
 
 
 ASMFLAGS = -f elf64
@@ -60,9 +61,11 @@ kernel: $(KOBJS) link
 
 nconfig:
 	@ ./config/Configure ./config/config.in
+	@ cp ./config/autoconf.h ./$(KERNDIR)/include/autoconf.h
 
 menuconfig:
 	@ ./config/Menuconfig ./config/config.in
+	@ cp ./config/autoconf.h ./$(KERNDIR)/include/autoconf.h
 
 $(MKMIDIR)/%.o: $(MKMIDIR)/%.cpp
 	@ mkdir -p $(@D)

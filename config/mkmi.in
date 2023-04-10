@@ -1,0 +1,8 @@
+
+# MKMI configuration
+
+mainmenu_option next_comment
+	comment 'MKMI configuration'
+
+	bool 'TEST' CONFIG_MKMI_TEST y
+endmenu
