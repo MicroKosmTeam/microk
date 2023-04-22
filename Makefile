@@ -29,7 +29,7 @@ CFLAGS = -ffreestanding             \
 	 -fpermissive               \
 	 -Wall                      \
 	 -Wno-write-strings         \
-	 -O1                        \
+	 -Og                        \
 	 -fno-rtti                  \
 	 -fno-exceptions            \
 	 -fno-lto                   \
@@ -126,7 +126,7 @@ run-arm:
 	qemu-system-aarch64 \
 		-machine virt \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
-		-m 8G \
+		-m 4G \
 		-cpu cortex-a57 \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
@@ -137,7 +137,7 @@ run-arm:
 		-device qemu-xhci
 run-x64-bios:
 	qemu-system-x86_64 \
-		-m 8G \
+		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
@@ -150,7 +150,7 @@ run-x64-bios:
 run-x64-efi:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
-		-m 8G \
+		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \

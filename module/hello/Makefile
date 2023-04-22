@@ -8,7 +8,7 @@ CPP = $(ARCH)-elf-g++
 ASM = nasm
 LD = $(ARCH)-elf-ld
 
-CFLAGS = -ffreestanding       \
+CFLAGS = -ffreestanding \
 	 -fno-stack-protector \
 	 -fno-omit-frame-pointer \
 	 -fno-builtin-g       \
@@ -38,10 +38,8 @@ CFLAGS = -ffreestanding       \
 
 ASMFLAGS = -f elf64
 
-LDFLAGS = -nostdlib               \
-	  -static                 \
+LDFLAGS = -shared -nostdlib               \
 	  -m elf_$(ARCH)          \
-	  -T $(MODNAME).ld        \
 	  -z max-page-size=0x1000
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
