@@ -1,7 +1,7 @@
 ARCH = x86_64
 
 MODDIR = .
-MODNAME = hello
+MODNAME = vfs
 
 CC = $(ARCH)-elf-gcc
 CPP = $(ARCH)-elf-g++
@@ -13,7 +13,6 @@ CFLAGS = -ffreestanding \
 	 -fno-omit-frame-pointer \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
-	 -I ../../microk-kernel/src/include    \
 	 -I ../../mkmi/src/include    \
 	 -m64                 \
 	 -mabi=sysv           \
@@ -38,7 +37,8 @@ CFLAGS = -ffreestanding \
 
 ASMFLAGS = -f elf64
 
-LDFLAGS = -shared -nostdlib               \
+LDFLAGS = -static \
+	  -nostdlib               \
 	  -m elf_$(ARCH)          \
 	  -z max-page-size=0x1000
 

@@ -21,6 +21,7 @@ CFLAGS = -ffreestanding             \
 	 -I $(KERNDIR)/include          \
 	 -m64                       \
 	 -mabi=sysv                 \
+	 -mno-80387                   \
          -mno-mmx                   \
          -mno-sse                   \
          -mno-sse2                  \
@@ -28,7 +29,9 @@ CFLAGS = -ffreestanding             \
 	 -mcmodel=kernel            \
 	 -fpermissive               \
 	 -Wall                      \
+	 -Wextra                    \
 	 -Wno-write-strings         \
+	 -Weffc++                   \
 	 -Og                        \
 	 -fno-rtti                  \
 	 -fno-exceptions            \
@@ -49,7 +52,6 @@ LDFLAGS = -nostdlib                \
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 CPPSRC = $(call rwildcard,$(KERNDIR),*.cpp)
-MKMISRC += $(call rwildcard,$(MKMIDIR),*.cpp)
 ASMSRC = $(call rwildcard,$(KERNDIR),*.asm)
 KOBJS = $(patsubst $(KERNDIR)/%.cpp, $(KERNDIR)/%.o, $(CPPSRC))
 KOBJS += $(patsubst $(KERNDIR)/%.asm, $(KERNDIR)/%.o, $(ASMSRC))
@@ -66,12 +68,6 @@ nconfig:
 menuconfig:
 	@ ./config/Menuconfig ./config/config.in
 	@ cp ./config/autoconf.h ./$(KERNDIR)/include/autoconf.h
-
-$(MKMIDIR)/%.o: $(MKMIDIR)/%.cpp
-	@ mkdir -p $(@D)
-	@ echo !==== COMPILING $^ && \
-	$(CPP) $(CFLAGS) -c $^ -o $@
-
 
 $(KERNDIR)/%.o: $(KERNDIR)/%.cpp
 	@ mkdir -p $(@D)
@@ -109,7 +105,7 @@ buildimg: initrd kernel
 	sudo mount /dev/loop0p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v microk.elf \
-		   module/hello.elf \
+		   module/*.elf \
 		   limine.cfg \
 		   initrd.tar \
 		   limine/limine.sys \
@@ -124,6 +120,7 @@ buildimg: initrd kernel
 
 run-arm:
 	qemu-system-aarch64 \
+		-M hpet=on \
 		-machine virt \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
 		-m 4G \
@@ -137,6 +134,7 @@ run-arm:
 		-device qemu-xhci
 run-x64-bios:
 	qemu-system-x86_64 \
+		-M hpet=on \
 		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
@@ -150,6 +148,7 @@ run-x64-bios:
 run-x64-efi:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
+		-M hpet=on \
 		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \

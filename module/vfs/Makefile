@@ -1,19 +1,19 @@
 ARCH = x86_64
 
 MODDIR = .
-MODNAME = hello
+MODNAME = vfs
 
 CC = $(ARCH)-elf-gcc
 CPP = $(ARCH)-elf-g++
 ASM = nasm
 LD = $(ARCH)-elf-ld
 
-CFLAGS = -ffreestanding       \
+CFLAGS = -ffreestanding \
 	 -fno-stack-protector \
 	 -fno-omit-frame-pointer \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
-	 -I ../../kernel/include    \
+	 -I ../../mkmi/src/include    \
 	 -m64                 \
 	 -mabi=sysv           \
 	 -mno-80387           \
@@ -21,7 +21,6 @@ CFLAGS = -ffreestanding       \
 	 -mno-sse             \
 	 -mno-sse2            \
 	 -mno-red-zone        \
-	 -mcmodel=kernel      \
 	 -fpermissive         \
 	 -Wall                \
 	 -Wno-write-strings   \
@@ -37,11 +36,10 @@ CFLAGS = -ffreestanding       \
 
 ASMFLAGS = -f elf64
 
-LDFLAGS = -nostdlib               \
-	  -r \
-	  -static                 \
+LDFLAGS = -static \
+	  -Ttext 0x1000 \
+	  -nostdlib               \
 	  -m elf_$(ARCH)          \
-	  -T $(MODNAME).ld        \
 	  -z max-page-size=0x1000
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
@@ -62,7 +60,11 @@ $(MODDIR)/%.o: $(MODDIR)/%.asm
 	@ echo !==== COMPILING MODULE $^  && \
 	$(ASM) $(ASMFLAGS) $^ -o $@
 
-module: $(OBJS)
+static: $(OBJS)
+	@ echo !==== LINKING
+	$(LD) $(LDFLAGS) -o ../$(MODNAME).elf $(OBJS) -L. -lmkmi
+
+dynamic: $(OBJS)
 	@ echo !==== LINKING
 	$(LD) $(LDFLAGS) -o ../$(MODNAME).elf $(OBJS)
 
