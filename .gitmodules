@@ -1,6 +1,6 @@
 [submodule "microk-kernel"]
 	path = microk-kernel
-	url = git@github.com:FilippoMutta/microk-kernel.git
+	url = git@github.com:MicroK-OS/microk-kernel.git
 [submodule "mkmi"]
 	path = mkmi
-	url = git@github.com:FilippoMutta/mkmi.git
+	url = git@github.com:MicroK-OS/mkmi.git
