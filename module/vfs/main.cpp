@@ -23,13 +23,13 @@ extern "C" const volatile MKMI_Module ModuleInfo =  {
 };
 
 extern "C" uint64_t ModuleInit() {
-	MKMI_Printf("Module initializing...\r\n");
+	MKMI_Printf("MicroKosm VFS Module is initializing...\r\n");
 
 	return 0;
 }
 
 extern "C" uint64_t ModuleDeinit() {
-	MKMI_Printf("Goodbye!\r\n");
+	MKMI_Printf("MicroKosm VFS Module is quitting...\r\n");
 
 	return 0;
 }

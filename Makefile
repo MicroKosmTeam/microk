@@ -28,7 +28,6 @@ buildimg: initrd
 		   limine.cfg \
 		   initrd.tar \
 		   limine/limine.sys \
-		   splash.ppm \
 		   img_mount/
 	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
 	sudo cp -v limine/BOOTAA64.EFI img_mount/EFI/BOOT/
