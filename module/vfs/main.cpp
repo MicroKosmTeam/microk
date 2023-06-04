@@ -1,9 +1,12 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdarg.h>
+
+#include <cdefs.h>
 #include <mkmi.h>
 #include <mkmi_log.h>
 #include <mkmi_memory.h>
+#include <mkmi_syscall.h>
 
 #include "vfs/vfs.h"
 
@@ -20,16 +23,22 @@ extern "C" const volatile MKMI_Module ModuleInfo =  {
 		.Feature = 1,
 		.Patch = 0
 	},
+	.OnInterrupt = NULL,
+	.OnMessage = NULL
 };
 
-extern "C" uint64_t ModuleInit() {
-	MKMI_Printf("MicroKosm VFS Module is initializing...\r\n");
+#define PREFIX "[VFS] "
+
+extern "C" size_t OnInit() {
+	MKMI_Printf(PREFIX "MicroKosm VFS Module is initializing...\r\n");
+
+	MKMI_Printf(PREFIX "Hello world!\r\n");
 
 	return 0;
 }
 
-extern "C" uint64_t ModuleDeinit() {
-	MKMI_Printf("MicroKosm VFS Module is quitting...\r\n");
+extern "C" size_t OnExit() {
+	MKMI_Printf(PREFIX "MicroKosm VFS Module is quitting...\r\n");
 
 	return 0;
 }

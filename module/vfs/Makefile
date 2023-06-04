@@ -14,6 +14,7 @@ CFLAGS = -ffreestanding \
 	 -fno-builtin-g       \
 	 -fno-stack-check     \
 	 -I ../../mkmi/src/include    \
+	 -I ../../microk-kernel/src/include    \
 	 -m64                 \
 	 -mabi=sysv           \
 	 -mno-80387           \
