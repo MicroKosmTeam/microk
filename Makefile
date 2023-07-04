@@ -11,7 +11,11 @@ menuconfig:
 	@ cp config/autoconf.h $(KERNDIR)/src/include/autoconf.h
 
 initrd:
-	@ tar -cvf initrd.tar module/*.elf
+	@ mkdir -p tmp_initrd/init
+	@ cp module/*.elf tmp_initrd/init
+	@ rm -f tmp_initrd/init/user.elf
+	@ cd tmp_initrd && tar -cvf ../initrd.tar * && cd ..
+	@ rm -rf tmp_initrd
 
 buildimg: initrd
 	parted -s microk.img mklabel gpt
@@ -41,7 +45,7 @@ run-arm:
 		-M hpet=on \
 		-machine virt \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
-		-m 4G \
+		-m 512M \
 		-cpu cortex-a57 \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
@@ -53,7 +57,7 @@ run-arm:
 run-x64-bios:
 	qemu-system-x86_64 \
 		-M hpet=on \
-		-m 4G \
+		-m 512M \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
@@ -67,12 +71,13 @@ run-x64-efi:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
 		-M hpet=on \
-		-m 4G \
+		-m 512M \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
 		-drive file="microk.img" \
-		-s \
 		-machine type=q35 \
-		-S \
-		-device qemu-xhci
+		-device qemu-xhci \
+		-s \
+		-S
+

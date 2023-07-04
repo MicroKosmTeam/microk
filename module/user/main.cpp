@@ -12,25 +12,8 @@
 #include "vfs/ustar.h"
 #include "fb/fb.h"
 
-extern "C" const volatile MKMI_Module ModuleInfo =  {
-	.ID = {
-		.Name = "MicroKosm VFS Module",
-		.Author = "Mutta Filippo <filippo.mutta@gmail.com>",
-		.Codename = 0xDEADBEEF,
-		.Writer = 0xCAFEBABE
-	},
-	.Version = {
-		.Major = 0,
-		.Minor = 0,
-		.Feature = 1,
-		.Patch = 0
-	},
-	.OnInterrupt = NULL,
-	.OnMessage = NULL
-};
-
-#define PREFIX "[VFS] "
-
+extern "C" uint32_t VendorID = 0xCAFEBABE;
+extern "C" uint32_t ProductID = 0xDEADBEEF;
 
 extern "C" size_t OnInit() {
 	MKMI_Printf("Requesting initrd.\r\n");
@@ -58,20 +41,23 @@ extern "C" size_t OnInit() {
 	MKMI_Printf("Probing for framebuffer.\r\n");
 
 
-	Framebuffer *fbData;
-	size_t fbDataSize;
-	Syscall(SYSCALL_FILE_OPEN, "FB:0", &fbData, &fbDataSize, 0, 0, 0);
+	uintptr_t fbAddr;
+	size_t fbSize;
+	Syscall(SYSCALL_FILE_OPEN, "FB:0", &fbAddr, &fbSize, 0, 0, 0);
 
 	/* Here we check whether it exists 
 	 * If it isn't there, just skip this step
 	 */
-	if (fbDataSize != 0 && fbData != 0) {
+	if (fbSize != 0 && fbAddr != 0) {
 		/* Make it accessible in memory */
-		size_t fbSize = fbData->Width * fbData->Height * fbData->BPP;
-		Syscall(SYSCALL_MEMORY_MMAP, fbData->Address, fbData->Address, fbSize, 0, 0, 0);
+		MKMI_Printf("Mapping...\r\n");
+		Syscall(SYSCALL_MEMORY_MMAP, fbAddr, fbAddr, fbSize, 0, 0, 0);
+	
+		Framebuffer fbData;
+		Memcpy(&fbData, fbAddr, sizeof(fbData));
 
-		MKMI_Printf("fb0 starting from 0x%x.\r\n", fbData->Address);
-		InitFB(fbData);
+		MKMI_Printf("fb0 starting from 0x%x.\r\n", fbData.Address);
+		InitFB(&fbData);
 
 		PrintScreen(" __  __  _                _  __\n"
 			    "|  \\/  |(_) __  _ _  ___ | |/ /\n"
@@ -82,8 +68,13 @@ extern "C" size_t OnInit() {
 	} else {
 		MKMI_Printf("No framebuffer found.\r\n");
 	}
-	
 
+	void *bufAddr = 0x8000000000;
+	size_t bufSize = 4096 * 6;
+	uint32_t bufID;
+	Syscall(SYSCALL_MODULE_BUFFER_REGISTER, VendorID, ProductID, bufAddr, bufSize, 0x02, &bufID);
+	Memset(bufAddr, 69, bufSize);
+	Syscall(SYSCALL_MODULE_BUFFER_UNREGISTER, VendorID, ProductID, bufID, 0x02, 0, 0);
 
 	MKMI_Printf("Done.\r\n");
 
