@@ -29,7 +29,7 @@ extern "C" size_t OnInit() {
 	 */
 	if (baseAddress != 0 && size != 0) {
 		/* Make it accessible in memory */
-		Syscall(SYSCALL_MEMORY_MMAP, baseAddress, address, size, 0, 0, 0);
+		VMMap(baseAddress, address, size, 0);
 
 		MKMI_Printf("Loading file initrd.tar from 0x%x with size %dkb.\r\n", address, size / 1024);
 
@@ -51,7 +51,7 @@ extern "C" size_t OnInit() {
 	if (fbSize != 0 && fbAddr != 0) {
 		/* Make it accessible in memory */
 		MKMI_Printf("Mapping...\r\n");
-		Syscall(SYSCALL_MEMORY_MMAP, fbAddr, fbAddr, fbSize, 0, 0, 0);
+		VMMap(fbAddr, fbAddr, fbSize, 0);
 	
 		Framebuffer fbData;
 		Memcpy(&fbData, fbAddr, sizeof(fbData));
@@ -69,16 +69,14 @@ extern "C" size_t OnInit() {
 		MKMI_Printf("No framebuffer found.\r\n");
 	}
 
-	void *bufAddr = 0x8000000000;
-	size_t bufSize = 4096 * 6;
+	uintptr_t bufAddr = 0xF000000000;
+	size_t bufSize = 4096 * 2;
 	uint32_t bufID;
-	Syscall(SYSCALL_MODULE_BUFFER_REGISTER, VendorID, ProductID, bufAddr, bufSize, 0x02, &bufID);
-	Memset(bufAddr, 69, bufSize);
-	Syscall(SYSCALL_MODULE_BUFFER_UNREGISTER, VendorID, ProductID, bufID, 0x02, 0, 0);
+	bufID = Syscall(SYSCALL_MODULE_BUFFER_REGISTER, bufAddr, bufSize, 0x02, 0, 0, 0);
 
-	MKMI_Printf("Done.\r\n");
+//	Syscall(SYSCALL_MODULE_BUFFER_UNREGISTER, bufID, 0, 0, 0, 0 ,0);
 
-	//VFSInit();
+	VirtualFilesystem *vfs = new VirtualFilesystem();
 	
 	/* First, initialize VFS data structures */
 	/* Instantiate the rootfs (it will be overlayed soon) */

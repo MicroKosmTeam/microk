@@ -210,46 +210,8 @@ const char* GetProgIFName(uint8_t ClassCode, uint8_t SubclassCode, uint8_t ProgI
 	return "Unknown";
 }
 
-struct PCIDeviceHeader {
-	uint16_t VendorID;
-	uint16_t DeviceID;
-	uint16_t Command;
-	uint16_t Status;
-	uint8_t RevisionID;
-	uint8_t ProgIF;
-	uint8_t Subclass;
-	uint8_t Class;
-	uint8_t CacheLineSize;
-	uint8_t LatencyTimer;
-	uint8_t HeaderType;
-	uint8_t BIST;
-}__attribute__((packed));
 
-struct SDTHeader{
-	unsigned char Signature[4];
-	uint32_t Length;
-	uint8_t Revision;
-	uint8_t Checksum;
-	uint8_t OEMID[6];
-	uint8_t OEMTableID[8];
-	uint32_t OEMRevision;
-	uint32_t CreatorID;
-	uint32_t CreatorRevision;
-}__attribute__((packed));
-
-struct MCFGHeader{
-	SDTHeader Header;
-	uint64_t Reserved;
-}__attribute__((packed));
-
-struct DeviceConfig{
-	uint64_t BaseAddress;
-	uint16_t PCISegGroup;
-	uint8_t StartBus;
-	uint8_t EndBus;
-	uint32_t Reserved;
-}__attribute__((packed));
-
+#include "pci.h"
 void EnumerateFunction(uint64_t deviceAddress, uint64_t function){
 	uint64_t offset = function << 12;
 
@@ -354,6 +316,16 @@ extern "C" size_t OnInit() {
 		MKMI_Printf("No MCFG found.\r\n");
 		return 1;
 	}
+
+	uintptr_t bufAddr = 0xF000000000;
+	size_t bufSize = 4096 * 2;
+	uint32_t bufID;
+	bufID = Syscall(SYSCALL_MODULE_BUFFER_REGISTER, bufAddr, bufSize, 0x02, 0, 0, 0);
+
+	uint8_t *data = bufAddr + 128/* Size of message header */;
+	Memcpy(data, "Hello, world!", 13);
+
+	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xDEADBEEF, 1, 0, 1, 1024);
 
 	return 0;
 }
