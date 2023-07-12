@@ -1,34 +1,11 @@
 #!/bin/sh
 
-gcc test.cpp \
-	-c \
-	-fPIC\
-	-ffreestanding       \
-	-fno-stack-protector \
-	-fno-omit-frame-pointer \
-	-fno-builtin-g       \
-	-fno-stack-check     \
-	-fno-lto             \
-	-fno-pie             \
-	-m64                 \
-	-march=x86-64        \
-	-mabi=sysv           \
-	-mno-80387           \
-	-mno-mmx             \
-	-mno-sse             \
-	-mno-sse2            \
-	-mno-red-zone        \
-	-mcmodel=large       \
-	-fpermissive         \
-	-Wno-write-strings   \
-	-O0                  \
-	-fno-rtti            \
-	-fno-exceptions      \
-	-I kernel/include    \
-	-o test.o
-ld test.o \
-	-nostdlib               \
-	  -static                 \
-	  -m elf_x86_64          \
-	  -z max-page-size=0x1000 \
-	  -T test.ld -o test.elf
+make -C mkmi static && \
+make -C module/pci static && \
+make -C module/ahci static && \
+make -C module/acpi static && \
+make -C module/user static && \
+make -C microk-kernel kernel && \
+make buildimg && \
+make run-x64-efi
+
