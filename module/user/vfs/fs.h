@@ -1,10 +1,13 @@
 #pragma once
-#include <stdint.h>
-
-typedef uintmax_t filesystem_t;
-typedef uintmax_t inode_t;
+#include "typedefs.h"
+#include "fops.h"
 
 struct Filesystem {
-	
+	filesystem_t FSDescriptor;
 
+	uint32_t OwnerVendorID;
+	uint32_t OwnerProductID;
+
+	void *Instance;
+	NodeOperations *Operations;
 };

@@ -8,8 +8,10 @@
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 
+#include "vfs/fops.h"
 #include "vfs/vfs.h"
 #include "vfs/ustar.h"
+#include "ramfs/ramfs.h"
 #include "fb/fb.h"
 
 extern "C" uint32_t VendorID = 0xCAFEBABE;
@@ -77,7 +79,38 @@ extern "C" size_t OnInit() {
 //	Syscall(SYSCALL_MODULE_BUFFER_UNREGISTER, bufID, 0, 0, 0, 0 ,0);
 
 	VirtualFilesystem *vfs = new VirtualFilesystem();
+	RamFS *rootRamfs = new RamFS(2048);
+
+	NodeOperations *ramfsOps = new NodeOperations;
 	
+	ramfsOps->CreateNode = rootRamfs->CreateNodeWrapper;
+	ramfsOps->GetNode = rootRamfs->GetNodeWrapper;
+
+	filesystem_t ramfsDesc = vfs->RegisterFilesystem(0, 0, rootRamfs, ramfsOps);
+
+
+	{
+		FileOperationRequest request;
+		request.Request = NODE_CREATE;
+		Memcpy(request.Data.Name, "Hello", 5);
+
+		uintmax_t code = vfs->DoFilesystemOperation(ramfsDesc, &request);
+	}
+
+	{
+		FileOperationRequest request;
+		request.Request = NODE_GET;
+		request.Data.Inode = 1;
+
+		VNode *node = vfs->DoFilesystemOperation(ramfsDesc, &request);
+		if (node == NULL) {
+			MKMI_Printf("Got no node.\r\n");
+			while(true);
+		}
+		
+		MKMI_Printf("Got object: %s.\r\n", node->Name);
+	}
+
 	/* First, initialize VFS data structures */
 	/* Instantiate the rootfs (it will be overlayed soon) */
 	/* Create a ramfs, overlaying it in the rootfs */

@@ -1,33 +1,18 @@
 #pragma once
-#include <stdint.h>
-#include <stddef.h>
+#include "typedefs.h"
+#include "vnode.h"
 
-#define MAX_NAME_SIZE 512
-
-#define FOP_CREATE     0xF000
-#define FOP_DELETE     0xF001
-#define FOP_MKDIR      0xF002
-#define FOP_RMDIR      0xF003
-#define FOP_FINDINDIR  0xF004
+struct NodeOperations {
+	inode_t (*CreateNode)(void *instance, const char [256]);
+	VNode *(*GetNode)(void *instance, const inode_t node);
+	int (*DeleteNode)(void *instance, const inode_t node);
+};
 
 struct FileOperationRequest {
 	uint16_t Request;
 
-	const char Name[MAX_NAME_SIZE];
-
 	union {
-		struct {
-		}__attribute__((packed)) MkdirOp;
-
-		struct {
-		}__attribute__((packed)) RmdirOp;
-
-		struct {
-		}__attribute__((packed)) FindInDirOp;
-
-	};
-}__attribute__((packed));
-
-struct FileOperationResult {
-
+		const char Name[MAX_NAME_SIZE] = { 0 };
+		inode_t Inode;
+	} Data;
 }__attribute__((packed));

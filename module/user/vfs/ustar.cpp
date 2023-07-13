@@ -24,12 +24,12 @@ void LoadArchive(uint8_t *archive) {
 	while (!Memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
 		TarHeader *header = (TarHeader*)ptr;
 		size_t fileSize = oct2bin(ptr + 0x7c, 11);
-		uint8_t type = oct2bin(header->typeflag, 1);
+		uint8_t type = oct2bin(header->TypeFlag, 1);
 		
 		MKMI_Printf("File: [ %s ]:\r\n"
 			    " -> Size: %d\r\n"
 			    " -> Type: %d \r\n",
-			    header->filename,
+			    header->Filename,
 			    fileSize,
 			    type);
 	
@@ -39,3 +39,6 @@ void LoadArchive(uint8_t *archive) {
 	}
 }
 
+void UnpackArchive(uint8_t *archive) {
+
+}
