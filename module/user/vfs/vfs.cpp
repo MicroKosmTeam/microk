@@ -56,10 +56,10 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 
 	switch(request->Request) {
 		case NODE_CREATE:
-			IF_IS_OURS(node->FS->Operations->CreateNode(node->FS->Instance, request->Data.Name));
+			IF_IS_OURS(node->FS->Operations->CreateNode(node->FS->Instance, request->Data.Directory, request->Data.Name, request->Data.Properties));
 			break;
 		case NODE_GET:
-			IF_IS_OURS(node->FS->Operations->GetNode(node->FS->Instance, request->Data.Inode));
+			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.Inode));
 			break;
 		default:
 			return 0;

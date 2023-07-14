@@ -1,37 +1,188 @@
 #include "ramfs.h"
 
 #include <mkmi_memory.h>
+#include <mkmi_string.h>
+#include <mkmi_log.h>
 
 RamFS::RamFS(inode_t maxInodes) {
+	Descriptor = 0;
 	MaxInodes = maxInodes;
 	InodeTable = new InodeTableObject[MaxInodes];
+
+	InodeTableObject *node = &InodeTable[0];
+	node->Available = false;
+
+	node->NodeData.FSDescriptor = 0;
+	node->NodeData.Properties = NODE_PROPERTY_DIRECTORY;
+	node->NodeData.Inode = 0;
+
+	node->DirectoryTable = new DirectoryVNodeTable;
+	node->DirectoryTable->NextTable = NULL;
+
+	Memset(node->DirectoryTable->Elements, 0, NODES_IN_VNODE_TABLE * sizeof(uintptr_t));
 }
 
 RamFS::~RamFS() {
 	delete InodeTable;
 }
 
-inode_t RamFS::CreateNode(const char name[256]) {
+int RamFS::ListDirectory(const inode_t directory) {
+	if (directory > MaxInodes) return -1;
+
+	InodeTableObject *dir = &InodeTable[directory];
+
+	if(dir->Available) return -1;
+	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return -1;
+/*
+	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
+		return -1;
+	} 
+
+	if(dir->NodeData.Properties & NODE_PROPERTY_SYMLINK) {
+		return -1;
+	}
+*/
+	if(dir->DirectoryTable == NULL) return -1;
+
+	DirectoryVNodeTable *table = dir->DirectoryTable;
+
+	MKMI_Printf("   Name   Inode\r\n");
+	while(true) {
+		for (size_t i = 0; i < NODES_IN_VNODE_TABLE; ++i) {
+			if(table->Elements[i] == NULL || table->Elements[i] == -1) continue;
+
+			MKMI_Printf(" -> %s   %d\r\n", table->Elements[i]->NodeData.Name, table->Elements[i]->NodeData.Inode);
+		}
+
+		if(table->NextTable == NULL) return 0;
+		table = table->NextTable;
+	}
+
+	return 0;
+}
+
+inode_t RamFS::CreateNode(const inode_t directory, const char name[256], property_t flags) {
+	if (directory > MaxInodes) return 0;
+	if (flags == 0) return 0;
+				
+	InodeTableObject *dir = &InodeTable[directory];
+
+	if(dir->Available) return 0;
+	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return 0;
+/*
+	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
+		return 0;
+	} 
+
+	if(dir->NodeData.Properties & NODE_PROPERTY_SYMLINK) {
+		return 0;
+	}
+*/
+	if(dir->DirectoryTable == NULL) return 0;
+			
+	DirectoryVNodeTable *table = dir->DirectoryTable;
+
 	for (size_t i = 1; i < MaxInodes; ++i) {
 		if(InodeTable[i].Available) {
-			Memcpy(InodeTable[i].NodeData.Name, name, 256);
 			InodeTable[i].Available = false;
 
-			return i;
+			Memcpy(InodeTable[i].NodeData.Name, name, 256);
+			InodeTable[i].NodeData.Inode = i;
+
+			if(flags & NODE_PROPERTY_DIRECTORY) {
+				InodeTable[i].NodeData.Properties |= NODE_PROPERTY_DIRECTORY; 
+				InodeTable[i].DirectoryTable = new DirectoryVNodeTable;
+				InodeTable[i].DirectoryTable->NextTable = NULL;
+				Memset(InodeTable[i].DirectoryTable->Elements, 0, NODES_IN_VNODE_TABLE * sizeof(uintptr_t));
+			} else if (flags & NODE_PROPERTY_FILE) {
+				InodeTable[i].NodeData.Properties |= NODE_PROPERTY_FILE;
+				InodeTable[i].DirectoryTable = NULL;
+			}
+
+			bool found = false;
+			while(true) {
+				for (size_t j = 0; j < NODES_IN_VNODE_TABLE; ++j) {
+					if(table->Elements[j] != NULL && table->Elements[j] != -1) continue;
+
+					table->Elements[j] = &InodeTable[i];
+					found = true;
+					break;
+				}
+
+				if(found) break;
+
+				if(table->NextTable == NULL) return 0;
+				table = table->NextTable;
+			}
+
+			return InodeTable[i].NodeData.Inode;
 		}
 	}
 	
 	return 0;
 }
-VNode *RamFS::GetNode(const inode_t inode) {
-	if (inode > MaxInodes || inode == 0) return NULL;
+
+VNode *RamFS::GetByInode(const inode_t inode) {
+	if (inode > MaxInodes) return NULL;
 
 	InodeTableObject *node = &InodeTable[inode];
 
-	if(node->Available) return NULL;
+	if(node->Available) {
+		return NULL;
+	}
 
 	VNode *vnode = &node->NodeData;
 
 	return vnode;
 
 }
+
+inode_t RamFS::GetByName(const inode_t directory, const char name[256]) {
+	if (directory > MaxInodes) return 0;
+
+	InodeTableObject *dir = &InodeTable[directory];
+
+	if(dir->Available) return 0;
+	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return 0;
+
+	/* Handle mountpoints first */
+	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
+		return 0;
+	} 
+
+	/* Handle symlinks then */
+	if(dir->NodeData.Properties & NODE_PROPERTY_SYMLINK) {
+		return 0;
+	}
+
+	if(dir->DirectoryTable == NULL) return 0;
+
+	DirectoryVNodeTable *table = dir->DirectoryTable;
+
+	while(true) {
+		for (size_t i = 0; i < NODES_IN_VNODE_TABLE; ++i) {
+			if(table->Elements[i] == NULL || table->Elements[i] == -1) continue;
+
+			if(strcmp(table->Elements[i]->NodeData.Name, name) == 0) {
+				return table->Elements[i]->NodeData.Inode;
+			}
+		}
+
+		if(table->NextTable == NULL) return 0;
+		table = table->NextTable;
+	}
+
+	return 0;
+}
+
+
+int RamFS::DeleteNode(const inode_t inode) {
+	if (inode > MaxInodes) return -1;
+
+	InodeTableObject *node = &InodeTable[inode];
+
+	if(node->Available) return -1;
+
+	return -1;
+}
+

@@ -6,4 +6,6 @@ struct VNode {
 
 	filesystem_t FSDescriptor;
 	inode_t Inode;
+
+	property_t Properties;
 }__attribute__((packed));
