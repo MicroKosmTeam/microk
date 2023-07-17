@@ -8,8 +8,8 @@
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 
-extern "C" uint32_t VendorID = 0xB830C0DE;
-extern "C" uint32_t ProductID = 0xCAFEBABE;
+extern "C" uint32_t VendorID = 0xCAFEBABE;
+extern "C" uint32_t ProductID = 0xB830C0DE;
 
 const char* DeviceClasses[] {
 	"Unclassified",
@@ -288,9 +288,31 @@ void EnumeratePCI(MCFGHeader *mcfg) {
 		}
 	}
 }
+struct Message {
+	uint32_t SenderVendorID : 32;
+	uint32_t SenderProductID : 32;
 
+	size_t MessageSize : 64;
+}__attribute__((packed));
 extern "C" size_t OnMessage() {
 	MKMI_Printf("Message!\r\n");
+
+	uintptr_t bufAddr = 0xD000000000;
+
+	Message *msg = bufAddr;
+	const char *data = bufAddr + 128;
+
+	MKMI_Printf(" - Sender: %x by %x\r\n"
+		    " - Size: %d\r\n"
+		    " - Data: %s\r\n",
+		    msg->SenderProductID, msg->SenderVendorID,
+		    msg->MessageSize,
+		    data);
+
+	Memcpy(data, "Hello, world!", 13);
+
+	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xDEADBEEF, 1, 0, 1, 1024);
+
 	return 0;
 }
 
@@ -327,7 +349,7 @@ extern "C" size_t OnInit() {
 		return 1;
 	}
 
-	uintptr_t bufAddr = 0xF000000000;
+	uintptr_t bufAddr = 0xD000000000;
 	size_t bufSize = 4096 * 2;
 	uint32_t bufID;
 	bufID = Syscall(SYSCALL_MODULE_BUFFER_REGISTER, bufAddr, bufSize, 0x02, 0, 0, 0);

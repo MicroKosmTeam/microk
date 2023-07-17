@@ -18,8 +18,32 @@
 extern "C" uint32_t VendorID = 0xCAFEBABE;
 extern "C" uint32_t ProductID = 0xDEADBEEF;
 
+struct Message {
+	uint32_t SenderVendorID : 32;
+	uint32_t SenderProductID : 32;
+
+	size_t MessageSize : 64;
+}__attribute__((packed));
+
 extern "C" size_t OnMessage() {
 	MKMI_Printf("Message!\r\n");
+
+	uintptr_t bufAddr = 0xF000000000;
+
+	Message *msg = bufAddr;
+	const char *data = bufAddr + 128;
+
+	MKMI_Printf(" - Sender: %x by %x\r\n"
+		    " - Size: %d\r\n"
+		    " - Data: %s\r\n",
+		    msg->SenderProductID, msg->SenderVendorID,
+		    msg->MessageSize,
+		    data);
+
+	Memcpy(data, "Hello, moon!", 12);
+
+	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xB830C0DE, 1, 0, 1, 1024);
+
 	return 0;
 }
 

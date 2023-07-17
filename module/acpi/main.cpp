@@ -8,8 +8,8 @@
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 
-extern "C" uint32_t VendorID = 0xA3C1C0DE;
-extern "C" uint32_t ProductID = 0xCAFEBABE;
+extern "C" uint32_t VendorID = 0xCAFEBABE;
+extern "C" uint32_t ProductID = 0xA3C1C0DE;
 
 #include "acpi/acpi.h"
 

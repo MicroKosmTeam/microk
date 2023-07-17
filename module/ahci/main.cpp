@@ -8,8 +8,8 @@
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 
-extern "C" uint32_t VendorID = 0xD13CC0DE;
-extern "C" uint32_t ProductID = 0xCAFEBABE;
+extern "C" uint32_t VendorID = 0xCAFEBABE;
+extern "C" uint32_t ProductID = 0xA5C1C0DE;
 
 extern "C" size_t OnMessage() {
 	MKMI_Printf("Message!\r\n");
