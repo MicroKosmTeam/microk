@@ -18,6 +18,16 @@
 extern "C" uint32_t VendorID = 0xCAFEBABE;
 extern "C" uint32_t ProductID = 0xDEADBEEF;
 
+extern "C" size_t OnMessage() {
+	MKMI_Printf("Message!\r\n");
+	return 0;
+}
+
+extern "C" size_t OnSignal() {
+	MKMI_Printf("Signal!\r\n");
+	return 0;
+}
+
 extern "C" size_t OnInit() {
 	MKMI_Printf("Requesting initrd.\r\n");
 

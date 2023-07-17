@@ -289,6 +289,16 @@ void EnumeratePCI(MCFGHeader *mcfg) {
 	}
 }
 
+extern "C" size_t OnMessage() {
+	MKMI_Printf("Message!\r\n");
+	return 0;
+}
+
+extern "C" size_t OnSignal() {
+	MKMI_Printf("Signal!\r\n");
+	return 0;
+}
+
 extern "C" size_t OnInit() {
 	void *mcfg;
 	size_t mcfgSize;
