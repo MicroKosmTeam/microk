@@ -42,22 +42,22 @@ buildimg: initrd
 
 run-arm:
 	qemu-system-aarch64 \
-		-M hpet=on \
 		-machine virt \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
-		-m 512M \
+		-m 4G \
 		-cpu cortex-a57 \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
 		-drive file="microk.img" \
+		-device qemu-xhci \
 		-s \
-		-S \
-		-device qemu-xhci
+		-S
+
 run-x64-bios:
 	qemu-system-x86_64 \
 		-M hpet=on \
-		-m 512M \
+		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
@@ -71,7 +71,7 @@ run-x64-efi:
 	qemu-system-x86_64 \
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
 		-M hpet=on \
-		-m 512M \
+		-m 4G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
