@@ -5,10 +5,6 @@
 #include <mkmi_memory.h>
 #include <mkmi_log.h>
 
-void HelloWorld() {
-	MKMI_Printf("We have been called to do shit.\r\n");
-}
-
 VirtualFilesystem::VirtualFilesystem() {
 	BaseNode = new RegisteredFilesystemNode;
 	BaseNode->FS = NULL;
@@ -43,8 +39,6 @@ filesystem_t VirtualFilesystem::RegisterFilesystem(uint32_t vendorID, uint32_t p
 #define IF_IS_OURS( x ) \
 	if (node->FS->OwnerVendorID == 0 && node->FS->OwnerProductID == 0) return x
 
-
-
 uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperationRequest *request) {
 	bool found = false;
 	RegisteredFilesystemNode *previous; 
@@ -53,13 +47,18 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 	if (node == NULL) return 0;
 	if (request == NULL) return 0;
 
-
 	switch(request->Request) {
 		case NODE_CREATE:
 			IF_IS_OURS(node->FS->Operations->CreateNode(node->FS->Instance, request->Data.Directory, request->Data.Name, request->Data.Properties));
 			break;
 		case NODE_GET:
 			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.Inode));
+			break;
+		case NODE_DELETE:
+			IF_IS_OURS(node->FS->Operations->DeleteNode(node->FS->Instance, request->Data.Inode));
+			break;
+		case NODE_FINDINDIR:
+			IF_IS_OURS(node->FS->Operations->GetByName(node->FS->Instance, request->Data.Directory, request->Data.Name));
 			break;
 		default:
 			return 0;

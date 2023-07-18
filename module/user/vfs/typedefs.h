@@ -19,6 +19,9 @@
 #define NODE_PROPERTY_SYMLINK    0x0020
 #define NODE_PROPERTY_MOUNTPOINT 0x0040
 
+#define FILE_REQUEST_MAGIC_NUMBER  0x4690738
+#define FILE_RESPONSE_MAGIC_NUMBER 0x7502513
+
 
 typedef uintmax_t filesystem_t;
 typedef uintmax_t inode_t;

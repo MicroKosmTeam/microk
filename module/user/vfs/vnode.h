@@ -8,4 +8,5 @@ struct VNode {
 	inode_t Inode;
 
 	property_t Properties;
+	inode_t Directory;
 }__attribute__((packed));

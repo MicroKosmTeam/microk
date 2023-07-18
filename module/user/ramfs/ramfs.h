@@ -32,8 +32,8 @@ public:
 
 	int ListDirectory(const inode_t directory);
 
-	inode_t CreateNode(const inode_t directory, const char name[256], property_t flags);
-	static inode_t CreateNodeWrapper(void *instance, const inode_t directory, const char name[256], property_t flags) {
+	VNode *CreateNode(const inode_t directory, const char name[256], property_t flags);
+	static VNode *CreateNodeWrapper(void *instance, const inode_t directory, const char name[256], property_t flags) {
 		return static_cast<RamFS*>(instance)->CreateNode(directory, name, flags);
 	}
 
@@ -42,13 +42,13 @@ public:
 		return static_cast<RamFS*>(instance)->GetByInode(inode);
 	}
 
-	inode_t GetByName(const inode_t directory, const char name[256]);
-	static inode_t GetByNameWrapper(void *instance, const inode_t inode, const char name[256]) {
+	VNode *GetByName(const inode_t directory, const char name[256]);
+	static VNode *GetByNameWrapper(void *instance, const inode_t inode, const char name[256]) {
 		return static_cast<RamFS*>(instance)->GetByName(inode, name);
 	}
 
-	int DeleteNode(const inode_t inode);
-	static inode_t DeleteNodeWrapper(void *instance, const inode_t inode) {
+	VNode *DeleteNode(const inode_t inode);
+	static VNode *DeleteNodeWrapper(void *instance, const inode_t inode) {
 		return static_cast<RamFS*>(instance)->DeleteNode(inode);
 	}
 private:

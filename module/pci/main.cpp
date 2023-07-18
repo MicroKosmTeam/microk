@@ -294,24 +294,39 @@ struct Message {
 
 	size_t MessageSize : 64;
 }__attribute__((packed));
-extern "C" size_t OnMessage() {
-	MKMI_Printf("Message!\r\n");
 
+#include "../user/vfs/fops.h"
+
+static bool ichi = true;
+extern "C" size_t OnMessage() {
 	uintptr_t bufAddr = 0xD000000000;
 
 	Message *msg = bufAddr;
-	const char *data = bufAddr + 128;
+	uint32_t *signature = bufAddr + 128;
 
-	MKMI_Printf(" - Sender: %x by %x\r\n"
+	MKMI_Printf("Message:\r\n"
+		    " - Sender: %x by %x\r\n"
 		    " - Size: %d\r\n"
-		    " - Data: %s\r\n",
+		    " - Result: %x\r\n",
 		    msg->SenderProductID, msg->SenderVendorID,
-		    msg->MessageSize,
-		    data);
+		    msg->MessageSize, *signature);
 
-	Memcpy(data, "Hello, world!", 13);
+	if (ichi) {
+		if (*signature != FILE_RESPONSE_MAGIC_NUMBER) return 0;
 
-	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xDEADBEEF, 1, 0, 1, 1024);
+		FileOperationRequest *request = bufAddr + 128;
+
+		inode_t dev = request->Data.Inode;
+
+		request->MagicNumber = FILE_REQUEST_MAGIC_NUMBER;
+		request->Request = NODE_CREATE;
+		request->Data.Directory = dev;
+		request->Data.Properties = NODE_PROPERTY_DIRECTORY;
+		Memcpy(request->Data.Name, "pci", 3);
+
+		Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xDEADBEEF, 1, 0, 1, 1024);
+		ichi = false;
+	}
 
 	return 0;
 }
@@ -342,7 +357,6 @@ extern "C" size_t OnInit() {
 		Syscall(SYSCALL_MODULE_BUS_GET, "PCI", &pid, &vid, 0, 0 ,0);
 		MKMI_Printf("Cross check -> VID: %x PID: %x\r\n", vid, pid);
 
-
 		EnumeratePCI(mcfg);
 	} else {
 		MKMI_Printf("No MCFG found.\r\n");
@@ -354,8 +368,12 @@ extern "C" size_t OnInit() {
 	uint32_t bufID;
 	bufID = Syscall(SYSCALL_MODULE_BUFFER_REGISTER, bufAddr, bufSize, 0x02, 0, 0, 0);
 
-	uint8_t *data = bufAddr + 128/* Size of message header */;
-	Memcpy(data, "Hello, world!", 13);
+	FileOperationRequest *request = bufAddr + 128;
+	request->MagicNumber = FILE_REQUEST_MAGIC_NUMBER;
+	request->Request = NODE_FINDINDIR;
+	request->Data.Directory = 0;
+	request->Data.Properties = NODE_PROPERTY_DIRECTORY;
+	Memcpy(request->Data.Name, "dev", 3);
 
 	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xDEADBEEF, 1, 0, 1, 1024);
 

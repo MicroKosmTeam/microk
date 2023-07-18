@@ -27,12 +27,12 @@ RamFS::~RamFS() {
 }
 
 int RamFS::ListDirectory(const inode_t directory) {
-	if (directory > MaxInodes) return -1;
+	if (directory > MaxInodes) return 0;
 
 	InodeTableObject *dir = &InodeTable[directory];
 
-	if(dir->Available) return -1;
-	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return -1;
+	if(dir->Available) return 0;
+	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return 0;
 /*
 	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
 		return -1;
@@ -42,7 +42,7 @@ int RamFS::ListDirectory(const inode_t directory) {
 		return -1;
 	}
 */
-	if(dir->DirectoryTable == NULL) return -1;
+	if(dir->DirectoryTable == NULL) return 0;
 
 	DirectoryVNodeTable *table = dir->DirectoryTable;
 
@@ -61,7 +61,7 @@ int RamFS::ListDirectory(const inode_t directory) {
 	return 0;
 }
 
-inode_t RamFS::CreateNode(const inode_t directory, const char name[256], property_t flags) {
+VNode *RamFS::CreateNode(const inode_t directory, const char name[256], property_t flags) {
 	if (directory > MaxInodes) return 0;
 	if (flags == 0) return 0;
 				
@@ -115,7 +115,7 @@ inode_t RamFS::CreateNode(const inode_t directory, const char name[256], propert
 				table = table->NextTable;
 			}
 
-			return InodeTable[i].NodeData.Inode;
+			return &InodeTable[i].NodeData;
 		}
 	}
 	
@@ -137,7 +137,7 @@ VNode *RamFS::GetByInode(const inode_t inode) {
 
 }
 
-inode_t RamFS::GetByName(const inode_t directory, const char name[256]) {
+VNode *RamFS::GetByName(const inode_t directory, const char name[256]) {
 	if (directory > MaxInodes) return 0;
 
 	InodeTableObject *dir = &InodeTable[directory];
@@ -164,7 +164,7 @@ inode_t RamFS::GetByName(const inode_t directory, const char name[256]) {
 			if(table->Elements[i] == NULL || table->Elements[i] == -1) continue;
 
 			if(strcmp(table->Elements[i]->NodeData.Name, name) == 0) {
-				return table->Elements[i]->NodeData.Inode;
+				return &table->Elements[i]->NodeData;
 			}
 		}
 
@@ -176,13 +176,13 @@ inode_t RamFS::GetByName(const inode_t directory, const char name[256]) {
 }
 
 
-int RamFS::DeleteNode(const inode_t inode) {
-	if (inode > MaxInodes) return -1;
+VNode *RamFS::DeleteNode(const inode_t inode) {
+	if (inode > MaxInodes) return 0;
 
 	InodeTableObject *node = &InodeTable[inode];
 
-	if(node->Available) return -1;
+	if(node->Available) return 0;
 
-	return -1;
+	return 0;
 }
 
