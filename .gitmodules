@@ -3,4 +3,4 @@
 	url = git@github.com:MicroK-OS/microk-kernel.git
 [submodule "mkmi"]
 	path = mkmi
-	url = git@github.com:MicroK-OS/mkmi.git
+	url = git@github.com:MicroK-OS/microk-mkmi.git
