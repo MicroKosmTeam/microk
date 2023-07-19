@@ -21,7 +21,6 @@ buildimg: initrd
 	parted -s microk.img mklabel gpt
 	parted -s microk.img mkpart ESP fat32 2048s 100%
 	parted -s microk.img set 1 esp on
-	./limine/limine-deploy microk.img
 	sudo losetup -Pf --show microk.img
 	sudo mkfs.fat -F 32 /dev/loop0p1
 	mkdir -p img_mount
@@ -31,10 +30,8 @@ buildimg: initrd
 		   module/*.elf \
 		   limine.cfg \
 		   initrd.tar \
-		   limine/limine.sys \
 		   img_mount/
-	sudo cp -v limine/BOOTX64.EFI img_mount/EFI/BOOT/
-	sudo cp -v limine/BOOTAA64.EFI img_mount/EFI/BOOT/
+	sudo cp -v limine/*.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
 	sudo losetup -d /dev/loop0
