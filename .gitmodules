@@ -4,3 +4,7 @@
 [submodule "mkmi"]
 	path = mkmi
 	url = git@github.com:MicroK-OS/microk-mkmi.git
+[submodule "limine"]
+	path = limine
+	url = https://github.com/limine-bootloader/limine
+	branch = v5.x-branch-binary
