@@ -1,10 +1,11 @@
 ARCH = x86_64
+COMPILER_PATH=$(PWD)/compiler/target/$(ARCH)-elf/bin
 
-CC = $(ARCH)-elf-gcc
-CPP = $(ARCH)-elf-g++
-LD = $(ARCH)-elf-ld
-AR = $(ARCH)-elf-ar
-AS = $(ARCH)-elf-as
+CC = $(COMPILER_PATH)/$(ARCH)-elf-gcc
+CPP = $(COMPILER_PATH)/$(ARCH)-elf-g++
+LD = $(COMPILER_PATH)/$(ARCH)-elf-ld
+AR = $(COMPILER_PATH)/$(ARCH)-elf-ar
+AS = $(COMPILER_PATH)/$(ARCH)-elf-as
 
 ASM = nasm
 #ASM = $(AS)

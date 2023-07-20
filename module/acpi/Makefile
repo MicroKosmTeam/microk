@@ -1,12 +1,7 @@
-ARCH = x86_64
+include ../../Makefile.inc
 
 MODDIR = .
 MODNAME = acpi
-
-CC = $(ARCH)-elf-gcc
-CPP = $(ARCH)-elf-g++
-ASM = nasm
-LD = $(ARCH)-elf-ld
 
 CFLAGS = -ffreestanding -fno-stack-protector -fno-omit-frame-pointer -fno-builtin-g -fno-stack-check -I../../mkmi/src/include -Iacpi/lai/include -I../../microk-kernel/src/include -m64 -mabi=sysv -mno-80387 -mno-mmx -mno-sse -mno-sse2 -mno-red-zone -Wall -Wno-write-strings -Og -fno-exceptions -fno-lto -fno-pie -fno-pic -march=x86-64 -ggdb
 

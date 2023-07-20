@@ -1,12 +1,7 @@
-ARCH = x86_64
+include ../../Makefile.inc
 
 MODDIR = .
 MODNAME = pci
-
-CC = $(ARCH)-elf-gcc
-CPP = $(ARCH)-elf-g++
-ASM = nasm
-LD = $(ARCH)-elf-ld
 
 CFLAGS = -ffreestanding \
 	 -fno-stack-protector \
