@@ -8,3 +8,6 @@
 	path = limine
 	url = https://github.com/limine-bootloader/limine
 	branch = v5.x-branch-binary
+[submodule "compiler"]
+	path = compiler
+	url = git@github.com:MicroK-OS/cross-compiler.git
