@@ -2,6 +2,11 @@ include Makefile.inc
 
 .PHONY: nconfig menuconfig initrd buildimg run-arm run-x64-efi run-x64-bios
 
+compiler:
+	@ cd ./compiler/
+	@ ./compile.sh x86_64-elf
+	@ cd ..
+
 nconfig:
 	@ ./config/Configure ./config/config.in
 	@ cp config/autoconf.h $(KERNDIR)/src/include/autoconf.h
