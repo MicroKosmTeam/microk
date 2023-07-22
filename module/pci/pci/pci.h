@@ -41,3 +41,5 @@ struct DeviceConfig{
 	uint8_t EndBus;
 	uint32_t Reserved;
 }__attribute__((packed));
+
+void EnumeratePCI(MCFGHeader *mcfg);

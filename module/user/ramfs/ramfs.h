@@ -32,8 +32,8 @@ public:
 
 	int ListDirectory(const inode_t directory);
 
-	VNode *CreateNode(const inode_t directory, const char name[256], property_t flags);
-	static VNode *CreateNodeWrapper(void *instance, const inode_t directory, const char name[256], property_t flags) {
+	VNode *CreateNode(const inode_t directory, const char name[MAX_NAME_SIZE], property_t flags);
+	static VNode *CreateNodeWrapper(void *instance, const inode_t directory, const char name[MAX_NAME_SIZE], property_t flags) {
 		return static_cast<RamFS*>(instance)->CreateNode(directory, name, flags);
 	}
 
@@ -42,8 +42,8 @@ public:
 		return static_cast<RamFS*>(instance)->GetByInode(inode);
 	}
 
-	VNode *GetByName(const inode_t directory, const char name[256]);
-	static VNode *GetByNameWrapper(void *instance, const inode_t inode, const char name[256]) {
+	VNode *GetByName(const inode_t directory, const char name[MAX_NAME_SIZE]);
+	static VNode *GetByNameWrapper(void *instance, const inode_t inode, const char name[MAX_NAME_SIZE]) {
 		return static_cast<RamFS*>(instance)->GetByName(inode, name);
 	}
 

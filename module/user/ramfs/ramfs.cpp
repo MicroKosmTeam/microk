@@ -61,7 +61,7 @@ int RamFS::ListDirectory(const inode_t directory) {
 	return 0;
 }
 
-VNode *RamFS::CreateNode(const inode_t directory, const char name[256], property_t flags) {
+VNode *RamFS::CreateNode(const inode_t directory, const char name[MAX_NAME_SIZE], property_t flags) {
 	if (directory > MaxInodes) return 0;
 	if (flags == 0) return 0;
 				
@@ -86,7 +86,7 @@ VNode *RamFS::CreateNode(const inode_t directory, const char name[256], property
 		if(InodeTable[i].Available) {
 			InodeTable[i].Available = false;
 
-			Memcpy(InodeTable[i].NodeData.Name, name, 256);
+			Memcpy(InodeTable[i].NodeData.Name, name, MAX_NAME_SIZE);
 			InodeTable[i].NodeData.Inode = i;
 
 			if(flags & NODE_PROPERTY_DIRECTORY) {
@@ -137,7 +137,7 @@ VNode *RamFS::GetByInode(const inode_t inode) {
 
 }
 
-VNode *RamFS::GetByName(const inode_t directory, const char name[256]) {
+VNode *RamFS::GetByName(const inode_t directory, const char name[MAX_NAME_SIZE]) {
 	if (directory > MaxInodes) return 0;
 
 	InodeTableObject *dir = &InodeTable[directory];

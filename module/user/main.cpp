@@ -5,6 +5,7 @@
 #include <cdefs.h>
 #include <mkmi.h>
 #include <mkmi_log.h>
+#include <mkmi_exit.h>
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 
@@ -18,6 +19,10 @@
 extern "C" uint32_t VendorID = 0xCAFEBABE;
 extern "C" uint32_t ProductID = 0xDEADBEEF;
 
+void InitrdInit();
+void FBInit();
+
+/* The header will always be 128 bytes */
 struct Message {
 	uint32_t SenderVendorID : 32;
 	uint32_t SenderProductID : 32;
@@ -25,63 +30,44 @@ struct Message {
 	size_t MessageSize : 64;
 }__attribute__((packed));
 
-VirtualFilesystem *vfs;
-RamFS *rootRamfs;
-filesystem_t ramfsDesc;
+void MessageHandler() {
+	Message *msg = 0x700000000000;
+	uint32_t *data = (uint32_t*)((uintptr_t)msg + 128);
 
-extern "C" size_t OnMessage() {
-	uintptr_t bufAddr = 0xF000000000;
+	MKMI_Printf("Message at        0x%x\r\n"
+		    " Sender Vendor ID:  %x\r\n"
+		    " Sender Product ID: %x\r\n"
+		    " Message Size:      %d\r\n"
+		    " Data:              %d\r\n",
+		    msg,
+		    msg->SenderVendorID,
+		    msg->SenderProductID,
+		    msg->MessageSize,
+		    *data);
 
-	Message *msg = bufAddr;
-	const uint32_t *signature = bufAddr + 128;
+	uintptr_t bufAddr = 0xE000000000;
+	size_t bufSize = 4096 * 2;
+	uint32_t bufID = *data;
 
-	MKMI_Printf("Message:\r\n"
-		    " - Sender: %x by %x\r\n"
-		    " - Size: %d\r\n"
-		    " - Magic Number: %x\r\n",
-		    msg->SenderProductID, msg->SenderVendorID,
-		    msg->MessageSize, *signature);
+	Syscall(SYSCALL_MODULE_BUFFER_MAP, bufAddr, bufID, 0, 0, 0, 0);
+	MKMI_Printf("Buffer data: %d\r\n", *(uint32_t*)bufAddr);
 
-	if(*signature != FILE_REQUEST_MAGIC_NUMBER) return 0;
+	VMFree(data, msg->MessageSize);
 
-	FileOperationRequest *request = bufAddr + 128;
-
-	void *response = vfs->DoFilesystemOperation(1, request);
-	
-	Memset(bufAddr, 0, msg->MessageSize);
-
-	if (response == NULL) return 0;
-	
-	request->MagicNumber = FILE_RESPONSE_MAGIC_NUMBER;
-	request->Request = 0;
-	Memcpy(&request->Data, response, sizeof(VNode));
-
-	rootRamfs->ListDirectory(0);
-	rootRamfs->ListDirectory(1);
-
-	Syscall(SYSCALL_MODULE_MESSAGE_SEND, 0xCAFEBABE, 0xB830C0DE, 1, 0, 1, 1024);
-
-	return 0;
+	_return(0);
 }
-
-extern "C" size_t OnSignal() {
-	MKMI_Printf("Signal!\r\n");
-	return 0;
-}
-
-void InitrdInit();
-void FBInit();
 
 extern "C" size_t OnInit() {
+	Syscall(SYSCALL_MODULE_MESSAGE_HANDLER, MessageHandler, 0, 0, 0, 0, 0);
+
 	InitrdInit();
 	FBInit();
 
-	uintptr_t bufAddr = 0xF000000000;
-	size_t bufSize = 4096 * 2;
-	uint32_t bufID;
-	bufID = Syscall(SYSCALL_MODULE_BUFFER_REGISTER, bufAddr, bufSize, 0x02, 0, 0, 0);
+	Syscall(SYSCALL_MODULE_SECTION_REGISTER, "VFS", VendorID, ProductID, 0, 0 ,0);
 
-//	Syscall(SYSCALL_MODULE_BUFFER_UNREGISTER, bufID, 0, 0, 0, 0 ,0);
+	VirtualFilesystem *vfs;
+	RamFS *rootRamfs;
+	filesystem_t ramfsDesc;
 
 	vfs = new VirtualFilesystem();
 	rootRamfs = new RamFS(2048);
@@ -142,8 +128,14 @@ extern "C" size_t OnInit() {
 	rootRamfs->ListDirectory(0);
 	rootRamfs->ListDirectory(devNode->Inode);
 	rootRamfs->ListDirectory(ttyNode->Inode);
-	//while(true);
 
+
+	uintptr_t bufAddr = 0xF000000000;
+	size_t bufSize = 4096 * 2;
+	uint32_t bufID;
+	Syscall(SYSCALL_MODULE_BUFFER_CREATE, bufSize, 0x02, &bufID, 0, 0, 0);
+	Syscall(SYSCALL_MODULE_BUFFER_MAP, bufAddr, bufID, 0, 0, 0, 0);
+	*(uint32_t*)bufAddr = 69;
 	/* First, initialize VFS data structures */
 	/* Instantiate the rootfs (it will be overlayed soon) */
 	/* Create a ramfs, overlaying it in the rootfs */
