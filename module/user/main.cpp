@@ -7,6 +7,7 @@
 #include <mkmi_log.h>
 #include <mkmi_exit.h>
 #include <mkmi_memory.h>
+#include <mkmi_message.h>
 #include <mkmi_syscall.h>
 
 #include "vfs/fops.h"
@@ -22,16 +23,8 @@ extern "C" uint32_t ProductID = 0xDEADBEEF;
 void InitrdInit();
 void FBInit();
 
-/* The header will always be 128 bytes */
-struct Message {
-	uint32_t SenderVendorID : 32;
-	uint32_t SenderProductID : 32;
-
-	size_t MessageSize : 64;
-}__attribute__((packed));
-
 void MessageHandler() {
-	Message *msg = 0x700000000000;
+	MKMI_Message *msg = 0x700000000000;
 	uint32_t *data = (uint32_t*)((uintptr_t)msg + 128);
 
 	MKMI_Printf("Message at        0x%x\r\n"
@@ -75,9 +68,10 @@ extern "C" size_t OnInit() {
 	NodeOperations *ramfsOps = new NodeOperations;
 	
 	ramfsOps->CreateNode = rootRamfs->CreateNodeWrapper;
+	ramfsOps->DeleteNode = rootRamfs->DeleteNodeWrapper;
 	ramfsOps->GetByInode = rootRamfs->GetByInodeWrapper;
 	ramfsOps->GetByName = rootRamfs->GetByNameWrapper;
-	ramfsOps->DeleteNode = rootRamfs->DeleteNodeWrapper;
+	ramfsOps->GetByIndex = rootRamfs->GetByIndexWrapper;
 
 	ramfsDesc = vfs->RegisterFilesystem(0, 0, rootRamfs, ramfsOps);
 
@@ -85,42 +79,42 @@ extern "C" size_t OnInit() {
 
 	FileOperationRequest request;
 	request.Request = NODE_CREATE;
-	request.Data.Directory = 0;
-	request.Data.Properties = NODE_PROPERTY_DIRECTORY;
-	Memcpy(request.Data.Name, "dev", 3);
+	request.Data.CreateNode.Directory = 0;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
+	Memcpy(request.Data.CreateNode.Name, "dev", 3);
 
 	VNode *devNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
 
 	request.Request = NODE_CREATE;
-	request.Data.Directory = devNode->Inode;
-	request.Data.Properties = NODE_PROPERTY_DIRECTORY;
-	Memcpy(request.Data.Name, "tty", 3);
+	request.Data.CreateNode.Directory = devNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
+	Memcpy(request.Data.CreateNode.Name, "tty", 3);
 
 	VNode *ttyNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
 
 	request.Request = NODE_CREATE;
-	request.Data.Directory = ttyNode->Inode;
-	request.Data.Properties = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.Name, "tty1", 4);
+	request.Data.CreateNode.Directory = ttyNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Memcpy(request.Data.CreateNode.Name, "tty1", 4);
 
 	VNode *ttyFile = vfs->DoFilesystemOperation(ramfsDesc, &request);
 
 	request.Request = NODE_CREATE;
-	request.Data.Directory = ttyNode->Inode;
-	request.Data.Properties = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.Name, "tty2", 4);
+	request.Data.CreateNode.Directory = ttyNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Memcpy(request.Data.CreateNode.Name, "tty2", 4);
 
 	vfs->DoFilesystemOperation(ramfsDesc, &request);
 
 	request.Request = NODE_CREATE;
-	request.Data.Directory = devNode->Inode;
-	request.Data.Properties = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.Name, "kmsg", 4);
+	request.Data.CreateNode.Directory = devNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Memcpy(request.Data.CreateNode.Name, "kmsg", 4);
 
 	vfs->DoFilesystemOperation(ramfsDesc, &request);
 
-	request.Request = NODE_GET;
-	request.Data.Inode = ttyFile->Inode;
+	request.Request = NODE_GETBYNODE;
+	request.Data.GetByNode.Node = ttyFile->Inode;
 
 	VNode *node = vfs->DoFilesystemOperation(ramfsDesc, &request);
 	MKMI_Printf("Got object: %s.\r\n", node->Name);

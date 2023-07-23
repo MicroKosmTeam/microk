@@ -24,7 +24,7 @@ extern "C" size_t OnSignal() {
 }
 
 extern "C" size_t OnInit() {
-	ACPIManager *acpi = new ACPIManager();
+	Init();
 
 	return 0;
 }

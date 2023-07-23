@@ -122,13 +122,23 @@ VNode *RamFS::CreateNode(const inode_t directory, const char name[MAX_NAME_SIZE]
 	return 0;
 }
 
+VNode *RamFS::DeleteNode(const inode_t inode) {
+	if (inode > MaxInodes) return 0;
+
+	InodeTableObject *node = &InodeTable[inode];
+
+	if(node->Available) return 0;
+
+	return 0;
+}
+
 VNode *RamFS::GetByInode(const inode_t inode) {
-	if (inode > MaxInodes) return NULL;
+	if (inode > MaxInodes) return 0;
 
 	InodeTableObject *node = &InodeTable[inode];
 
 	if(node->Available) {
-		return NULL;
+		return 0;
 	}
 
 	VNode *vnode = &node->NodeData;
@@ -174,15 +184,39 @@ VNode *RamFS::GetByName(const inode_t directory, const char name[MAX_NAME_SIZE])
 
 	return 0;
 }
+	
+VNode *RamFS::GetByIndex(const inode_t directory, const size_t index) {
+	if (directory > MaxInodes) return 0;
 
+	InodeTableObject *dir = &InodeTable[directory];
 
-VNode *RamFS::DeleteNode(const inode_t inode) {
-	if (inode > MaxInodes) return 0;
+	if(dir->Available) return 0;
+	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return 0;
 
-	InodeTableObject *node = &InodeTable[inode];
+	/* Handle mountpoints first */
+	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
+		return 0;
+	} 
 
-	if(node->Available) return 0;
+	/* Handle symlinks then */
+	if(dir->NodeData.Properties & NODE_PROPERTY_SYMLINK) {
+		return 0;
+	}
 
-	return 0;
+	if(dir->DirectoryTable == NULL) return 0;
+
+	DirectoryVNodeTable *table = dir->DirectoryTable;
+
+	size_t tableIndex = index % NODES_IN_VNODE_TABLE;
+	size_t tablesToCross = (index - tableIndex) / NODES_IN_VNODE_TABLE;
+
+	for (size_t i = 0; i < tablesToCross; ++i) {
+		if(table->NextTable == NULL) return 0;
+		table = table->NextTable;
+	}
+
+	if(table->Elements[tableIndex] == NULL || table->Elements[tableIndex] == -1) return 0;
+	if(table->Elements[tableIndex]->Available) return 0;
+
+	return &table->Elements[tableIndex]->NodeData;
 }
-

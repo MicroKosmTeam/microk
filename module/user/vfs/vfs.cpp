@@ -49,16 +49,19 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 
 	switch(request->Request) {
 		case NODE_CREATE:
-			IF_IS_OURS(node->FS->Operations->CreateNode(node->FS->Instance, request->Data.Directory, request->Data.Name, request->Data.Properties));
-			break;
-		case NODE_GET:
-			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.Inode));
+			IF_IS_OURS(node->FS->Operations->CreateNode(node->FS->Instance, request->Data.CreateNode.Directory, request->Data.CreateNode.Name, request->Data.CreateNode.Flags));
 			break;
 		case NODE_DELETE:
-			IF_IS_OURS(node->FS->Operations->DeleteNode(node->FS->Instance, request->Data.Inode));
+			IF_IS_OURS(node->FS->Operations->DeleteNode(node->FS->Instance, request->Data.DeleteNode.Node));
 			break;
-		case NODE_FINDINDIR:
-			IF_IS_OURS(node->FS->Operations->GetByName(node->FS->Instance, request->Data.Directory, request->Data.Name));
+		case NODE_GETBYNODE:
+			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.GetByInode.Node));
+			break;
+		case NODE_GETBYNAME:
+			IF_IS_OURS(node->FS->Operations->GetByName(node->FS->Instance, request->Data.GetByName.Directory, request->Data.GetByName.Name));
+			break;
+		case NODE_GETBYINDEX:
+			IF_IS_OURS(node->FS->Operations->GetByIndex(node->FS->Instance, request->Data.GetByIndex.Directory, request->Data.GetByIndex.Index));
 			break;
 		default:
 			return 0;

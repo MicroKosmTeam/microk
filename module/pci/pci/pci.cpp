@@ -29,7 +29,7 @@ const char* DeviceClasses[] {
 		"Non Essential Instrumentation"
 };
 
-const char* GetVendorName(uint16_t VendorID){
+const char *GetVendorName(uint16_t VendorID) {
 	switch (VendorID){
 		case 0x8086:
 			return "Intel Corp";
@@ -41,10 +41,10 @@ const char* GetVendorName(uint16_t VendorID){
 	return "Unknown";
 }
 
-const char* GetDeviceName(uint16_t VendorID, uint16_t DeviceID){
-	switch (VendorID){
+const char *GetDeviceName(uint16_t VendorID, uint16_t DeviceID){
+	switch (VendorID) {
 		case 0x8086: // Intel
-			switch(DeviceID){
+			switch(DeviceID) {
 				case 0x29C0:
 					return "Express DRAM Controller";
 				case 0x2918:
@@ -217,13 +217,13 @@ void EnumerateFunction(uint64_t deviceAddress, uint64_t function){
 	if (pciDeviceHeader->DeviceID == 0) return;
 	if (pciDeviceHeader->DeviceID == 0xFFFF) return;
 
-	MKMI_Printf(" +---- PCI Device:\r\n"
-		    " |     |- Vendor: %s (%x)\r\n"
-		    " |     |- Device: %s (%x)\r\n"
-		    " |     |- Class: %s\r\n"
-		    " |     |- Subclass: %s (%x)\r\n"
-		    " |     \\- Prog IF: %s (%x)\r\n"
-		    " |\r\n",
+	MKMI_Printf(" - PCI Device:\r\n"
+		    "   |- Vendor: %s (%x)\r\n"
+		    "   |- Device: %s (%x)\r\n"
+		    "   |- Class: %s\r\n"
+		    "   |- Subclass: %s (%x)\r\n"
+		    "   \\- Prog IF: %s (%x)\r\n"
+		    "\r\n",
 		    GetVendorName(pciDeviceHeader->VendorID),
 		    pciDeviceHeader->VendorID,
 		    GetDeviceName(pciDeviceHeader->VendorID, pciDeviceHeader->DeviceID),

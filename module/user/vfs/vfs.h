@@ -18,6 +18,8 @@ public:
 	VirtualFilesystem();
 	~VirtualFilesystem();
 
+	
+
 	filesystem_t RegisterFilesystem(uint32_t vendorID, uint32_t productID, void *instance, NodeOperations *ops);
 	uintmax_t DoFilesystemOperation(filesystem_t fs, FileOperationRequest *request);
 	void UnregisterFilesystem(filesystem_t fs);

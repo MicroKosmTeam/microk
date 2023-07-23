@@ -1,29 +1,12 @@
 include ../../Makefile.inc
 
 MODDIR = .
-MODNAME = user
+MODNAME = acpi
 
-CFLAGS = -ffreestanding \
-	 -fno-stack-protector \
-	 -fno-omit-frame-pointer \
-	 -fno-builtin-g       \
-	 -fno-stack-check     \
-	 -I ../../mkmi/src/include    \
-	 -I ../../microk-kernel/src/include    \
-	 -m64                 \
-	 -mabi=sysv           \
-	 -mno-red-zone        \
-	 -fpermissive         \
-	 -Wall                \
-	 -Wno-write-strings   \
-	 -O0                  \
-	 -fno-rtti            \
-	 -fno-exceptions      \
-	 -fno-lto             \
-	 -fno-pie             \
-	 -fno-pic             \
-	 -march=x86-64        \
-	 -ggdb
+CFLAGS = -ffreestanding -fno-stack-protector -fno-omit-frame-pointer -fno-builtin-g -fno-stack-check -I../../mkmi/src/include -Iacpi/lai/include -I../../microk-kernel/src/include -m64 -mabi=sysv -mno-80387 -mno-mmx -mno-sse -mno-sse2 -mno-red-zone -Wall -Wno-write-strings -Og -fno-exceptions -fno-lto -fno-pie -fno-pic -march=x86-64 -ggdb
+
+CXXFLAGS := $(CFLAGS)
+CXXFLAGS += -fpermissive -fno-rtti
 
 
 ASMFLAGS = -f elf64
@@ -36,15 +19,22 @@ LDFLAGS = -static \
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
+CSRC = $(call rwildcard,$(MODDIR),*.c)
 CPPSRC = $(call rwildcard,$(MODDIR),*.cpp)
 ASMSRC = $(call rwildcard,$(MODDIR),*.asm)
-OBJS = $(patsubst $(MODDIR)/%.cpp, $(MODDIR)/%.o, $(CPPSRC))
+OBJS = $(patsubst $(MODDIR)/%.c, $(MODDIR)/%.o, $(CSRC))
+OBJS += $(patsubst $(MODDIR)/%.cpp, $(MODDIR)/%.o, $(CPPSRC))
 OBJS += $(patsubst $(MODDIR)/%.asm, $(MODDIR)/%.o, $(ASMSRC))
+
+$(MODDIR)/%.o: $(MODDIR)/%.c
+	@ mkdir -p $(@D)
+	@ echo !==== COMPILING MODULE $^ && \
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(MODDIR)/%.o: $(MODDIR)/%.cpp
 	@ mkdir -p $(@D)
 	@ echo !==== COMPILING MODULE $^ && \
-	$(CPP) $(CFLAGS) -c $^ -o $@
+	$(CPP) $(CXXFLAGS) -c $^ -o $@
 
 
 $(MODDIR)/%.o: $(MODDIR)/%.asm

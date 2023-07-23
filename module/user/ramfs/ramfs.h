@@ -37,20 +37,27 @@ public:
 		return static_cast<RamFS*>(instance)->CreateNode(directory, name, flags);
 	}
 
+	VNode *DeleteNode(const inode_t inode);
+	static VNode *DeleteNodeWrapper(void *instance, const inode_t inode) {
+		return static_cast<RamFS*>(instance)->DeleteNode(inode);
+	}
+
 	VNode *GetByInode(const inode_t inode);
 	static VNode *GetByInodeWrapper(void *instance, const inode_t inode) {
 		return static_cast<RamFS*>(instance)->GetByInode(inode);
 	}
 
 	VNode *GetByName(const inode_t directory, const char name[MAX_NAME_SIZE]);
-	static VNode *GetByNameWrapper(void *instance, const inode_t inode, const char name[MAX_NAME_SIZE]) {
-		return static_cast<RamFS*>(instance)->GetByName(inode, name);
+	static VNode *GetByNameWrapper(void *instance, const inode_t directory, const char name[MAX_NAME_SIZE]) {
+		return static_cast<RamFS*>(instance)->GetByName(directory, name);
+	}
+	
+	VNode *GetByIndex(const inode_t directory, const size_t index);
+	static VNode *GetByIndexWrapper(void *instance, const inode_t directory, const size_t index) {
+		return static_cast<RamFS*>(instance)->GetByIndex(directory, index);
 	}
 
-	VNode *DeleteNode(const inode_t inode);
-	static VNode *DeleteNodeWrapper(void *instance, const inode_t inode) {
-		return static_cast<RamFS*>(instance)->DeleteNode(inode);
-	}
+
 private:
 	filesystem_t Descriptor;
 

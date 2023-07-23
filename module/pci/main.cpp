@@ -13,13 +13,6 @@
 extern "C" uint32_t VendorID = 0xCAFEBABE;
 extern "C" uint32_t ProductID = 0xB830C0DE;
 
-struct Message {
-	uint32_t SenderVendorID : 32;
-	uint32_t SenderProductID : 32;
-
-	size_t MessageSize : 64;
-}__attribute__((packed));
-
 extern "C" size_t OnInit() {
 	uint32_t pid = 0, vid = 0;
 	Syscall(SYSCALL_MODULE_SECTION_GET, "VFS", &vid, &pid, 0, 0 ,0);
@@ -32,7 +25,7 @@ extern "C" size_t OnInit() {
 	Syscall(SYSCALL_MODULE_BUFFER_MAP, bufAddr, bufID, 0, 0, 0, 0);
 	*(uint32_t*)bufAddr = 69;
 
-	Message *msg = Malloc(256);
+	uint8_t msg[256];
 	uint32_t *data = (uint32_t*)((uintptr_t)msg + 128);
 	*data = bufID;
 

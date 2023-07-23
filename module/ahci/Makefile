@@ -33,7 +33,7 @@ CFLAGS = -ffreestanding \
 ASMFLAGS = -f elf64
 
 LDFLAGS = -static \
-	  -Ttext 0x1000 \
+	  -Ttext 0x1000000 \
 	  -nostdlib               \
 	  -m elf_$(ARCH)          \
 	  -z max-page-size=0x1000

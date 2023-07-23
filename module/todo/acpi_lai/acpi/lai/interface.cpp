@@ -39,7 +39,7 @@ extern "C" void *laihost_malloc(size_t size) {
 		return NULL;
 	}
 
-	void *ptr = Malloc(size * 10);
+	void *ptr = Malloc(size);
 
 	if(ptr == NULL) MKMI_Printf("Warning: LAI called a NULL Malloc().\r\n");
 		
@@ -53,6 +53,11 @@ extern "C" void *laihost_realloc(void *ptr, size_t newSize, size_t oldSize) {
 		laihost_free(ptr, oldSize);
 		return NULL;
 	}
+
+	if (newSize < oldSize) {
+		return ptr;
+	}
+
 	void *newPtr = laihost_malloc(newSize);
 	
 	Memcpy(newPtr, ptr, newSize > oldSize ? oldSize : newSize);
@@ -63,6 +68,8 @@ extern "C" void *laihost_realloc(void *ptr, size_t newSize, size_t oldSize) {
 }
 
 extern "C" void laihost_free(void *ptr, size_t size) {
+	MKMI_Printf("Freeing\r\n");
+
 	if (ptr == NULL) return;
 
 	Free(ptr);
@@ -75,6 +82,8 @@ extern "C" void *laihost_map(size_t address, size_t count) {
 }
 
 extern "C" void *laihost_unamp(void *pointer, size_t count) {
+	MKMI_Printf("Unmapping\r\n");
+	
 	VMUnmap(pointer, count);
 
 	return NULL;
@@ -82,6 +91,7 @@ extern "C" void *laihost_unamp(void *pointer, size_t count) {
 
 #include "../acpi.h"
 extern "C" void *laihost_scan(const char *sig, size_t index) {
+	MKMI_Printf("Loading table: %s\r\n", sig);
 	char totalName[10];
 	Memcpy(totalName, "ACPI:", 5);
 	Memcpy(totalName + 5, sig, 4);
@@ -100,71 +110,71 @@ extern "C" void *laihost_scan(const char *sig, size_t index) {
 }
 
 extern "C" void laihost_outb(uint16_t port, uint8_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" void laihost_outw(uint16_t port, uint16_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" void laihost_outd(uint16_t port, uint32_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" uint8_t laihost_inb(uint16_t port) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" uint16_t laihost_inw(uint16_t port) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" uint32_t laihost_ind(uint16_t port) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" void laihost_pci_writeb(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset, uint8_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" void laihost_pci_writew(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset, uint16_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" void laihost_pci_writed(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset, uint32_t val) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
 
 extern "C" uint8_t laihost_pci_readb(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" uint16_t laihost_pci_readw(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 	
 	return 0;
 }
 
 extern "C" uint32_t laihost_pci_readd(uint16_t seg, uint8_t bus, uint8_t slot, uint8_t fun, uint16_t offset) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" int laihost_sync_wait(struct lai_sync_state *sync, unsigned int val, int64_t timeout) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 
 	return 0;
 }
 
 extern "C" void laihost_sync_wake(struct lai_sync_state *sync) {
-	MKMI_Printf("OK");
+	MKMI_Printf("OK\r\n");
 }
