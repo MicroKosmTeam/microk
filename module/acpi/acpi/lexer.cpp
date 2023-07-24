@@ -38,9 +38,18 @@ struct Token {
 		char *String;
 
 		struct {
-			size_t Length;
+			size_t PkgLength;
 			char Name[4];
 		} Scope;
+
+		struct {
+			size_t PkgLength;
+		} Buffer;
+
+		struct {
+			size_t PkgLength;
+			size_t NumElements;
+		} Package;
 	};
 
 	Token *Next;    // Pointer to the next token in the linked list
@@ -95,8 +104,15 @@ void AddToken(TokenList *tokenList, TokenType type, ...) {
 			}
 			break;
 		case SCOPE:
-			newToken->Scope.Length = va_arg(ap, size_t);
+			newToken->Scope.PkgLength = va_arg(ap, size_t);
 			Memcpy(newToken->Scope.Name, va_arg(ap, char*), 4);
+			break;
+		case BUFFER:
+			newToken->Buffer.PkgLength = va_arg(ap, size_t);
+			break;
+		case PACKAGE:
+			newToken->Package.PkgLength = va_arg(ap, size_t);
+			newToken->Package.NumElements = va_arg(ap, size_t);
 			break;
 		default:
 			break;
@@ -246,11 +262,78 @@ void HandleScopeOp(TokenList *list, uint8_t *data, size_t *idx) {
 }
 
 void HandleBufferOp(TokenList *list, uint8_t *data, size_t *idx) {
-	AddToken(list, BUFFER);
+	uint8_t leadByte = data[*idx];
+	size_t pkgLength = 0;
+	uint8_t byteCount = leadByte & 0b11000000;
+
+	switch(byteCount == 0) {
+		case 0:
+			pkgLength |= leadByte & 0b00111111;
+			*idx += 1;
+			break;
+		case 1:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			*idx += 2;
+			break;
+		case 2:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			pkgLength |= (data[*idx + 2] << 12);
+			*idx += 3;
+			break;
+		case 3:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			pkgLength |= (data[*idx + 2] << 12);
+			pkgLength |= (data[*idx + 3] << 20);
+			*idx += 4;
+			break;
+	}
+
+	/* TODO: There is still BufferSize to handle */
+
+	AddToken(list, BUFFER, pkgLength);
 }
 
 void HandlePackageOp(TokenList *list, uint8_t *data, size_t *idx) {
-	AddToken(list, PACKAGE);
+	uint8_t leadByte = data[*idx];
+	size_t pkgLength = 0;
+	uint8_t byteCount = leadByte & 0b11000000;
+
+	switch(byteCount == 0) {
+		case 0:
+			pkgLength |= leadByte & 0b00111111;
+			*idx += 1;
+			break;
+		case 1:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			*idx += 2;
+			break;
+		case 2:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			pkgLength |= (data[*idx + 2] << 12);
+			*idx += 3;
+			break;
+		case 3:
+			pkgLength |= leadByte & 0b00001111;
+			pkgLength |= (data[*idx + 1] << 4);
+			pkgLength |= (data[*idx + 2] << 12);
+			pkgLength |= (data[*idx + 3] << 20);
+			*idx += 4;
+			break;
+	}
+
+
+
+	size_t numElements = 0;
+	numElements |= data[*idx];
+	*idx += 1;
+
+	AddToken(list, PACKAGE, pkgLength, numElements);
+
 }
 
 AML_Hashmap *CreateHashmap() {
@@ -268,8 +351,8 @@ AML_Hashmap *CreateHashmap() {
 	hashmap->Entries[7] = (AML_HashmapEntry){AML_QWORDPREFIX, HandleQWordPrefix};
 	hashmap->Entries[8] = (AML_HashmapEntry){AML_STRINGPREFIX, HandleStringPrefix};
 	hashmap->Entries[9] = (AML_HashmapEntry){AML_SCOPE_OP, HandleScopeOp};
-	hashmap->Entries[10] = (AML_HashmapEntry){AML_BUFFER_OP, NULL};
-	hashmap->Entries[11] = (AML_HashmapEntry){AML_PACKAGE_OP, NULL};
+	hashmap->Entries[10] = (AML_HashmapEntry){AML_BUFFER_OP, HandleBufferOp};
+	hashmap->Entries[11] = (AML_HashmapEntry){AML_PACKAGE_OP, HandlePackageOp};
 	hashmap->Entries[12] = (AML_HashmapEntry){AML_VARPACKAGE_OP, NULL};
 	hashmap->Entries[13] = (AML_HashmapEntry){AML_METHOD_OP, NULL};
 	hashmap->Entries[14] = (AML_HashmapEntry){AML_EXTERNAL_OP, NULL};
@@ -449,17 +532,18 @@ void Parse(uint8_t *data, size_t size) {
 				MKMI_Printf("INTEGER, Value: %d\r\n", current->Int);
 				break;
 			case STRING:
-				MKMI_Printf("STRING, Value: %s\r\n", current->String);
+//				MKMI_Printf("STRING, Value: %s\r\n", current->String);
+				MKMI_Printf("STRING\r\n");
 				break;
 			case SCOPE:
 				Memcpy(name, current->Scope.Name, 4);
-				MKMI_Printf("SCOPE, Size: %d, Name: %s\r\n", current->Scope.Length, name);
+				MKMI_Printf("SCOPE, Size: %d, Name: %s\r\n", current->Scope.PkgLength, name);
 				break;
 			case BUFFER:
-				MKMI_Printf("BUFFER\r\n");
+				MKMI_Printf("BUFFER, PkgSize: %d\r\n", current->Buffer.PkgLength);
 				break;
 			case PACKAGE:
-				MKMI_Printf("PACKAGE\r\n");
+				MKMI_Printf("PACKAGE, PkgSize: %d, NumElements: %d\r\n", current->Package.PkgLength, current->Package.NumElements);
 				break;
 			default:
 				MKMI_Printf("UNKNOWN\r\n");
