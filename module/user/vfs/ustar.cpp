@@ -16,14 +16,14 @@ static int oct2bin(unsigned char *str, int size) {
         return n;
 }
 
-void FindFile(uint8_t *archivie, const char *name, uint8_t **file, size_t *size) {
+void FindFile(uint8_t *archive, const char *name, uint8_t **file, size_t *size) {
 	unsigned char *ptr = archive;
 
 	while (!Memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
 		TarHeader *header = (TarHeader*)ptr;
 		size_t fileSize = oct2bin(ptr + 0x7c, 11);
 
-		if(strcmp(header->Filename, name) == 0) {
+		if(Strcmp(header->Filename, name) == 0) {
 			*file = ptr + 512;
 			*size = fileSize;
 			return;
