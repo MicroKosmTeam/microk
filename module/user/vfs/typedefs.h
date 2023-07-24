@@ -11,6 +11,13 @@
 #define NODE_GETBYNODE           0x0003
 #define NODE_GETBYNAME           0x0004
 #define NODE_GETBYINDEX          0x0005
+#define NODE_GETROOT             0x0006
+#define NODE_OPEN 		 0x0007
+#define NODE_CLOSE  	         0x0008
+#define NODE_READ 		 0x0009
+#define NODE_WRITE 		 0x000A
+#define NODE_MOUNT               0x000B
+#define NODE_UNMOUNT             0x000C
 
 #define NODE_PROPERTY_FILE       0x0001
 #define NODE_PROPERTY_DIRECTORY  0x0002

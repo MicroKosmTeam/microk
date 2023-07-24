@@ -3,6 +3,7 @@
 #include "typedefs.h"
 
 #include <mkmi_memory.h>
+#include <mkmi_string.h>
 #include <mkmi_log.h>
 
 VirtualFilesystem::VirtualFilesystem() {
@@ -44,7 +45,7 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 	RegisteredFilesystemNode *previous; 
 	RegisteredFilesystemNode *node = FindNode(fs, &previous, &found);
 
-	if (node == NULL) return 0;
+	if (node == NULL || !found) return 0;
 	if (request == NULL) return 0;
 
 	switch(request->Request) {
@@ -55,7 +56,7 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 			IF_IS_OURS(node->FS->Operations->DeleteNode(node->FS->Instance, request->Data.DeleteNode.Node));
 			break;
 		case NODE_GETBYNODE:
-			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.GetByInode.Node));
+			IF_IS_OURS(node->FS->Operations->GetByInode(node->FS->Instance, request->Data.GetByNode.Node));
 			break;
 		case NODE_GETBYNAME:
 			IF_IS_OURS(node->FS->Operations->GetByName(node->FS->Instance, request->Data.GetByName.Directory, request->Data.GetByName.Name));
@@ -63,11 +64,52 @@ uintmax_t VirtualFilesystem::DoFilesystemOperation(filesystem_t fs, FileOperatio
 		case NODE_GETBYINDEX:
 			IF_IS_OURS(node->FS->Operations->GetByIndex(node->FS->Instance, request->Data.GetByIndex.Directory, request->Data.GetByIndex.Index));
 			break;
+		case NODE_GETROOT:
+			IF_IS_OURS(node->FS->Operations->GetRootNode(node->FS->Instance));
+			break;
 		default:
 			return 0;
 	}
 
 	return 0;
+}
+
+void VirtualFilesystem::SetRootFS(filesystem_t fs) {
+	FileOperationRequest request;
+	request.Request = NODE_GETROOT;
+	VNode *rootNode = DoFilesystemOperation(fs, &request);
+	
+	if(rootNode != NULL || rootNode != -1)
+		RootNode = rootNode;
+}
+
+VNode *VirtualFilesystem::ProgressPath(VNode *current, const char *nextName) {
+	FileOperationRequest request;
+
+	request.Request = NODE_GETBYNAME;
+	request.Data.GetByName.Directory = current->Inode;
+	Strcpy(request.Data.GetByName.Name, nextName);
+
+	VNode *result = DoFilesystemOperation(current->FSDescriptor, &request);
+
+	return result;
+}
+
+VNode *VirtualFilesystem::ResolvePath(const char *path) {
+	VNode *current = RootNode;
+
+	const char *id = Strtok(path, "/");
+	if(id == NULL) return current;
+
+	while(true) {
+		current = ProgressPath(current, id);
+		if(current == NULL || current == -1) return NULL;
+
+		id = Strtok(NULL, "/");
+		if(id == NULL) return current;
+	}
+
+	return NULL;
 }
 
 RegisteredFilesystemNode *VirtualFilesystem::AddNode(Filesystem *fs) {

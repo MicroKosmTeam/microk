@@ -8,6 +8,7 @@
 #include <mkmi_exit.h>
 #include <mkmi_memory.h>
 #include <mkmi_message.h>
+#include <mkmi_string.h>
 #include <mkmi_syscall.h>
 
 #include "vfs/fops.h"
@@ -20,6 +21,7 @@
 extern "C" uint32_t VendorID = 0xCAFEBABE;
 extern "C" uint32_t ProductID = 0xDEADBEEF;
 
+void VFSInit();
 void InitrdInit();
 void FBInit();
 
@@ -53,76 +55,9 @@ void MessageHandler() {
 extern "C" size_t OnInit() {
 	Syscall(SYSCALL_MODULE_MESSAGE_HANDLER, MessageHandler, 0, 0, 0, 0, 0);
 
+	VFSInit();
 	InitrdInit();
-	FBInit();
-
-	Syscall(SYSCALL_MODULE_SECTION_REGISTER, "VFS", VendorID, ProductID, 0, 0 ,0);
-
-	VirtualFilesystem *vfs;
-	RamFS *rootRamfs;
-	filesystem_t ramfsDesc;
-
-	vfs = new VirtualFilesystem();
-	rootRamfs = new RamFS(2048);
-
-	NodeOperations *ramfsOps = new NodeOperations;
-	
-	ramfsOps->CreateNode = rootRamfs->CreateNodeWrapper;
-	ramfsOps->DeleteNode = rootRamfs->DeleteNodeWrapper;
-	ramfsOps->GetByInode = rootRamfs->GetByInodeWrapper;
-	ramfsOps->GetByName = rootRamfs->GetByNameWrapper;
-	ramfsOps->GetByIndex = rootRamfs->GetByIndexWrapper;
-
-	ramfsDesc = vfs->RegisterFilesystem(0, 0, rootRamfs, ramfsOps);
-
-	rootRamfs->SetDescriptor(ramfsDesc);
-
-	FileOperationRequest request;
-	request.Request = NODE_CREATE;
-	request.Data.CreateNode.Directory = 0;
-	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
-	Memcpy(request.Data.CreateNode.Name, "dev", 3);
-
-	VNode *devNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
-
-	request.Request = NODE_CREATE;
-	request.Data.CreateNode.Directory = devNode->Inode;
-	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
-	Memcpy(request.Data.CreateNode.Name, "tty", 3);
-
-	VNode *ttyNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
-
-	request.Request = NODE_CREATE;
-	request.Data.CreateNode.Directory = ttyNode->Inode;
-	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.CreateNode.Name, "tty1", 4);
-
-	VNode *ttyFile = vfs->DoFilesystemOperation(ramfsDesc, &request);
-
-	request.Request = NODE_CREATE;
-	request.Data.CreateNode.Directory = ttyNode->Inode;
-	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.CreateNode.Name, "tty2", 4);
-
-	vfs->DoFilesystemOperation(ramfsDesc, &request);
-
-	request.Request = NODE_CREATE;
-	request.Data.CreateNode.Directory = devNode->Inode;
-	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
-	Memcpy(request.Data.CreateNode.Name, "kmsg", 4);
-
-	vfs->DoFilesystemOperation(ramfsDesc, &request);
-
-	request.Request = NODE_GETBYNODE;
-	request.Data.GetByNode.Node = ttyFile->Inode;
-
-	VNode *node = vfs->DoFilesystemOperation(ramfsDesc, &request);
-	MKMI_Printf("Got object: %s.\r\n", node->Name);
-
-	rootRamfs->ListDirectory(0);
-	rootRamfs->ListDirectory(devNode->Inode);
-	rootRamfs->ListDirectory(ttyNode->Inode);
-
+	FBInit();	
 
 	uintptr_t bufAddr = 0xF000000000;
 	size_t bufSize = 4096 * 2;
@@ -145,22 +80,98 @@ extern "C" size_t OnExit() {
 	return 0;
 }
 
+void VFSInit() {
+	Syscall(SYSCALL_MODULE_SECTION_REGISTER, "VFS", VendorID, ProductID, 0, 0 ,0);
+
+	VirtualFilesystem *vfs;
+	RamFS *rootRamfs;
+	filesystem_t ramfsDesc;
+
+	vfs = new VirtualFilesystem();
+	rootRamfs = new RamFS(2048);
+
+	NodeOperations *ramfsOps = new NodeOperations;
+	
+	ramfsOps->CreateNode = rootRamfs->CreateNodeWrapper;
+	ramfsOps->DeleteNode = rootRamfs->DeleteNodeWrapper;
+	ramfsOps->GetByInode = rootRamfs->GetByInodeWrapper;
+	ramfsOps->GetByName = rootRamfs->GetByNameWrapper;
+	ramfsOps->GetByIndex = rootRamfs->GetByIndexWrapper;
+	ramfsOps->GetRootNode = rootRamfs->GetRootNodeWrapper;
+
+	ramfsDesc = vfs->RegisterFilesystem(0, 0, rootRamfs, ramfsOps);
+
+	rootRamfs->SetDescriptor(ramfsDesc);
+
+	vfs->SetRootFS(ramfsDesc);
+
+	FileOperationRequest request;
+	request.Request = NODE_GETROOT;
+	VNode *rootNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	request.Request = NODE_CREATE;
+	request.Data.CreateNode.Directory = rootNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
+	Strcpy(request.Data.CreateNode.Name, "dev");
+
+	VNode *devNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	request.Request = NODE_CREATE;
+	request.Data.CreateNode.Directory = devNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_DIRECTORY;
+	Strcpy(request.Data.CreateNode.Name, "tty");
+
+	VNode *ttyNode = vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	request.Request = NODE_CREATE;
+	request.Data.CreateNode.Directory = ttyNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Strcpy(request.Data.CreateNode.Name, "tty1");
+
+	VNode *ttyFile = vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	request.Request = NODE_CREATE;
+	request.Data.CreateNode.Directory = ttyNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Strcpy(request.Data.CreateNode.Name, "tty2");
+
+	vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	request.Request = NODE_CREATE;
+	request.Data.CreateNode.Directory = devNode->Inode;
+	request.Data.CreateNode.Flags = NODE_PROPERTY_FILE;
+	Strcpy(request.Data.CreateNode.Name, "kmsg");
+
+	vfs->DoFilesystemOperation(ramfsDesc, &request);
+
+	const char *path = "/dev/kmsg";
+	MKMI_Printf("Resolving path: %s\r\n", path);
+	VNode *node = vfs->ResolvePath(path);
+	if (node == NULL) MKMI_Printf("%s not found.\r\n", path);
+	else MKMI_Printf("%s\'s inode: %d\r\n", path, node->Inode);
+
+	rootRamfs->ListDirectory(0);
+	rootRamfs->ListDirectory(devNode->Inode);
+	rootRamfs->ListDirectory(ttyNode->Inode);
+
+}
+
 void InitrdInit() {
 	MKMI_Printf("Requesting initrd.\r\n");
 
 	/* We load the initrd using the kernel file method */
-	uintptr_t baseAddress = 0;
-	uintptr_t address = 0x8000000000; /* Suitable memory location at address 512GB */
+	uintptr_t address;
 	size_t size;
-	Syscall(SYSCALL_FILE_OPEN, "FILE:/initrd.tar", &baseAddress, &size, 0, 0, 0);
+	Syscall(SYSCALL_FILE_OPEN, "FILE:/initrd.tar", &address, &size, 0, 0, 0);
 
 	/* Here we check whether it exists 
 	 * If it isn't there, just skip this step
 	 */
-	if (baseAddress != 0 && size != 0) {
+	if (address != 0 && size != 0) {
 		/* Make it accessible in memory */
-		VMMap(baseAddress, address, size, 0);
+		VMMap(address, address + HIGHER_HALF, size, 0);
 
+		address += HIGHER_HALF;
 		MKMI_Printf("Loading file initrd.tar from 0x%x with size %dkb.\r\n", address, size / 1024);
 
 		LoadArchive(address);

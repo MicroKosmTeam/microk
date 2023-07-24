@@ -85,6 +85,8 @@ VNode *RamFS::CreateNode(const inode_t directory, const char name[MAX_NAME_SIZE]
 	for (size_t i = 1; i < MaxInodes; ++i) {
 		if(InodeTable[i].Available) {
 			InodeTable[i].Available = false;
+			
+			InodeTable[i].NodeData.FSDescriptor = Descriptor;
 
 			Memcpy(InodeTable[i].NodeData.Name, name, MAX_NAME_SIZE);
 			InodeTable[i].NodeData.Inode = i;
@@ -151,19 +153,9 @@ VNode *RamFS::GetByName(const inode_t directory, const char name[MAX_NAME_SIZE])
 	if (directory > MaxInodes) return 0;
 
 	InodeTableObject *dir = &InodeTable[directory];
-
+	
 	if(dir->Available) return 0;
-	if(!(dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY)) return 0;
-
-	/* Handle mountpoints first */
-	if(dir->NodeData.Properties & NODE_PROPERTY_MOUNTPOINT) {
-		return 0;
-	} 
-
-	/* Handle symlinks then */
-	if(dir->NodeData.Properties & NODE_PROPERTY_SYMLINK) {
-		return 0;
-	}
+	if((dir->NodeData.Properties & NODE_PROPERTY_DIRECTORY) == 0) return 0;
 
 	if(dir->DirectoryTable == NULL) return 0;
 
@@ -173,12 +165,14 @@ VNode *RamFS::GetByName(const inode_t directory, const char name[MAX_NAME_SIZE])
 		for (size_t i = 0; i < NODES_IN_VNODE_TABLE; ++i) {
 			if(table->Elements[i] == NULL || table->Elements[i] == -1) continue;
 
-			if(strcmp(table->Elements[i]->NodeData.Name, name) == 0) {
+			if(Strcmp(name, table->Elements[i]->NodeData.Name) == 0) {
 				return &table->Elements[i]->NodeData;
 			}
 		}
 
-		if(table->NextTable == NULL) return 0;
+		if(table->NextTable == NULL) {
+			return 0;
+		}
 		table = table->NextTable;
 	}
 
@@ -219,4 +213,9 @@ VNode *RamFS::GetByIndex(const inode_t directory, const size_t index) {
 	if(table->Elements[tableIndex]->Available) return 0;
 
 	return &table->Elements[tableIndex]->NodeData;
+}
+	
+VNode *RamFS::GetRootNode() {
+	VNode *node = &InodeTable[0].NodeData;
+	return node;
 }

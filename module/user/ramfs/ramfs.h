@@ -57,6 +57,11 @@ public:
 		return static_cast<RamFS*>(instance)->GetByIndex(directory, index);
 	}
 
+	VNode *GetRootNode();
+	static VNode *GetRootNodeWrapper(void *instance) {
+		return static_cast<RamFS*>(instance)->GetRootNode();
+	}
+
 
 private:
 	filesystem_t Descriptor;
