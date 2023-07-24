@@ -24,6 +24,8 @@ extern "C" size_t OnSignal() {
 }
 
 extern "C" size_t OnInit() {
+	Syscall(SYSCALL_MODULE_SECTION_REGISTER, "ACPI", VendorID, ProductID, 0, 0 ,0);
+
 	ACPIManager *acpi = new ACPIManager();
 
 	return 0;
