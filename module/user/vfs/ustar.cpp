@@ -16,7 +16,7 @@ static int oct2bin(unsigned char *str, int size) {
         return n;
 }
 
-void FindFile(uint8_t *archive, const char *name, uint8_t **file, size_t *size) {
+void FindInArchive(uint8_t *archive, const char *name, uint8_t **file, size_t *size) {
 	unsigned char *ptr = archive;
 
 	while (!Memcmp(ptr + 257, "ustar", 5)) { // Until we have a valid header
@@ -51,9 +51,7 @@ void LoadArchive(uint8_t *archive) {
 			    " -> Type: %d \r\n",
 			    header->Filename,
 			    fileSize,
-			    type);
-	
-		if (type == 0) Syscall(SYSCALL_PROC_EXEC, ptr + 512, fileSize, 0, 0, 0, 0);
+			    type);	
 
 		ptr += (((fileSize + 511) / 512) + 1) * 512;
 	}

@@ -21,5 +21,5 @@ struct TarHeader {
 	char FilenamePefix[155];
 }__attribute__((packed));
 
-void FindFile(uint8_t *archive, const char *name, uint8_t **file, size_t *size);
+void FindInArchive(uint8_t *archive, const char *name, uint8_t **file, size_t *size);
 void LoadArchive(uint8_t *archive);

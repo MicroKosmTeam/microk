@@ -174,7 +174,12 @@ void InitrdInit() {
 		address += HIGHER_HALF;
 		MKMI_Printf("Loading file initrd.tar from 0x%x with size %dkb.\r\n", address, size / 1024);
 
-		LoadArchive(address);
+		uint8_t *file;
+		size_t size;
+		FindInArchive(address, "init/acpi.elf", &file, &size);
+		if(file == NULL || size == 0) _exit(128);
+
+		Syscall(SYSCALL_PROC_EXEC, file, size, 0, 0, 0, 0);
 	} else {
 		MKMI_Printf("No initrd found");
 	}
