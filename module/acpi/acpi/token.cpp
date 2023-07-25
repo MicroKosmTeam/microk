@@ -11,6 +11,7 @@ TokenList *CreateTokenList() {
 	return list;
 }
 
+#include <mkmi_log.h>
 // Function to create a new token and add it to the token list
 void AddToken(TokenList *tokenList, TokenType type, ...) {
 	va_list ap;
@@ -40,8 +41,11 @@ void AddToken(TokenList *tokenList, TokenType type, ...) {
 			newToken->Name.NameSegments = name->NameSegments;
 			}
 			break;
-		case INTEGER:
-			newToken->Int = va_arg(ap, uint64_t);
+		case INTEGER: {
+			IntegerType *integer = va_arg(ap, IntegerType*);
+			newToken->Int.Data = integer->Data;
+			newToken->Int.Size = integer->Size;
+			}
 			break;
 		case STRING: {
 			const char *str = va_arg(ap, char*);
@@ -62,12 +66,32 @@ void AddToken(TokenList *tokenList, TokenType type, ...) {
 		case BUFFER:
 			newToken->Buffer.PkgLength = va_arg(ap, uint32_t);
 			break;
-		case PACKAGE:
-			newToken->Package.PkgLength = va_arg(ap, uint32_t);
-			newToken->Package.NumElements = va_arg(ap, uint32_t);
+		case PACKAGE: {
+			uint32_t pkgLength = va_arg(ap, uint32_t);
+			uint32_t numElements = va_arg(ap, uint32_t);
+			newToken->Package.PkgLength = pkgLength;
+			newToken->Package.NumElements = numElements & 0xFF;
+			}
+			break;
+		case REGION: {
+			NameType *name = va_arg(ap, NameType*);
+			uint32_t space = va_arg(ap, uint32_t);
+			IntegerType *offset = va_arg(ap, IntegerType*);
+			IntegerType *len = va_arg(ap, IntegerType*);
+			newToken->Region.Name.SegmentNumber = name->SegmentNumber;
+			newToken->Region.Name.NameSegments = name->NameSegments;
+			newToken->Region.Name.IsRoot = name->IsRoot;
+			newToken->Region.RegionSpace = space & 0xFF;
+			newToken->Region.RegionOffset.Data = offset->Data;
+			newToken->Region.RegionOffset.Size = offset->Size;
+			newToken->Region.RegionLen.Data = len->Data;
+			newToken->Region.RegionLen.Size = len->Size;
+			}
+			break;
+		case FIELD:
 			break;
 		case UNKNOWN:
-			newToken->UnknownOpcode = va_arg(ap, uint32_t);
+			newToken->UnknownOpcode = va_arg(ap, uint32_t) & 0xFF;
 			break;
 		default:
 			break;

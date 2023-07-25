@@ -15,6 +15,8 @@ enum TokenType {
 	SCOPE,
 	BUFFER,
 	PACKAGE,
+	REGION,
+	FIELD,
 };
 
 struct TokenList;
@@ -33,7 +35,7 @@ struct Token {
 		
 		NameType Name;
 
-		uint64_t Int;
+		IntegerType Int;
 		
 		char *String;
 
@@ -44,12 +46,20 @@ struct Token {
 
 		struct {
 			uint32_t PkgLength;
+			IntegerType BufferSize;
 		} Buffer;
 
 		struct {
 			uint32_t PkgLength;
-			uint32_t NumElements;
+			uint8_t NumElements;
 		} Package;
+
+		struct {
+			NameType Name;
+			uint8_t RegionSpace;
+			IntegerType RegionOffset;
+			IntegerType RegionLen;
+		} Region;
 	};
 
 	TokenList *Children;

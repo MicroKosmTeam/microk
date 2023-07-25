@@ -1,4 +1,5 @@
 #pragma once
+#include "aml_executive.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -116,7 +117,9 @@ private:
 	SDTHeader *MainSDT;
 
 	FADTTable *FADT;
+
 	SDTHeader *DSDT;
+	AMLExecutive *DSDTExecutive;
 
 	size_t MainSDTType;
 };

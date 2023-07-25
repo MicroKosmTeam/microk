@@ -47,11 +47,80 @@ void HandleNameTypeSegments(NameType *name, uint8_t *data, size_t *idx) {
 void HandleNameType(NameType *name, uint8_t *data, size_t *idx) {
 	if(data[*idx] == AML_ROOT_CHAR) {
 		name->IsRoot = true;
+		*idx += 1;
 	} else if (data[*idx] == AML_PARENT_CHAR) {
+		name->IsRoot = false;
+		*idx += 1;
+	} else {
 		name->IsRoot = false;
 	}
 
-	*idx += 1;
-	
 	HandleNameTypeSegments(name, data, idx);
+}
+
+void HandleIntegerType(IntegerType *integer, uint8_t *data, size_t *idx) {
+	size_t moveAmount = 0;
+
+	integer->Data = 0;
+
+	switch(data[*idx - 1]) {
+		case AML_QWORDPREFIX:
+			moveAmount += 4;
+			integer->Data |= (data[*idx + 4] << 32);
+			integer->Data |= (data[*idx + 5] << 40);
+			integer->Data |= (data[*idx + 6] << 48);
+			integer->Data |= (data[*idx + 7] << 52);
+		case AML_DWORDPREFIX:
+			moveAmount += 2;
+			integer->Data |= (data[*idx + 2] << 16);
+			integer->Data |= (data[*idx + 3] << 24);
+		case AML_WORDPREFIX:
+			moveAmount += 1;
+			integer->Data |= (data[*idx + 1] << 8);
+		case AML_BYTEPREFIX:
+			moveAmount += 1;
+			integer->Data |= data[*idx];
+
+			*idx += moveAmount;
+			break;
+		default:
+			moveAmount = 1;
+			integer->Data |= data[*idx - 1];
+			break;
+	}
+
+	integer->Size = moveAmount;
+}
+
+void HandlePkgLengthType(uint8_t *pkgLength, uint8_t *data, size_t *idx) {
+	uint8_t leadByte = data[*idx];
+	*pkgLength = 0;
+	uint8_t byteCount = leadByte & 0b11000000;
+	
+	byteCount >>= 6;
+
+	switch(byteCount) {
+		case 0:
+			*pkgLength |= leadByte & 0b00111111;
+			*idx += 1;
+			break;
+		case 1:
+			*pkgLength |= leadByte & 0b00001111;
+			*pkgLength |= (data[*idx + 1] << 4);
+			*idx += 2;
+			break;
+		case 2:
+			*pkgLength |= leadByte & 0b00001111;
+			*pkgLength |= (data[*idx + 1] << 4);
+			*pkgLength |= (data[*idx + 2] << 12);
+			*idx += 3;
+			break;
+		case 3:
+			*pkgLength |= leadByte & 0b00001111;
+			*pkgLength |= (data[*idx + 1] << 4);
+			*pkgLength |= (data[*idx + 2] << 12);
+			*pkgLength |= (data[*idx + 3] << 20);
+			*idx += 4;
+			break;
+	}
 }

@@ -15,10 +15,10 @@ AML_Hashmap *CreateHashmap() {
 	hashmap->Entries[1] = (AML_HashmapEntry){AML_ONE_OP, HandleOneOp};
 	hashmap->Entries[2] = (AML_HashmapEntry){AML_ALIAS_OP, HandleAliasOp};
 	hashmap->Entries[3] = (AML_HashmapEntry){AML_NAME_OP, HandleNameOp};
-	hashmap->Entries[4] = (AML_HashmapEntry){AML_BYTEPREFIX, HandleBytePrefix};
-	hashmap->Entries[5] = (AML_HashmapEntry){AML_WORDPREFIX, HandleWordPrefix};
-	hashmap->Entries[6] = (AML_HashmapEntry){AML_DWORDPREFIX, HandleDWordPrefix};
-	hashmap->Entries[7] = (AML_HashmapEntry){AML_QWORDPREFIX, HandleQWordPrefix};
+	hashmap->Entries[4] = (AML_HashmapEntry){AML_BYTEPREFIX, HandleIntegerOp};
+	hashmap->Entries[5] = (AML_HashmapEntry){AML_WORDPREFIX, HandleIntegerOp};
+	hashmap->Entries[6] = (AML_HashmapEntry){AML_DWORDPREFIX, HandleIntegerOp};
+	hashmap->Entries[7] = (AML_HashmapEntry){AML_QWORDPREFIX, HandleIntegerOp};
 	hashmap->Entries[8] = (AML_HashmapEntry){AML_STRINGPREFIX, HandleStringPrefix};
 	hashmap->Entries[9] = (AML_HashmapEntry){AML_SCOPE_OP, HandleScopeOp};
 	hashmap->Entries[10] = (AML_HashmapEntry){AML_BUFFER_OP, HandleBufferOp};
@@ -28,7 +28,7 @@ AML_Hashmap *CreateHashmap() {
 	hashmap->Entries[14] = (AML_HashmapEntry){AML_EXTERNAL_OP, NULL};
 	hashmap->Entries[15] = (AML_HashmapEntry){AML_DUAL_PREFIX, NULL};
 	hashmap->Entries[16] = (AML_HashmapEntry){AML_MULTI_PREFIX, NULL};
-	hashmap->Entries[17] = (AML_HashmapEntry){AML_EXTOP_PREFIX, NULL};
+	hashmap->Entries[17] = (AML_HashmapEntry){AML_EXTOP_PREFIX, HandleExtendedOp};
 	hashmap->Entries[18] = (AML_HashmapEntry){AML_ROOT_CHAR, NULL};
 	hashmap->Entries[19] = (AML_HashmapEntry){AML_PARENT_CHAR, NULL};
 	hashmap->Entries[20] = (AML_HashmapEntry){AML_LOCAL0_OP, NULL};

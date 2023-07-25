@@ -1,12 +1,11 @@
 #include "acpi.h"
+#include "aml_executive.h"
 #include <mkmi_memory.h>
 #include <mkmi_syscall.h>
 #include <mkmi_string.h>
 #include <mkmi_log.h>
 #include <mkmi_exit.h>
 #include <cdefs.h>
-
-extern void Parse(uint8_t *data, size_t size);
 
 ACPIManager::ACPIManager() {
 	RSDP = new RSDP2;
@@ -87,10 +86,10 @@ ACPIManager::ACPIManager() {
 	if (FADT == NULL)
 		Panic("No FADT found");
 
-	Parse((uint8_t*)DSDT + sizeof(SDTHeader), DSDT->Length - sizeof(SDTHeader));
+	DSDTExecutive = new AMLExecutive();
+	DSDTExecutive->Parse((uint8_t*)DSDT + sizeof(SDTHeader), DSDT->Length - sizeof(SDTHeader));
 
 	MKMI_Printf("ACPI initialized.\r\n");
-//	Syscall(SYSCALL_MEMORY_INOUT, 0x3f8, true, '\n', NULL, 8, 0);
 }
 
 void ACPIManager::PrintTable(SDTHeader *sdt) {
