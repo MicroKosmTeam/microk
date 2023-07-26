@@ -91,7 +91,9 @@ int AMLExecutive::Parse(uint8_t *data, size_t size) {
 				}
 				break;
 			case PACKAGE:
-				MKMI_Printf("PACKAGE\r\n");
+				MKMI_Printf("PACKAGE:\r\n"
+					    " - PkgLength: %d\r\n"
+					    " - Num elements: %d\r\n", current->Package.PkgLength, current->Package.NumElements);
 				break;
 			case REGION:
 				MKMI_Printf("REGION:\r\n"
