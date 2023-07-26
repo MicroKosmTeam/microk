@@ -20,4 +20,5 @@ void HandleExtendedOp(AML_Hashmap *hashmap, TokenList *list, uint8_t *data, size
 
 
 void HandleExtOpRegion(AML_Hashmap *hashmap, TokenList *list, uint8_t *data, size_t *idx);
-
+void HandleExtOpField(AML_Hashmap *hashmap, TokenList *list, uint8_t *data, size_t *idx);
+void HandleExtOpDevice(AML_Hashmap *hashmap, TokenList *list, uint8_t *data, size_t *idx);

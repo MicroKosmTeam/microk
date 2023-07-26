@@ -17,6 +17,7 @@ enum TokenType {
 	PACKAGE,
 	REGION,
 	FIELD,
+	DEVICE,
 };
 
 struct TokenList;
@@ -47,6 +48,7 @@ struct Token {
 		struct {
 			uint32_t PkgLength;
 			IntegerType BufferSize;
+			uint8_t *ByteList;
 		} Buffer;
 
 		struct {
@@ -60,6 +62,17 @@ struct Token {
 			IntegerType RegionOffset;
 			IntegerType RegionLen;
 		} Region;
+
+		struct {
+			uint32_t PkgLength;
+			NameType Name;
+			uint8_t FieldFlags;
+		} Field;
+
+		struct {
+			uint32_t PkgLength;
+			NameType Name;
+		} Device;
 	};
 
 	TokenList *Children;

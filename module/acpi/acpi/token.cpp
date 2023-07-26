@@ -56,15 +56,20 @@ void AddToken(TokenList *tokenList, TokenType type, ...) {
 			break;
 		case SCOPE: {
 			NameType *name = va_arg(ap, NameType*);
-			newToken->Name.IsRoot = name->IsRoot;
-			newToken->Name.SegmentNumber = name->SegmentNumber;
-			newToken->Name.NameSegments = name->NameSegments;
+			newToken->Scope.Name.IsRoot = name->IsRoot;
+			newToken->Scope.Name.SegmentNumber = name->SegmentNumber;
+			newToken->Scope.Name.NameSegments = name->NameSegments;
 			
 			newToken->Scope.PkgLength = va_arg(ap, uint32_t);
 			}
 			break;
-		case BUFFER:
+		case BUFFER: {
 			newToken->Buffer.PkgLength = va_arg(ap, uint32_t);
+			IntegerType *bufferSize = va_arg(ap, IntegerType*);
+			newToken->Buffer.BufferSize.Data = bufferSize->Data;
+			newToken->Buffer.BufferSize.Size = bufferSize->Size;
+			newToken->Buffer.ByteList = va_arg(ap, uint8_t*);
+			}
 			break;
 		case PACKAGE: {
 			uint32_t pkgLength = va_arg(ap, uint32_t);
@@ -88,7 +93,25 @@ void AddToken(TokenList *tokenList, TokenType type, ...) {
 			newToken->Region.RegionLen.Size = len->Size;
 			}
 			break;
-		case FIELD:
+		case FIELD: {
+			uint32_t pkgLength = va_arg(ap, uint32_t);
+			NameType *name = va_arg(ap, NameType*);
+			uint32_t fieldFlags = va_arg(ap, uint32_t);
+			newToken->Field.PkgLength = pkgLength;
+			newToken->Field.Name.SegmentNumber = name->SegmentNumber;
+			newToken->Field.Name.NameSegments = name->NameSegments;
+			newToken->Field.Name.IsRoot = name->IsRoot;
+			newToken->Field.FieldFlags = fieldFlags & 0xFF;
+			}
+			break;
+		case DEVICE: {
+			uint32_t pkgLength = va_arg(ap, uint32_t);
+			NameType *name = va_arg(ap, NameType*);
+			newToken->Device.PkgLength = pkgLength;
+			newToken->Device.Name.SegmentNumber = name->SegmentNumber;
+			newToken->Device.Name.NameSegments = name->NameSegments;
+			newToken->Device.Name.IsRoot = name->IsRoot;
+			}
 			break;
 		case UNKNOWN:
 			newToken->UnknownOpcode = va_arg(ap, uint32_t) & 0xFF;

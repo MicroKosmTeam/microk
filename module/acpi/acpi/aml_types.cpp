@@ -2,6 +2,7 @@
 #include "aml_opcodes.h"
 
 #include <mkmi_memory.h>
+#include <mkmi_log.h>
 
 void HandleNameTypeSegments(NameType *name, uint8_t *data, size_t *idx) {
 	if (data[*idx] == AML_DUAL_PREFIX) {
@@ -24,8 +25,8 @@ void HandleNameTypeSegments(NameType *name, uint8_t *data, size_t *idx) {
 
 		name->NameSegments = Malloc(name->SegmentNumber * 4);
 
-		for (size_t i = 0; i < name->NameSegments; ++i) {
-			Memcpy(name->NameSegments + (i * 4), &data[*idx], 4);
+		for (size_t i = 0; i < name->SegmentNumber ; ++i) {
+			Memcpy(&name->NameSegments[i * 4], &data[*idx], 4);
 			*idx += 4;
 		}
 	} else if (data[*idx] == 0x00) {
