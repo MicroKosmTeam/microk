@@ -16,11 +16,8 @@ menuconfig:
 	@ cp config/autoconf.h $(KERNDIR)/src/include/autoconf.h
 
 initrd:
-	@ mkdir -p tmp_initrd/init
-	@ cp module/*.elf tmp_initrd/init
-	@ rm -f tmp_initrd/init/user.elf
-	@ cd tmp_initrd && tar -cvf ../initrd.tar * && cd ..
-	@ rm -rf tmp_initrd
+	@ cp module/*.elf base/modules
+	@ cd base && tar -cvf ../initrd.tar * && cd ..
 
 buildimg: initrd
 	parted -s microk.img mklabel gpt
