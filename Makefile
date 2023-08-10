@@ -80,3 +80,17 @@ run-x64-efi:
 		-s \
 		-S
 
+run-x64-efi-debug:
+	qemu-system-x86_64 \
+		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
+		-M hpet=on \
+		-m 1G \
+		-smp sockets=1,cores=4,threads=1 \
+		-drive file="microk.img" \
+		-machine type=q35 \
+		-device qemu-xhci \
+		-s \
+		-S \
+		-no-shutdown \
+		-no-reboot \
+		-d int
