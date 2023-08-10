@@ -11,3 +11,15 @@
 [submodule "compiler"]
 	path = compiler
 	url = git@github.com:MicroK-OS/cross-compiler.git
+[submodule "module/microk-acpi-module"]
+	path = module/microk-acpi-module
+	url = git@github.com:MicroK-OS/microk-acpi-module.git
+[submodule "module/microk-framebuffer-module"]
+	path = module/microk-framebuffer-module
+	url = git@github.com:MicroK-OS/microk-framebuffer-module.git
+[submodule "module/microk-user-module"]
+	path = module/microk-user-module
+	url = git@github.com:MicroK-OS/microk-user-module.git
+[submodule "module/microk-pci-module"]
+	path = module/microk-pci-module
+	url = git@github.com:MicroK-OS/microk-pci-module.git
