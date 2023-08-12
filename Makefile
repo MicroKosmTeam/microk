@@ -77,6 +77,7 @@ run-x64-efi:
 		-drive file="microk.img" \
 		-machine type=q35 \
 		-device qemu-xhci \
+		-net nic,model=virtio \
 		-s \
 		-S
 
