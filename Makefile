@@ -41,15 +41,20 @@ buildimg: initrd
 
 run-arm:
 	qemu-system-aarch64 \
-		-machine virt \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
+		-M hpet=on \
 		-m 1G \
-		-cpu cortex-a57 \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
-		-drive file="microk.img" \
+		-machine virt \
+		-cpu cortex-a57 \
 		-device qemu-xhci \
+		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-vga virtio \
+		-d guest_errors \
 		-s \
 		-S
 
@@ -60,11 +65,16 @@ run-x64-bios:
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
-		-drive file="microk.img" \
-		-s \
 		-machine type=q35 \
-		-S \
-		-device qemu-xhci
+		-device qemu-xhci \
+		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-vga virtio \
+		-d guest_errors \
+		-s \
+		-S
+
 
 run-x64-efi:
 	qemu-system-x86_64 \
@@ -74,24 +84,12 @@ run-x64-efi:
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
-		-drive file="microk.img" \
 		-machine type=q35 \
 		-device qemu-xhci \
 		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-vga virtio \
+		-d guest_errors \
 		-s \
 		-S
-
-run-x64-efi-debug:
-	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
-		-M hpet=on \
-		-m 1G \
-		-smp sockets=1,cores=4,threads=1 \
-		-drive file="microk.img" \
-		-machine type=q35 \
-		-device qemu-xhci \
-		-s \
-		-S \
-		-no-shutdown \
-		-no-reboot \
-		-d int
