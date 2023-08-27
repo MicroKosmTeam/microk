@@ -95,6 +95,7 @@ run-x64-efi:
 		-device ich9-intel-hda \
 		-device hda-micro \
 		-device sb16 \
+		-device usb-mouse \
 		-vga virtio \
 		-d guest_errors \
 		-s \
