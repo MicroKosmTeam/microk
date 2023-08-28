@@ -1,5 +1,6 @@
 ARCH = x86_64
-COMPILER_PATH=$(PWD)/compiler/target/$(ARCH)-elf/bin
+
+COMPILER_PATH = $(PWD)/compiler/target/$(ARCH)-elf/bin
 
 CC = $(COMPILER_PATH)/$(ARCH)-elf-gcc
 CPP = $(COMPILER_PATH)/$(ARCH)-elf-g++
@@ -8,7 +9,6 @@ AR = $(COMPILER_PATH)/$(ARCH)-elf-ar
 AS = $(COMPILER_PATH)/$(ARCH)-elf-as
 
 ASM = nasm
-#ASM = $(AS)
 
 KERNDIR = microk-kernel
 MKMIDIR = mkmi

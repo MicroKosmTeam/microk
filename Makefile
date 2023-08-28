@@ -42,7 +42,6 @@ buildimg: initrd
 run-arm:
 	qemu-system-aarch64 \
 		-bios /usr/share/OVMF/aarch64/QEMU_CODE.fd  \
-		-M hpet=on \
 		-m 1G \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
@@ -53,7 +52,6 @@ run-arm:
 		-net nic,model=virtio \
 		-device virtio-blk-pci,drive=drive0 \
 		-drive id=drive0,if=none,file="microk.img" \
-		-vga virtio \
 		-d guest_errors \
 		-s \
 		-S
