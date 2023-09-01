@@ -95,6 +95,7 @@ run-x64-efi:
 		-device sb16 \
 		-device usb-mouse \
 		-vga virtio \
+		-d cpu_reset \
 		-d guest_errors \
 		-s \
 		-S
