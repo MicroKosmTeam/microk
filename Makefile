@@ -79,6 +79,7 @@ run-x64-efi:
 		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
 		-M hpet=on \
 		-m 1G \
+		-accel tcg \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
