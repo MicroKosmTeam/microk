@@ -18,7 +18,7 @@ For example, in a simple low-powered hard real time system with only one functio
 On the opposite end of the spectrum, it can be adapted to a magestic configuration allowing kernel instances on different machines in subnodes to be all under the supervision of a master instance. This allows supercomputer nodes to communicate with eachother as if they were simple processes, instead of relying on INK/Linux.  
 
 
-For more information about the operating system, please counsult the [Introduction to MicroK](doc/INTRODUCTION_TO_MICROK.md) document in this repository's documentation. Then, you can read the documentation found in the kernel and MKMI repositories.  
+For more information about the operating system, please counsult the [Introduction to MicroKosm](https://microk-os.github.io/microkosm/update/2023/09/01/introduction-to-microkosm.html) post on our website. Then, you can read the documentation found in the kernel and MKMI repositories.  
 
 ## Contribute
 Contributions are gladly accepted. If you think you have a good idea and some good code, please feel free to create a pull request.
