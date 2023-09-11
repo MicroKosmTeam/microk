@@ -14,7 +14,7 @@ It archieves a great deal great speed and a high degree of security, all while m
 The kernel is written in C++, and is guaranteed to remain as small as possible without compromising usability and guaranteing the longest API and ABI stability possible. Module creators are free to use whichever language they prefer, providing that it can link to C functions.  
 
 The configuration and depends greatly on the usecase.  
-For example, in a simple low-powered hard real time system with only one function, it can be build as megalithic kernel comprising only a simple bump allocator with no virtual memory or processes support for minimum resource usage. This is in a manner similar to RTOS, with the difference that future expansion is not precluded.  
+For example, in a simple low-powered hard real time system with only one function, it can be build for minimal resource usage. This is in a manner similar to RTOS, with the difference that future expansion is not precluded and that programs will be mostly compatible with the whole MicroKosm ecosystem.  
 On the opposite end of the spectrum, it can be adapted to a magestic configuration allowing kernel instances on different machines in subnodes to be all under the supervision of a master instance. This allows supercomputer nodes to communicate with eachother as if they were simple processes, instead of relying on INK/Linux.  
 
 
