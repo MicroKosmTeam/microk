@@ -29,6 +29,7 @@ buildimg: initrd
 	sudo mount /dev/loop0p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v $(KERNDIR)/microk.elf \
+		   limine/limine-bios.sys \
 		   module/*.elf \
 		   limine.cfg \
 		   initrd.tar \
@@ -37,6 +38,7 @@ buildimg: initrd
 	sync
 	sudo umount img_mount
 	sudo losetup -d /dev/loop0
+	./limine/limine bios-install microk.img
 	rm -rf img_mount
 
 run-arm:
@@ -60,6 +62,7 @@ run-x64-bios:
 	qemu-system-x86_64 \
 		-M hpet=on \
 		-m 1G \
+		-accel tcg \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
@@ -68,11 +71,18 @@ run-x64-bios:
 		-net nic,model=virtio \
 		-device virtio-blk-pci,drive=drive0 \
 		-drive id=drive0,if=none,file="microk.img" \
+		-drive file="test.img" \
+		-device nvme,id=nvme0,drive=drive2,serial=none \
+		-drive file="test-nvme.img",if=none,id=drive2 \
+		-device ich9-intel-hda \
+		-device hda-micro \
+		-device sb16 \
+		-device usb-mouse \
 		-vga virtio \
+		-d cpu_reset \
 		-d guest_errors \
 		-s \
 		-S
-
 
 run-x64-efi:
 	qemu-system-x86_64 \
