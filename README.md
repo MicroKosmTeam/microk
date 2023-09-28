@@ -20,6 +20,10 @@ On the opposite end of the spectrum, it can be adapted to a magestic configurati
 
 For more information about the operating system, please counsult the [Introduction to MicroKosm](https://microk-os.github.io/microkosm/update/2023/09/01/introduction-to-microkosm.html) post on our website. Then, you can read the documentation found in the kernel and MKMI repositories.  
 
+## Getting started
+Please counsult the [INTRODUCTION_TO_MICROKOSM.md](doc/INTRODUCTION_TO_MICROK.md) file in this repo.
+
+
 ## Contribute
 Contributions are gladly accepted. If you think you have a good idea and some good code, please feel free to create a pull request.
 If you want to become part of the project, just contact [@FilippoMutta](https://github.com/FilippoMutta).  
