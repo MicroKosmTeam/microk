@@ -19,14 +19,16 @@ initrd:
 	@ cp module/*.elf base/modules
 	@ cd base && tar -cvf ../initrd.tar * && cd ..
 
+LOOPDEV=$(shell losetup -f)
+
 buildimg: initrd
 	parted -s microk.img mklabel gpt
 	parted -s microk.img mkpart ESP fat32 2048s 100%
 	parted -s microk.img set 1 esp on
 	sudo losetup -Pf --show microk.img
-	sudo mkfs.fat -F 32 /dev/loop0p1
+	sudo mkfs.fat -F 32 $(LOOPDEV)p1
 	mkdir -p img_mount
-	sudo mount /dev/loop0p1 img_mount
+	sudo mount $(LOOPDEV)p1 img_mount
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v $(KERNDIR)/microk.elf \
 		   limine/limine-bios.sys \
@@ -37,7 +39,7 @@ buildimg: initrd
 	sudo cp -v limine/*.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
-	sudo losetup -d /dev/loop0
+	sudo losetup -d $(LOOPDEV)
 	./limine/limine bios-install microk.img
 	rm -rf img_mount
 
