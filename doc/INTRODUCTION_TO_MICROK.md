@@ -3,7 +3,8 @@
 ## Compilation
 
 ### Phase 1: Dowloading repositories
-Get the main repository with `git clone` and then get all the subrepos by entering the root repository and doing `git submodule update --init`.
+Get the main repository with `git clone` and then get all the subrepos by entering the root repository and doing `git submodule update --init`.  
+Unless you wish to work on the bleeding-edge (which is neither recommended nor supported), you might make sure all the subrepos are on a `stable` branch.  
 
 ### Phase 2: Getting a cross-compiler
 **Requirements:** wget, make, and a c compiler (preferably gcc), nasm.  
@@ -33,7 +34,8 @@ After all of that, you can run `make buildimg` to create the image.
 
 ### Phase 5: Running in QEMU
 **Requirements:** qemu-system, OVMF (optional, needed for some targets)  
-***Warning:*** OVFM is expected to be found (as it should be), in `/usr/share/OVMF`. If isn't present there, please make a symlink in that place that points to OVMF firware.  
+***Warning:*** OVFM is expected to be found (as it should be), in `/usr/share/OVMF`, with subdirectories for each architecture. If isn't present there, please make a symlink in that place that points to OVMF firware.  
+***__Notice__:***  Soon MicroKosm will be shipping its own distribution for better ease-of-use. This section will be rewritten.  
 Run one of the various commands like `make run-x64-efi` and you'll get a QEMU window. Uncheck the `Pause` button in the `Machine` menu.  
 Keep in mind debugging of kernel components is allowed by typing `target remote localhost:1234` within GDB.  
 
