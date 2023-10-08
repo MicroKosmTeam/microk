@@ -73,9 +73,6 @@ run-x64-bios:
 		-net nic,model=virtio \
 		-device virtio-blk-pci,drive=drive0 \
 		-drive id=drive0,if=none,file="microk.img" \
-		-drive file="test.img" \
-		-device nvme,id=nvme0,drive=drive2,serial=none \
-		-drive file="test-nvme.img",if=none,id=drive2 \
 		-device ich9-intel-hda \
 		-device hda-micro \
 		-device sb16 \
@@ -100,9 +97,6 @@ run-x64-efi:
 		-net nic,model=virtio \
 		-device virtio-blk-pci,drive=drive0 \
 		-drive id=drive0,if=none,file="microk.img" \
-		-drive file="test.img" \
-		-device nvme,id=nvme0,drive=drive2,serial=none \
-		-drive file="test-nvme.img",if=none,id=drive2 \
 		-device ich9-intel-hda \
 		-device hda-micro \
 		-device sb16 \
