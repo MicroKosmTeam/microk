@@ -26,7 +26,7 @@ Components must be compiled in this order (always being the in root repo):
 
 ### Phase 4: Creating a bootable kernel image with Limine
 **Requirements:** tar, parted, losetup, mkfs.fat  
-***Warning:*** this will use root privileges. Also, this will mount the image by default on /dev/loop0. If you use this loop device, change the used loop device in `Makefile`. If, by any means, the image creation were to fail, delete the `./img_mount` directory if present and do `losetup -D`, fix the issue and try again.  
+***Warning:*** this will use root privileges. If, by any means, the image creation were to fail, delete the `./img_mount` directory if present, fix the issue and try again.  
 Get in the `./limine` subrepo and run normal `make`. This will generate files necessary for the limine bootloader.  
 Then, create a disk image in the root repo of name `microk.img`, for example with `dd if=/dev/zero of=microk.img bs=512 count=93000 status=proress`  
 After all of that, you can run `make buildimg` to create the image.  
