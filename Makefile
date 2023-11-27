@@ -64,7 +64,7 @@ run-x64-bios:
 	qemu-system-x86_64 \
 		-M hpet=on \
 		-m 1G \
-		-accel tcg \
+		-accel kvm \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
 		-smp sockets=1,cores=4,threads=1 \
@@ -85,12 +85,73 @@ run-x64-bios:
 
 run-x64-efi:
 	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/x64/OVMF_CODE.fd \
+		-bios /usr/share/OVMF/OVMF_CODE.fd \
+		-M hpet=on \
+		-m 1G \
+		-accel kvm \
+		-chardev stdio,id=char0,logfile=serial.log,signal=off \
+		-serial chardev:char0 \
+		-debugcon file:debug.log \
+		-cpu host \
+		-smp sockets=2,cores=2,threads=2 \
+		-object memory-backend-ram,size=256M,id=m0 \
+		-object memory-backend-ram,size=256M,id=m1 \
+		-object memory-backend-ram,size=256M,id=m2 \
+		-object memory-backend-ram,size=256M,id=m3 \
+		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
+		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
+		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
+		-numa node,memdev=m3,cpus=6-7,nodeid=3 \
+		-machine type=q35 \
+		-device qemu-xhci \
+		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-device ich9-intel-hda \
+		-device hda-micro \
+		-device sb16 \
+		-device usb-mouse \
+		-vga virtio
+
+
+run-x64-cli:
+	qemu-system-x86_64 \
+		-bios /usr/share/OVMF/OVMF_CODE.fd \
+		-M hpet=on \
+		-m 1G \
+		-accel kvm \
+		-debugcon file:debug.log \
+		-cpu host \
+		-smp sockets=2,cores=2,threads=2 \
+		-object memory-backend-ram,size=256M,id=m0 \
+		-object memory-backend-ram,size=256M,id=m1 \
+		-object memory-backend-ram,size=256M,id=m2 \
+		-object memory-backend-ram,size=256M,id=m3 \
+		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
+		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
+		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
+		-numa node,memdev=m3,cpus=6-7,nodeid=3 \
+		-machine type=q35 \
+		-device qemu-xhci \
+		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-device ich9-intel-hda \
+		-device hda-micro \
+		-device sb16 \
+		-device usb-mouse \
+		-nographic
+
+
+run-x64-efi-debug:
+	qemu-system-x86_64 \
+		-bios /usr/share/OVMF/OVMF_CODE.fd \
 		-M hpet=on \
 		-m 1G \
 		-accel tcg \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
+		-debugcon file:debug.log \
 		-smp sockets=1,cores=4,threads=1 \
 		-machine type=q35 \
 		-device qemu-xhci \

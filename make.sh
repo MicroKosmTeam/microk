@@ -19,6 +19,4 @@ make -C microk-kernel kernel
 
 make buildimg
 
-make run-x64-efi
-
 set +e
