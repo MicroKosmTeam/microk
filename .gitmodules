@@ -23,3 +23,9 @@
 [submodule "module/microk-pci-module"]
 	path = module/microk-pci-module
 	url = git@github.com:MicroK-OS/microk-pci-module.git
+[submodule "module/microk-module-template"]
+	path = module/microk-module-template
+	url = git@github.com:MicroK-OS/microk-module-template.git
+[submodule "module/microk-program-manager"]
+	path = module/microk-program-manager
+	url = git@github.com:FilippoMutta/microk-program-manager.git

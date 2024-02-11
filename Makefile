@@ -16,7 +16,7 @@ menuconfig:
 	@ cp config/autoconf.h $(KERNDIR)/src/include/autoconf.h
 
 initrd:
-	@ cp module/*.elf base/modules
+	@ cp module/*.kmd base/modules
 	@ cd base && tar -cvf ../initrd.tar * && cd ..
 
 LOOPDEV=$(shell losetup -f)
@@ -32,10 +32,11 @@ buildimg: initrd
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v $(KERNDIR)/microk.elf \
 		   limine/limine-bios.sys \
-		   module/*.elf \
 		   limine.cfg \
+		   module/*.kmd \
 		   initrd.tar \
 		   img_mount/
+	sudo cp module/manager.kmd img_mount/manager.kmd
 	sudo cp -v limine/*.EFI img_mount/EFI/BOOT/
 	sync
 	sudo umount img_mount
@@ -63,11 +64,21 @@ run-arm:
 run-x64-bios:
 	qemu-system-x86_64 \
 		-M hpet=on \
-		-m 1G \
+		-m 16G \
 		-accel kvm \
 		-chardev stdio,id=char0,logfile=serial.log,signal=off \
 		-serial chardev:char0 \
-		-smp sockets=1,cores=4,threads=1 \
+		-debugcon file:debug.log \
+		-cpu host \
+		-smp sockets=2,cores=2,threads=2 \
+		-object memory-backend-ram,size=4G,id=m0 \
+		-object memory-backend-ram,size=4G,id=m1 \
+		-object memory-backend-ram,size=4G,id=m2 \
+		-object memory-backend-ram,size=4G,id=m3 \
+		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
+		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
+		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
+		-numa node,memdev=m3,cpus=6-7,nodeid=3 \
 		-machine type=q35 \
 		-device qemu-xhci \
 		-net nic,model=virtio \
@@ -77,15 +88,11 @@ run-x64-bios:
 		-device hda-micro \
 		-device sb16 \
 		-device usb-mouse \
-		-vga virtio \
-		-d cpu_reset \
-		-d guest_errors \
-		-s \
-		-S
+		-vga virtio
 
 run-x64-efi:
 	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/OVMF_CODE.fd \
+		-bios /usr/share/OVMF/OVMF_CODE_4M.fd \
 		-M hpet=on \
 		-m 1G \
 		-accel kvm \
@@ -113,20 +120,49 @@ run-x64-efi:
 		-device usb-mouse \
 		-vga virtio
 
+run-x64-debug-bios:
+	qemu-system-x86_64 \
+		-M hpet=on \
+		-m 16G \
+		-accel tcg \
+		-chardev stdio,id=char0,logfile=serial.log,signal=off \
+		-serial chardev:char0 \
+		-debugcon file:debug.log \
+		-smp sockets=2,cores=2,threads=2 \
+		-object memory-backend-ram,size=4G,id=m0 \
+		-object memory-backend-ram,size=4G,id=m1 \
+		-object memory-backend-ram,size=4G,id=m2 \
+		-object memory-backend-ram,size=4G,id=m3 \
+		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
+		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
+		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
+		-numa node,memdev=m3,cpus=6-7,nodeid=3 \
+		-machine type=q35 \
+		-device qemu-xhci \
+		-net nic,model=virtio \
+		-device virtio-blk-pci,drive=drive0 \
+		-drive id=drive0,if=none,file="microk.img" \
+		-device ich9-intel-hda \
+		-device hda-micro \
+		-device sb16 \
+		-device usb-mouse \
+		-vga virtio \
+		-S \
+		-s
 
 run-x64-cli:
 	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/OVMF_CODE.fd \
+		-bios /usr/share/OVMF/OVMF_CODE_4M.fd \
 		-M hpet=on \
-		-m 1G \
+		-m 8G \
 		-accel kvm \
 		-debugcon file:debug.log \
 		-cpu host \
 		-smp sockets=2,cores=2,threads=2 \
-		-object memory-backend-ram,size=256M,id=m0 \
-		-object memory-backend-ram,size=256M,id=m1 \
-		-object memory-backend-ram,size=256M,id=m2 \
-		-object memory-backend-ram,size=256M,id=m3 \
+		-object memory-backend-ram,size=2G,id=m0 \
+		-object memory-backend-ram,size=2G,id=m1 \
+		-object memory-backend-ram,size=2G,id=m2 \
+		-object memory-backend-ram,size=2G,id=m3 \
 		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
 		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
 		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
@@ -145,7 +181,7 @@ run-x64-cli:
 
 run-x64-efi-debug:
 	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/OVMF_CODE.fd \
+		-bios /usr/share/OVMF/OVMF_CODE_4M.fd \
 		-M hpet=on \
 		-m 1G \
 		-accel tcg \
