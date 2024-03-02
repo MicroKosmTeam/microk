@@ -1,4 +1,5 @@
 ARCH = x86_64
+#ARCH = aarch64
 
 COMPILER_PATH = $(PWD)/compiler/target/$(ARCH)-elf/bin
 
