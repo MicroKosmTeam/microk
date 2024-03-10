@@ -68,7 +68,6 @@ run-aarch64:
 		-device ich9-intel-hda \
 		-device hda-micro \
 		-device usb-mouse \
-		-vga none \
 		-S \
 		-s
 
@@ -99,7 +98,6 @@ run-x64-bios:
 		-device hda-micro \
 		-device sb16 \
 		-device usb-mouse \
-		-vga virtio
 
 run-x64-efi:
 	qemu-system-x86_64 \
@@ -129,7 +127,6 @@ run-x64-efi:
 		-device hda-micro \
 		-device sb16 \
 		-device usb-mouse \
-		-vga virtio
 
 run-x64-debug-bios:
 	qemu-system-x86_64 \
@@ -157,38 +154,8 @@ run-x64-debug-bios:
 		-device hda-micro \
 		-device sb16 \
 		-device usb-mouse \
-		-vga virtio \
 		-S \
 		-s
-
-run-x64-cli:
-	qemu-system-x86_64 \
-		-bios /usr/share/OVMF/OVMF_CODE_4M.fd \
-		-M hpet=on \
-		-m 8G \
-		-accel kvm \
-		-debugcon file:debug.log \
-		-cpu host \
-		-smp sockets=2,cores=2,threads=2 \
-		-object memory-backend-ram,size=2G,id=m0 \
-		-object memory-backend-ram,size=2G,id=m1 \
-		-object memory-backend-ram,size=2G,id=m2 \
-		-object memory-backend-ram,size=2G,id=m3 \
-		-numa node,memdev=m0,cpus=0-1,nodeid=0 \
-		-numa node,memdev=m1,cpus=2-3,nodeid=1 \
-		-numa node,memdev=m2,cpus=4-5,nodeid=2 \
-		-numa node,memdev=m3,cpus=6-7,nodeid=3 \
-		-machine type=q35 \
-		-device qemu-xhci \
-		-net nic,model=virtio \
-		-device virtio-blk-pci,drive=drive0 \
-		-drive id=drive0,if=none,file="microk.img" \
-		-device ich9-intel-hda \
-		-device hda-micro \
-		-device sb16 \
-		-device usb-mouse \
-		-nographic
-
 
 run-x64-efi-debug:
 	qemu-system-x86_64 \
@@ -209,7 +176,6 @@ run-x64-efi-debug:
 		-device hda-micro \
 		-device sb16 \
 		-device usb-mouse \
-		-vga virtio \
 		-d cpu_reset \
 		-d guest_errors \
 		-s \
