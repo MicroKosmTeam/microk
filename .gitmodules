@@ -1,31 +1,31 @@
 [submodule "microk-kernel"]
 	path = microk-kernel
-	url = git@github.com:MicroK-OS/microk-kernel.git
+	url = git@github.com:MicroKosmTeam/microk-kernel.git
 [submodule "mkmi"]
 	path = mkmi
-	url = git@github.com:MicroK-OS/microk-mkmi.git
+	url = git@github.com:MicroKosmTeam/microk-mkmi.git
 [submodule "limine"]
 	path = limine
 	url = https://github.com/limine-bootloader/limine
 	branch = v5.x-branch-binary
 [submodule "compiler"]
 	path = compiler
-	url = git@github.com:MicroK-OS/cross-compiler.git
+	url = git@github.com:MicroKosmTeam/cross-compiler.git
 [submodule "module/microk-acpi-module"]
 	path = module/microk-acpi-module
-	url = git@github.com:MicroK-OS/microk-acpi-module.git
+	url = git@github.com:MicroKosmTeam/microk-acpi-module.git
 [submodule "module/microk-framebuffer-module"]
 	path = module/microk-framebuffer-module
-	url = git@github.com:MicroK-OS/microk-framebuffer-module.git
+	url = git@github.com:MicroKosmTeam/microk-framebuffer-module.git
 [submodule "module/microk-user-module"]
 	path = module/microk-user-module
-	url = git@github.com:MicroK-OS/microk-user-module.git
+	url = git@github.com:MicroKosmTeam/microk-user-module.git
 [submodule "module/microk-pci-module"]
 	path = module/microk-pci-module
-	url = git@github.com:MicroK-OS/microk-pci-module.git
+	url = git@github.com:MicroKosmTeam/microk-pci-module.git
 [submodule "module/microk-module-template"]
 	path = module/microk-module-template
-	url = git@github.com:MicroK-OS/microk-module-template.git
+	url = git@github.com:MicroKosmTeam/microk-module-template.git
 [submodule "module/microk-program-manager"]
 	path = module/microk-program-manager
 	url = git@github.com:FilippoMutta/microk-program-manager.git
