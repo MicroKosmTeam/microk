@@ -26,5 +26,5 @@ Please counsult the [INTRODUCTION_TO_MICROKOSM.md](doc/INTRODUCTION_TO_MICROK.md
 
 ## Contribute
 Contributions are gladly accepted. If you think you have a good idea and some good code, please feel free to create a pull request.
-If you want to become part of the project, just contact [@FilippoMutta](https://github.com/FilippoMutta).  
+If you want to become part of the project, just contact [@TheMutta](https://github.com/TheMutta).  
 Any help is dearly appreciated.  
