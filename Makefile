@@ -46,7 +46,6 @@ buildimg: initrd
 
 GENERIC_OUTPUT_OPTS := -chardev stdio,id=char0,logfile=serial.log,signal=off \
 		       -serial chardev:char0 \
-		       -debugcon file:debug.log \
 		       -monitor telnet::45454,server,nowait \
 		       -display none
 
@@ -69,8 +68,24 @@ GENERIC_DEV_OPTS := -device qemu-xhci \
 		    -device hda-micro \
 		    -device usb-mouse
 
+X86_OUTPUT_OPTS := $(GENERIC_OUTPUT_OPTS) \
+		  -debugcon file:debug.log
+
 
 run-aarch64:
+	qemu-system-aarch64 \
+		-bios EDK2Firmware/aarch64/QEMU_EFI.fd \
+		-m 16G \
+		$(GENERIC_OUTPUT_OPTS) \
+		-cpu cortex-a57 \
+		$(GENERIC_CPU_OPTS) \
+		-machine virt \
+		$(GENERIC_DEV_OPTS) \
+		&
+	sleep 1
+	telnet localhost 45454
+
+run-aarch64-debug:
 	qemu-system-aarch64 \
 		-bios EDK2Firmware/aarch64/QEMU_EFI.fd \
 		-m 16G \
@@ -90,7 +105,7 @@ run-x64-bios:
 		-M hpet=on \
 		-m 16G \
 		-accel kvm \
-		$(GENERIC_OUTPUT_OPTS) \
+		$(X86_OUTPUT_OPTS) \
 		-cpu host \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
@@ -105,7 +120,7 @@ run-x64-efi:
 		-M hpet=on \
 		-m 16G \
 		-accel kvm \
-		$(GENERIC_OUTPUT_OPTS) \
+		$(X86_OUTPUT_OPTS) \
 		-cpu host \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
@@ -120,8 +135,7 @@ run-x64-debug-bios:
 		-M hpet=on \
 		-m 16G \
 		-accel tcg \
-		$(GENERIC_OUTPUT_OPTS) \
-		-cpu host \
+		$(X86_OUTPUT_OPTS) \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
 		$(GENERIC_DEV_OPTS) \
@@ -138,7 +152,7 @@ run-x64-efi-debug:
 		-M hpet=on \
 		-m 16G \
 		-accel tcg \
-		$(GENERIC_OUTPUT_OPTS) \
+		$(X86_OUTPUT_OPTS) \
 		-cpu host \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
