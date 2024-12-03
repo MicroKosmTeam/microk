@@ -32,7 +32,7 @@ buildimg: initrd
 	sudo mkdir -p img_mount/EFI/BOOT
 	sudo cp -v $(KERNDIR)/microk.elf \
 		   limine/limine-bios.sys \
-		   limine.cfg \
+		   limine.conf \
 		   module/*.kmd \
 		   initrd.tar \
 		   img_mount/
