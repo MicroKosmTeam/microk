@@ -46,8 +46,8 @@ buildimg: initrd
 
 GENERIC_OUTPUT_OPTS := -chardev stdio,id=char0,logfile=serial.log,signal=off \
 		       -serial chardev:char0 \
-		       -monitor telnet::45454,server,nowait \
-		       -display none
+		       -vga qxl \
+		       -display gtk
 
 
 GENERIC_CPU_OPTS := -smp sockets=2,cores=2,threads=2 \
@@ -60,7 +60,10 @@ GENERIC_CPU_OPTS := -smp sockets=2,cores=2,threads=2 \
 		    -numa node,memdev=m2,cpus=4-5,nodeid=2 \
 		    -numa node,memdev=m3,cpus=6-7,nodeid=3
 
+
 GENERIC_DEV_OPTS := -device qemu-xhci \
+		    -device usb-kbd \
+		    -device virtio-gpu \
 		    -net nic,model=virtio \
 		    -device virtio-blk-pci,drive=drive0 \
 		    -drive id=drive0,if=none,file="microk.img" \
@@ -124,7 +127,20 @@ run-x64-efi:
 		-cpu host \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
+		$(GENERIC_DEV_OPTS)
+
+run-x64-efi-monitor:
+	qemu-system-x86_64 \
+		-bios ./EDK2Firmware/ovmf-x64/OVMF_CODE-pure-efi.fd \
+		-M hpet=on \
+		-m 16G \
+		-accel kvm \
+		$(X86_OUTPUT_OPTS) \
+		-cpu host \
+		$(GENERIC_CPU_OPTS) \
+		-machine type=q35 \
 		$(GENERIC_DEV_OPTS) \
+		-monitor telnet::45454,server,nowait \
 		&
 	sleep 1
 	telnet localhost 45454
@@ -146,14 +162,13 @@ run-x64-debug-bios:
 	telnet localhost 45454
 
 
-run-x64-efi-debug:
+run-x64-debug-efi:
 	qemu-system-x86_64 \
 		-bios ./EDK2Firmware/ovmf-x64/OVMF_CODE-pure-efi.fd \
 		-M hpet=on \
 		-m 16G \
 		-accel tcg \
 		$(X86_OUTPUT_OPTS) \
-		-cpu host \
 		$(GENERIC_CPU_OPTS) \
 		-machine type=q35 \
 		$(GENERIC_DEV_OPTS) \
